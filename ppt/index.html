@@ -106,6 +106,9 @@ main { min-height: calc(100% - 60px); }
 .opt-key { width: 34px; height: 34px; border-radius: 50%; background: var(--ink); color: var(--canvas); display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 18px; flex: none; }
 .opt.sel .opt-key { background: var(--mint); color: var(--ink); border: 1.5px solid var(--ink); }
 .opt .concept { color: #333; }
+.opt .intent { font-size: 13px; background: var(--mint-wash); border-radius: 10px; padding: 7px 10px; color: #1d3b2f; }
+.opt .intent b { margin-right: 4px; }
+#f-intent { min-height: 132px; }
 .toc { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .toc td { border-top: 1px solid var(--hairline); padding: 6px 4px; vertical-align: top; }
 .toc td.r { white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
@@ -226,6 +229,39 @@ main { min-height: calc(100% - 60px); }
 .pc-d { flex: none; font-family: var(--display); font-weight: 700; font-size: 13px; background: var(--ink); color: #fff; border-radius: 10px; padding: 3px 8px; }
 .pc-empty { color: var(--muted); font-size: 13px; }
 @media (max-width: 560px) { .pc-cell { min-height: 64px; padding: 4px 3px; } .pc-ev { font-size: 10px; padding: 2px 3px; } .pc-title { font-size: 17px; min-width: 70px; } }
+
+[hidden] { display: none !important; }
+.steps a { white-space: nowrap; }
+.rf-box { max-width: 860px; width: 100%; max-height: calc(100vh - 32px); grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto; overflow: hidden; }
+.rf-sub { color: var(--muted); font-size: 13px; margin-top: -6px; }
+.rf-q { display: flex; gap: 8px; flex-wrap: wrap; }
+.rf-q input { flex: 1 1 260px; border: 1.5px solid var(--ink); border-radius: 28px; padding: 9px 16px; font: inherit; min-width: 0; }
+.rf-f { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 13px; }
+.rf-f select { border: 1px solid var(--hairline); border-radius: 10px; padding: 5px 8px; font: inherit; margin-left: 4px; }
+.rf-status { font-size: 13px; color: #333; min-height: 20px; }
+.rf-status a { color: inherit; font-weight: 600; }
+.rf-list { overflow-y: auto; min-height: 0; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
+.rf-list:empty { border: 0; }
+.rf-item { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; padding: 12px 4px; border-top: 1px solid var(--hairline); }
+.rf-item:first-child { border-top: 0; }
+.rf-item input { width: 18px; height: 18px; margin-top: 2px; accent-color: #000; }
+.rf-item.rec { background: var(--mint-wash); border-radius: 12px; padding: 12px 10px; }
+.rf-item.done { opacity: 0.6; }
+.rf-rec { font-size: 12px; font-weight: 700; color: #0a6b48; margin-bottom: 4px; }
+.rf-sl { color: var(--ink); font-weight: 600; }
+.rf-t { font-weight: 700; line-height: 1.35; font-size: 14px; }
+.rf-t a { color: var(--ink); text-decoration: none; }
+.rf-t a:hover { text-decoration: underline; }
+.rf-m { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.rf-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.rf-tags .chip { font-size: 11px; padding: 2px 8px; }
+.rf-item details { margin-top: 6px; font-size: 12.5px; }
+.rf-item details summary { cursor: pointer; color: var(--muted); font-weight: 600; }
+.rf-item details p { margin-top: 6px; line-height: 1.55; color: #333; }
+.rf-foot { gap: 10px; flex-wrap: wrap; }
+.rf-foot .toggle { font-size: 13px; }
+#rfSel:empty { display: none; }
+@media (max-width: 560px) { .rf-box { padding: 16px; border-radius: 18px; } }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
@@ -272,9 +308,7 @@ main { min-height: calc(100% - 60px); }
           <div class="field"><label for="f-minutes">발표 시간 (분)</label><input id="f-minutes" data-k="minutes" type="number" min="5" max="120"></div>
           <div class="field"><label for="f-count">슬라이드 수</label><input id="f-count" data-k="count" type="number" min="5" max="60"></div>
           <div class="field"><label for="f-language">언어</label><select id="f-language" data-k="language"><option>English slides</option><option>한국어 슬라이드</option><option>English slides, Korean notes</option></select></div>
-          <div class="field"><label for="f-focus">꼭 넣을 메시지·제품</label><input id="f-focus" data-k="focus" placeholder="예: BELOTERO Volume"></div>
-          <div class="field"><label for="f-speaker">연자</label><input id="f-speaker" data-k="speaker"></div>
-          <div class="field"><label for="f-affiliation">소속</label><input id="f-affiliation" data-k="affiliation"></div>
+          <div class="field full"><label for="f-intent">기획의도 <span class="hint">스토리라인 3안과 슬라이드에 그대로 반영돼요</span></label><textarea id="f-intent" data-k="intent" rows="6" placeholder="이 발표로 무엇을 전하고 싶은지, 청중이 무엇을 가져가면 좋을지, 꼭 강조할 제품·메시지나 넣고 싶은 케이스를 편하게 적어 주세요.&#10;예: 이마·관자를 따로 보지 않고 상안면 하나의 프레임으로 보는 관점을 전하고 싶다. 해부학 근거로 안전한 층을 먼저 설명하고, 케이스로 결과를 보여 준 뒤 BELOTERO 제품 선택 이유로 마무리. 청중이 다음 날 바로 따라 할 수 있는 주입 순서를 남기는 게 목표."></textarea></div>
         </form>
         <div class="row" style="margin-top:18px"><span class="spacer"></span><button class="btn mint" id="goStory" type="button">스토리라인 3안 보기 →</button></div>
       </div>
@@ -291,7 +325,7 @@ main { min-height: calc(100% - 60px); }
     </div></div>
     <div class="wrap">
       <div id="optsBox"></div>
-      <div class="card" id="storyRefCard"><div class="row" style="margin-bottom:12px"><h2>근거 논문</h2><span class="chip" id="storyRefCount"></span><span class="spacer"></span><button class="btn sm" type="button" id="storyCopy">링크 목록 복사</button></div>
+      <div class="card" id="storyRefCard"><div class="row" style="margin-bottom:12px"><h2>근거 논문</h2><span class="chip" id="storyRefCount"></span><span class="spacer"></span><button class="btn sm primary" type="button" id="storyFind" hidden>🔍 참고문헌 찾기</button><button class="btn sm" type="button" id="storyCopy">링크 목록 복사</button></div>
         <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px"><b style="color:var(--ink)">전문·PDF 찾기</b>는 Europe PMC에서 무료 전문과 PDF를 내려받을 수 있는지 보여 줘요. 무료가 아니면 <b style="color:var(--ink)">출판사</b>·<b style="color:var(--ink)">PubMed</b> 링크에서 병원·학교 계정으로 받으세요.</p>
         <div id="storyRefs"></div></div>
       <div class="card row" id="buildBar">
@@ -362,7 +396,7 @@ main { min-height: calc(100% - 60px); }
         </div>
       </div>
       <div class="card">
-        <h2>참고문헌</h2>
+        <div class="row" style="margin-bottom:12px"><h2>참고문헌</h2><span class="spacer"></span><button class="btn sm primary" type="button" id="x-findRefs" hidden>🔍 참고문헌 찾기</button></div>
         <div class="field"><label for="x-refsText">한 줄에 하나: 번호 | 제목 | PMID 또는 DOI</label><textarea id="x-refsText" rows="18" style="font-size:12px"></textarea>
           <span class="hint">PMID·DOI·PMC 번호나 PDF 주소를 같이 적으면 링크가 자동으로 생겨요. Claude가 만든 문구에는 참고문헌을 넣지 않으니, 확인된 논문만 적어 주세요.</span></div>
         <div class="row" style="margin:16px 0 10px"><h3>링크</h3><span class="spacer"></span><button class="btn sm" type="button" id="x-copyLinks">링크 목록 복사</button></div>
@@ -376,6 +410,20 @@ main { min-height: calc(100% - 60px); }
 <input type="file" id="formInput" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" class="sr">
 <div class="overlay" id="overlay"><div class="busy"><div class="spin"></div><h3 id="busyTitle">작업 중</h3><p id="busyText" style="color:var(--muted);font-size:13px"></p><button class="btn sm" id="busyCancel" type="button">취소</button></div></div>
 <div class="dlg" id="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgTitle"><div class="dlg-box"><h3 id="dlgTitle"></h3><p id="dlgText" style="color:#333"></p><div class="row"><span class="spacer"></span><button class="btn" id="dlgNo" type="button">취소</button><button class="btn primary" id="dlgYes" type="button">확인</button></div></div></div>
+<div class="dlg" id="refDlg" role="dialog" aria-modal="true" aria-labelledby="rfTitle"><div class="dlg-box rf-box">
+  <div class="row"><h3 id="rfTitle">참고문헌 찾기</h3><span class="spacer"></span><button class="btn sm ghost" id="rfClose" type="button">닫기</button></div>
+  <p class="rf-sub" id="rfSub"></p>
+  <div class="rf-q"><input id="rfQ" placeholder="영어 검색어 (예: temple filler hyaluronic acid)" aria-label="검색어"><button class="btn primary" id="rfGo" type="button">검색</button><button class="btn mint" id="rfAi" type="button">✦ Claude 추천</button></div>
+  <div class="rf-f">
+    <label>기간 <select id="rfYears"><option value="0">전체</option><option value="5">최근 5년</option><option value="10" selected>최근 10년</option><option value="15">최근 15년</option></select></label>
+    <label>정렬 <select id="rfSort"><option value="rel">관련도</option><option value="cited">인용 많은 순</option><option value="new">최신순</option></select></label>
+    <label class="toggle"><input type="checkbox" id="rfReview"> 리뷰 논문만</label>
+    <label class="toggle"><input type="checkbox" id="rfOa"> 무료 전문만</label>
+  </div>
+  <div class="rf-status" id="rfStatus" role="status"></div>
+  <div class="rf-list" id="rfList"></div>
+  <div class="row rf-foot"><label class="toggle" id="rfToSlidesWrap"><input type="checkbox" id="rfToSlides" checked> Claude가 고른 슬라이드 근거 칸에도 번호 넣기</label><span class="spacer"></span><span id="rfSel" class="chip"></span><button class="btn primary" id="rfAdd" type="button" disabled>선택한 논문 추가</button></div>
+</div></div>
 <div class="toast" id="toast" role="status"></div>
 
 </div>
@@ -1147,7 +1195,7 @@ const EXAMPLES = [{"id": "example-belotero", "example": true, "name": "Forehead 
     } else {
       box.innerHTML = `<div class="opts">${p.options.map((o) => `<article class="opt${p.selected === o.key ? " sel" : ""}" data-key="${esc(o.key)}" tabindex="0" aria-pressed="${p.selected === o.key}">
         <div class="opt-head"><span class="opt-key">${esc(o.key)}</span><h3>${esc(o.name)}</h3></div>
-        <p class="concept">${esc(o.concept)}</p>
+        <p class="concept">${esc(o.concept)}</p>${o.intent ? `<p class="intent"><b>기획의도 반영</b>${esc(o.intent)}</p>` : ""}
         <table class="toc"><tbody>${(o.chapters || []).map((c, i) => `<tr><td>${i + 1}. <b>${esc(c.title)}</b><br><span style="color:var(--muted)">${esc(c.message || "")}</span></td><td class="r">${esc(c.range || "")}</td></tr>`).join("")}</tbody></table>
         <div class="pc"><div><b>장점</b> ${esc(o.pros)}</div><div><b>약점</b> ${esc(o.cons)}</div><div><b>필요 자료</b> ${esc(o.materials)}</div>${o.recommend ? `<div><b>추천</b> ${esc(o.recommend)}</div>` : ""}</div>
         <div class="row"><span class="spacer"></span><span class="${p.selected === o.key ? "tag" : "chip"}">${p.selected === o.key ? "선택됨" : "클릭해서 선택"}</span></div></article>`).join("")}</div>`;
@@ -1161,7 +1209,7 @@ const EXAMPLES = [{"id": "example-belotero", "example": true, "name": "Forehead 
     $("#buildSlides").textContent = state.sample ? "Claude로 슬라이드 만들기" : "템플릿으로 슬라이드 만들기";
     $("#openEditor").style.display = p.slides.length ? "" : "none";
     const items = refItems();
-    $("#storyRefs").innerHTML = items.length ? refListHtml(items) : `<p style="color:var(--muted);font-size:13px">아직 참고문헌이 없어요. 채팅에서 Claude에게 이 주제의 근거 논문을 찾아 달라고 한 뒤, 받은 목록을 내보내기 탭의 참고문헌 칸에 붙여넣으세요.</p>`;
+    $("#storyRefs").innerHTML = items.length ? refListHtml(items) : `<p style="color:var(--muted);font-size:13px">아직 참고문헌이 없어요. ${canSearch() ? "위의 <b>참고문헌 찾기</b>로 논문을 찾아 추가하세요." : "채팅에서 Claude에게 이 주제의 근거 논문을 찾아 달라고 한 뒤, 받은 목록을 내보내기 탭의 참고문헌 칸에 붙여넣으세요."}</p>`;
     $("#storyRefCount").textContent = items.length ? `${items.length}편` : "";
   }
   $("#optsBox").addEventListener("click", (ev) => { const o = ev.target.closest(".opt"); if (!o) return; state.project.selected = o.dataset.key; changed(); renderStory(); });
@@ -1221,7 +1269,8 @@ const EXAMPLES = [{"id": "example-belotero", "example": true, "name": "Forehead 
   }
   function infoText() {
     const i = state.project.info;
-    return `Talk title: ${i.topic}\nConference: ${i.conf || "-"}\nAudience: ${i.audience || "-"}\nLength: ${i.minutes || 30} minutes\nSlides: ${i.count || 40}\nLanguage: ${i.language}\nMust include: ${i.focus || "-"}`;
+    return `Talk title: ${i.topic}\nConference: ${i.conf || "-"}\nAudience: ${i.audience || "-"}\nLength: ${i.minutes || 30} minutes\nSlides: ${i.count || 40}\nLanguage: ${i.language}` + (i.focus ? `\nMust include: ${i.focus}` : "")
+      + (String(i.intent || "").trim() ? `\n\nPlanning intent from the speaker (기획의도 — the storyline MUST serve this; keep its goals, emphasis, products and cases):\n"""\n${String(i.intent).trim().slice(0, 3000)}\n"""` : "");
   }
   async function generateOptions() {
     const p = state.project;
@@ -1232,14 +1281,14 @@ const EXAMPLES = [{"id": "example-belotero", "example": true, "name": "Forehead 
     const prompt = `You are a senior medical-conference presentation strategist helping a Korean physician prepare a talk.
 ${infoText()}
 
-Propose three clearly different storylines (A, B, C) for this talk, for example one principle/anatomy-first, one case-driven, one safety- or problem-first. Each must fit exactly ${n} slides.
+Propose three clearly different storylines (A, B, C) for this talk, for example one principle/anatomy-first, one case-driven, one safety- or problem-first. Each must fit exactly ${n} slides.${String(p.info.intent || "").trim() ? " All three must realize the speaker's planning intent above (its message, emphasis, products and cases) and differ only in how they get there. In \"intent\", say in one Korean sentence how this option carries out the planning intent." : ""}
 Return ONLY JSON, no prose, in this shape:
-{"options":[{"key":"A","name":"Short English name — 한국어 부제","concept":"한 문장 한국어 설명","chapters":[{"title":"English chapter title","range":"1–4","message":"한국어 핵심 메시지"}],"pros":"한국어 한 줄","cons":"한국어 한 줄","materials":"필요 자료 (한국어)","recommend":"추천 상황 (한국어)"}]}
+{"options":[{"key":"A","name":"Short English name — 한국어 부제","concept":"한 문장 한국어 설명","intent":"기획의도를 어떻게 반영했는지 한국어 한 문장","chapters":[{"title":"English chapter title","range":"1–4","message":"한국어 핵심 메시지"}],"pros":"한국어 한 줄","cons":"한국어 한 줄","materials":"필요 자료 (한국어)","recommend":"추천 상황 (한국어)"}]}
 Rules: 4–8 chapters per option; chapter ranges are consecutive, start at 1 and end exactly at ${n}; slide 1 is the title slide inside the first chapter. Do not cite papers, authors or numbers.`;
     try {
       const out = parseJSON(await ask(prompt, "스토리라인 3안 만드는 중"));
       if (!out.options || out.options.length < 2) throw new Error("bad");
-      p.options = out.options.slice(0, 3).map((o, i) => ({ key: "ABC"[i], name: o.name || "", concept: o.concept || "", chapters: (o.chapters || []).map((c) => ({ title: c.title || "", range: c.range || "", message: c.message || "" })),
+      p.options = out.options.slice(0, 3).map((o, i) => ({ key: "ABC"[i], name: o.name || "", concept: o.concept || "", intent: String(p.info.intent || "").trim() ? o.intent || "" : "", chapters: (o.chapters || []).map((c) => ({ title: c.title || "", range: c.range || "", message: c.message || "" })),
         pros: o.pros || "", cons: o.cons || "", materials: o.materials || "", recommend: o.recommend || "" }));
       p.selected = "A"; changed(); renderStory();
     } catch (e) { aiError(e); }
@@ -1299,7 +1348,7 @@ Field rules:
 - fig: in Korean, what picture belongs on this slide (예: "도플러 동맥 지도 논문 그림", "본인 케이스 전후 사진").
 - notes: in Korean, 2–3 sentences the speaker will say.
 - At least 40% of slides use figure, image or photos: this talk explains pictures.
-- Never cite papers, authors, PMIDs or numbers you were not given; write "[수치]" where a number belongs.`;
+- Never cite papers, authors, PMIDs or numbers you were not given; write "[수치]" where a number belongs.${String(p.info.intent || "").trim() ? "\n- Follow the speaker's planning intent: give its key message, emphasis, products and cases their own slides, and let the notes carry that intent." : ""}`;
       try {
         const out = parseJSON(await ask(prompt, `${opt.key}안으로 ${n}장 만드는 중`));
         slides = (out.slides || []).map((s) => normSlide(s, opt.chapters.length));
@@ -1392,7 +1441,7 @@ Field rules:
         <div class="field"><label for="i-summ">요약 (왼쪽 굵게, 여러 줄)</label><textarea id="i-summ" data-s="summary" rows="3">${esc(s.summary)}</textarea></div>
         <div class="field"><label for="i-msg">하단문구 (가운데)</label><input id="i-msg" data-s="message" value="${esc(s.message)}"></div></div>`;
     }
-    if (!dark) h += `<div class="field"><label for="i-refs">근거 (슬라이드 하단 Source)</label><input id="i-refs" data-s="refs" value="${esc(s.refs)}" placeholder="예: R21, R36"></div><div id="i-refLinks"></div>`;
+    if (!dark) h += `<div class="field"><label for="i-refs">근거 (슬라이드 하단 Source)</label><input id="i-refs" data-s="refs" value="${esc(s.refs)}" placeholder="예: R21, R36"></div><div id="i-refLinks"></div>${canSearch() ? '<button class="btn sm" type="button" id="i-findRefs" style="justify-self:start">🔍 이 슬라이드 근거 찾기</button>' : ""}`;
     h += `<div class="sect"><h3>Claude에게 이 슬라이드 수정 요청</h3>${state.sample ? `<div class="field"><label for="i-ask" class="sr">요청</label><textarea id="i-ask" rows="2" placeholder="예: 제목을 더 짧게, 포인트를 3개로"></textarea></div><button class="btn sm primary" type="button" id="i-askBtn" style="justify-self:start">수정 요청</button>`
       : `<p style="font-size:12px;color:var(--muted)">이 화면에서는 Claude를 부를 수 없어요. 직접 수정해 주세요.${window.GJAI.inClaude ? "" : " Claude를 쓰려면 블로그 서포터 왼쪽 아래 ‘설정 · Claude 연결’에서 API 키를 넣으세요."}</p>`}</div>`;
     box.innerHTML = h;
@@ -1403,6 +1452,7 @@ Field rules:
     const host = $("#i-refLinks"), s = cur(); if (!host || !s) return;
     const ids = String(s.refs || "").match(/R\d+[a-z]?/gi) || [];
     host.innerHTML = refListHtml(refItems(ids), true);
+    const fb = $("#i-findRefs"); if (fb) fb.onclick = () => openRefFinder("slide", state.cur);
   }
   function slotRow(i, label) {
     const s = cur(), id = (s.photos || [])[i], im = id && state.images[id];
@@ -1858,6 +1908,191 @@ Never invent citations, authors, PMIDs or numbers; write "[수치]" where a numb
     $("#exportMsg").textContent = state.downloads || !window.GJAI.inClaude ? "" : "이 화면에서는 파일 저장이 지원되지 않을 수 있어요. 버튼이 동작하지 않으면 claude.ai에서 이 페이지를 열어 주세요.";
   }
   let refT;
+
+  /* ================= 참고문헌 찾기 =================
+     논문 정보는 Europe PMC(안 되면 PubMed)에서 실제로 받아 온 것만 씀.
+     Claude는 검색어를 만들고, 받아 온 후보 중에서 고르고 이유를 다는 일만 함 (논문을 지어내지 않음). */
+  const RF = { mode: "deck", slideIdx: null, results: [], picked: new Set(), recs: {}, busy: false };
+  const canSearch = () => !window.GJAI.inClaude; // claude.ai 링크 안에서는 외부 검색이 막혀 있음
+  const yNow = new Date().getFullYear();
+  const stripTags = (s) => String(s || "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+  function rfFilters() {
+    return { years: Number($("#rfYears").value) || 0, review: $("#rfReview").checked, oa: $("#rfOa").checked, sort: $("#rfSort").value };
+  }
+  async function searchEPMC(q, f, n) {
+    let query = `(${q}) AND (SRC:MED)`;
+    if (f.years) query += ` AND (PUB_YEAR:[${yNow - f.years} TO ${yNow}])`;
+    if (f.review) query += ` AND (PUB_TYPE:"review")`;
+    if (f.oa) query += ` AND (OPEN_ACCESS:y)`;
+    const sort = f.sort === "cited" ? "&sort=" + encodeURIComponent("CITED desc") : f.sort === "new" ? "&sort=" + encodeURIComponent("P_PDATE_D desc") : "";
+    const r = await fetch(`https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=${encodeURIComponent(query)}&format=json&resultType=core&pageSize=${n || 25}${sort}`);
+    if (!r.ok) throw new Error("epmc " + r.status);
+    const j = await r.json();
+    return ((j.resultList && j.resultList.result) || []).map((x) => {
+      const ft = ((x.fullTextUrlList && x.fullTextUrlList.fullTextUrl) || []);
+      const pdf = ft.find((u) => u.documentStyle === "pdf" && /open|free/i.test(u.availability || ""));
+      const jr = x.journalInfo && x.journalInfo.journal;
+      return { pmid: x.pmid || "", pmcid: x.pmcid || "", doi: x.doi || "", title: stripTags(x.title).replace(/\.$/, ""),
+        authors: x.authorString || "", journal: (jr && (jr.isoabbreviation || jr.title)) || x.journalTitle || "", year: x.pubYear || "",
+        cited: Number(x.citedByCount || 0), review: ((x.pubTypeList && x.pubTypeList.pubType) || []).some((t) => /review/i.test(t)),
+        oa: x.isOpenAccess === "Y", abstract: stripTags(x.abstractText), pdf: pdf ? pdf.url : "", src: "Europe PMC" };
+    });
+  }
+  async function searchPubMed(q, f, n) {
+    let term = `(${q})`;
+    if (f.years) term += ` AND ${yNow - f.years}:${yNow}[dp]`;
+    if (f.review) term += " AND review[pt]";
+    if (f.oa) term += " AND free full text[sb]";
+    const base = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
+    const s = await fetch(`${base}esearch.fcgi?db=pubmed&retmode=json&retmax=${n || 25}&sort=${f.sort === "new" ? "pub_date" : "relevance"}&term=${encodeURIComponent(term)}`);
+    if (!s.ok) throw new Error("pubmed " + s.status);
+    const ids = ((await s.json()).esearchresult || {}).idlist || [];
+    if (!ids.length) return [];
+    const m = await fetch(`${base}esummary.fcgi?db=pubmed&retmode=json&id=${ids.join(",")}`);
+    if (!m.ok) throw new Error("pubmed " + m.status);
+    const res = (await m.json()).result || {};
+    return ids.map((id) => res[id]).filter(Boolean).map((x) => {
+      const aid = (t) => ((x.articleids || []).find((a) => a.idtype === t) || {}).value || "";
+      return { pmid: x.uid, pmcid: aid("pmc"), doi: aid("doi"), title: stripTags(x.title).replace(/\.$/, ""),
+        authors: (x.authors || []).slice(0, 3).map((a) => a.name).join(", ") + ((x.authors || []).length > 3 ? " 외" : ""),
+        journal: x.source || "", year: String(x.pubdate || "").slice(0, 4), cited: null, review: (x.pubtype || []).some((t) => /review/i.test(t)),
+        oa: !!aid("pmc"), abstract: "", pdf: "", src: "PubMed" };
+    });
+  }
+  async function searchAny(q, f, n) {
+    RF.phase = "search";
+    try { return await searchEPMC(q, f, n); }
+    catch (e) { return await searchPubMed(q, f, n); }
+  }
+  const keyOf = (r) => (r.pmid ? "p" + r.pmid : r.doi ? "d" + r.doi.toLowerCase() : "t" + r.title.toLowerCase().slice(0, 80));
+  function existingRefs() {
+    const map = {};
+    refItems().forEach((r) => { if (r.pmid) map["p" + r.pmid] = r.id; if (r.doi) map["d" + r.doi.toLowerCase()] = r.id; });
+    return map;
+  }
+  function nextRefNo() {
+    let mx = 0; refItems().forEach((r) => { const m = String(r.id || "").match(/(\d+)/); if (m) mx = Math.max(mx, Number(m[1])); });
+    return mx + 1;
+  }
+  function rfDefaultQuery() {
+    const p = state.project, i = p.info || {};
+    const topic = String(i.topic || "").replace(/\s+with\s+\S+$/i, "").trim();
+    if (RF.mode === "slide") { const s = p.slides[RF.slideIdx] || {}; return [s.title, topic].filter(Boolean).join(" ").replace(/[^\w\s&-]/g, " ").replace(/\s+/g, " ").trim(); }
+    return topic;
+  }
+  function openRefFinder(mode, slideIdx) {
+    if (!state.project) return;
+    if (!canSearch()) { toast("claude.ai 링크에서는 논문 검색을 쓸 수 없어요. 깃허브 워크스페이스에서 열어 주세요."); return; }
+    RF.mode = mode || "deck"; RF.slideIdx = slideIdx == null ? null : slideIdx;
+    RF.results = []; RF.picked = new Set(); RF.recs = {};
+    const s = RF.mode === "slide" ? state.project.slides[RF.slideIdx] : null;
+    $("#rfTitle").textContent = s ? `슬라이드 ${RF.slideIdx + 1} 근거 찾기` : "참고문헌 찾기";
+    $("#rfSub").textContent = s ? `“${s.title || "제목 없음"}”에 맞는 논문을 찾아요. 추가하면 이 슬라이드 근거 칸에도 번호가 들어가요.` : "발표 주제에 맞는 논문을 Europe PMC·PubMed에서 찾아요. 실제 데이터베이스 결과만 보여 줘요.";
+    $("#rfQ").value = rfDefaultQuery();
+    $("#rfAi").hidden = !state.sample;
+    $("#rfToSlidesWrap").hidden = RF.mode === "slide";
+    $("#rfStatus").innerHTML = state.sample ? "검색어를 직접 넣어 <b>검색</b>하거나, <b>Claude 추천</b>으로 Claude가 검색어를 만들고 후보 중에서 골라 줘요." : "영어 검색어로 찾으면 결과가 더 정확해요. (API 키를 넣으면 Claude 추천도 쓸 수 있어요)";
+    renderRfList();
+    $("#refDlg").classList.add("on"); $("#rfQ").focus();
+  }
+  function closeRefFinder() { $("#refDlg").classList.remove("on"); }
+  function renderRfList() {
+    const have = existingRefs();
+    const list = RF.results.slice().sort((a, b) => (RF.recs[keyOf(b)] ? 1 : 0) - (RF.recs[keyOf(a)] ? 1 : 0));
+    $("#rfList").innerHTML = list.map((r) => {
+      const k = keyOf(r), done = have[k], rec = RF.recs[k];
+      const link = r.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${r.pmid}/` : r.doi ? `https://doi.org/${r.doi}` : "";
+      return `<div class="rf-item${rec ? " rec" : ""}${done ? " done" : ""}">
+        <input type="checkbox" data-rf="${esc(k)}" ${done ? "disabled checked" : RF.picked.has(k) ? "checked" : ""} aria-label="선택: ${esc(r.title)}">
+        <div class="rf-body">
+          ${rec ? `<div class="rf-rec">Claude 추천 · ${esc(rec.why)}${rec.slides && rec.slides.length ? ` <span class="rf-sl">→ 슬라이드 ${rec.slides.join(", ")}</span>` : ""}</div>` : ""}
+          <div class="rf-t">${link ? `<a href="${esc(link)}" target="_blank" rel="noopener">${esc(r.title)}</a>` : esc(r.title)}</div>
+          <div class="rf-m">${esc([r.authors.split(",").slice(0, 2).join(",") + (r.authors.split(",").length > 2 ? " 외" : ""), r.journal, r.year].filter(Boolean).join(" · "))}</div>
+          <div class="rf-tags">${done ? `<span class="chip ok">추가됨 ${esc(done)}</span>` : ""}${r.review ? '<span class="chip">리뷰</span>' : ""}${r.oa ? '<span class="chip ok">무료 전문</span>' : ""}${r.cited != null ? `<span class="chip">인용 ${r.cited}</span>` : ""}${r.pmid ? `<span class="chip">PMID ${esc(r.pmid)}</span>` : ""}</div>
+          ${r.abstract ? `<details><summary>초록 보기</summary><p>${esc(r.abstract)}</p></details>` : ""}
+        </div></div>`;
+    }).join("") || "";
+    const n = RF.picked.size;
+    $("#rfSel").textContent = n ? `${n}편 선택` : "";
+    $("#rfAdd").disabled = !n;
+  }
+  async function rfRun(task) {
+    if (RF.busy) return; RF.busy = true; $("#rfGo").disabled = $("#rfAi").disabled = true;
+    try { await task(); }
+    catch (e) {
+      const q = encodeURIComponent($("#rfQ").value.trim());
+      if (RF.phase === "claude") { if (e && e.code) aiError(e); $("#rfStatus").textContent = "Claude 응답을 받지 못했어요. 검색어를 직접 넣어 검색할 수 있어요."; }
+      else $("#rfStatus").innerHTML = `검색 서버에 연결하지 못했어요. 잠시 뒤 다시 시도하거나 <a href="https://pubmed.ncbi.nlm.nih.gov/?term=${q}" target="_blank" rel="noopener">PubMed에서 직접 검색</a>하세요.`;
+    } finally { RF.busy = false; $("#rfGo").disabled = $("#rfAi").disabled = false; }
+  }
+  function rfMerge(list) {
+    const seen = new Set(RF.results.map(keyOf));
+    list.forEach((r) => { const k = keyOf(r); if (!seen.has(k) && r.title) { seen.add(k); RF.results.push(r); } });
+  }
+  async function rfSearch() {
+    const q = $("#rfQ").value.trim(); if (!q) { $("#rfQ").focus(); return; }
+    await rfRun(async () => {
+      $("#rfStatus").textContent = "찾는 중…";
+      RF.results = []; RF.recs = {}; RF.picked = new Set();
+      const list = await searchAny(q, rfFilters(), 30);
+      rfMerge(list); renderRfList();
+      $("#rfStatus").textContent = list.length ? `${list.length}편을 찾았어요 (${list[0].src}). 제목을 누르면 PubMed에서 열려요.` : "결과가 없어요. 검색어를 줄이거나 기간·필터를 풀어 보세요.";
+    });
+  }
+  async function rfClaude() {
+    if (!state.sample) return;
+    await rfRun(async () => {
+      const p = state.project, f = rfFilters();
+      const slideList = p.slides.map((s, i) => `${i + 1}. ${s.title || ""}`).join("\n");
+      const focus = RF.mode === "slide" ? `Find evidence for ONE slide: "${(p.slides[RF.slideIdx] || {}).title || ""}"\nSlide notes: ${String((p.slides[RF.slideIdx] || {}).notes || "").slice(0, 600)}` : `Find the key evidence papers for the whole talk.\nSlides:\n${slideList.slice(0, 5000)}`;
+      $("#rfStatus").textContent = "Claude가 검색어를 만드는 중…"; RF.phase = "claude";
+      const qText = (await state.sample(`You help a dermatologist find PubMed-indexed papers for a conference talk.\n${infoText()}\n${focus}\n\nWrite ${RF.mode === "slide" ? 3 : 5} short English search queries (PubMed style keywords, 2-6 words, no field tags) that together cover the evidence needed. Return ONLY JSON: {"queries":["..."]}`, { modelTier: "default", cache: false })).text;
+      const queries = (parseJSON(qText).queries || []).map(String).filter(Boolean).slice(0, 6);
+      if (!queries.length) throw new Error("no queries");
+      $("#rfQ").value = queries[0];
+      RF.results = []; RF.recs = {}; RF.picked = new Set();
+      for (let i = 0; i < queries.length; i++) {
+        $("#rfStatus").textContent = `논문 데이터베이스 검색 중… (${i + 1}/${queries.length}) ${queries[i]}`;
+        rfMerge(await searchAny(queries[i], f, RF.mode === "slide" ? 12 : 15));
+      }
+      renderRfList();
+      if (!RF.results.length) { $("#rfStatus").textContent = "검색 결과가 없어요. 필터를 풀고 다시 해 보세요."; return; }
+      $("#rfStatus").textContent = `${RF.results.length}편 중에서 Claude가 고르는 중…`; RF.phase = "claude";
+      const cand = RF.results.slice(0, 60).map((r, k) => `[${k}] ${r.title} (${r.journal} ${r.year}${r.review ? ", review" : ""}${r.cited != null ? ", cited " + r.cited : ""})${r.abstract ? "\n    " + r.abstract.slice(0, 380) : ""}`).join("\n");
+      const pick = RF.mode === "slide" ? 4 : 12;
+      const rText = (await state.sample(`${infoText()}\n${focus}\n\nCandidate papers (from Europe PMC/PubMed):\n${cand}\n\nChoose up to ${pick} candidates that best support this talk${RF.mode === "slide" ? " slide" : ""}. Prefer clinical studies, anatomy studies and reviews relevant to the audience; skip off-topic ones. Use ONLY the candidate numbers given. For each, write a one-line reason in Korean (under 40 characters)${RF.mode === "slide" ? "" : " and the slide numbers it supports"}. Return ONLY JSON: {"picks":[{"k":0,"why":"...","slides":[3,12]}]}`, { modelTier: "default", cache: false })).text;
+      const picks = (parseJSON(rText).picks || []).filter((x) => Number.isInteger(x.k) && RF.results[x.k]);
+      picks.forEach((x) => { const k = keyOf(RF.results[x.k]); RF.recs[k] = { why: String(x.why || "").slice(0, 80), slides: (x.slides || []).map(Number).filter((n) => n >= 1 && n <= p.slides.length) }; RF.picked.add(k); });
+      renderRfList();
+      $("#rfStatus").textContent = picks.length ? `Claude가 ${picks.length}편을 골랐어요 (체크됨). 제목을 눌러 PubMed에서 확인한 뒤 추가하세요.` : "Claude가 고를 만한 논문을 찾지 못했어요. 목록에서 직접 고르세요.";
+    });
+  }
+  function rfAdd() {
+    const p = state.project; const have = existingRefs();
+    let no = nextRefNo(); const lines = []; const added = [];
+    RF.results.filter((r) => RF.picked.has(keyOf(r)) && !have[keyOf(r)]).forEach((r) => {
+      const id = "R" + no++;
+      const url = r.pdf || "";
+      lines.push([id, r.title, r.pmid ? "PMID " + r.pmid : "", r.doi, r.pmcid, url].filter(Boolean).join(" | "));
+      added.push({ id, k: keyOf(r) });
+    });
+    if (!lines.length) { closeRefFinder(); return; }
+    p.refs = (String(p.refs || "").replace(/\s+$/, "") + (p.refs ? "\n" : "") + lines.join("\n")).replace(/^\n/, "");
+    const addTo = (idx, id) => { const s = p.slides[idx]; if (!s) return; const ids = String(s.refs || "").match(/R\d+[a-z]?/gi) || []; if (!ids.includes(id)) s.refs = ids.concat(id).join(", "); };
+    if (RF.mode === "slide") added.forEach((a) => addTo(RF.slideIdx, a.id));
+    else if ($("#rfToSlides").checked) added.forEach((a) => ((RF.recs[a.k] || {}).slides || []).forEach((n) => addTo(n - 1, a.id)));
+    changed(); closeRefFinder(); renderAll();
+    toast(`${lines.length}편을 참고문헌에 추가했어요 (${added[0].id}${added.length > 1 ? "~" + added[added.length - 1].id : ""}).`);
+  }
+  $("#rfClose").onclick = closeRefFinder;
+  $("#refDlg").addEventListener("click", (e) => { if (e.target.id === "refDlg") closeRefFinder(); });
+  $("#refDlg").addEventListener("keydown", (e) => { if (e.key === "Escape") closeRefFinder(); if (e.key === "Enter" && e.target.id === "rfQ") { e.preventDefault(); rfSearch(); } });
+  $("#rfGo").onclick = rfSearch;
+  $("#rfAi").onclick = rfClaude;
+  $("#rfAdd").onclick = rfAdd;
+  $("#rfList").addEventListener("change", (e) => { const k = e.target.dataset.rf; if (!k) return; if (e.target.checked) RF.picked.add(k); else RF.picked.delete(k); $("#rfSel").textContent = RF.picked.size ? `${RF.picked.size}편 선택` : ""; $("#rfAdd").disabled = !RF.picked.size; });
+  ["#storyFind", "#x-findRefs"].forEach((s) => { const b = $(s); if (b) { b.hidden = !canSearch(); b.onclick = () => openRefFinder("deck"); } });
+
   function renderExportRefs() { const items = refItems(); $("#x-refList").innerHTML = refListHtml(items); $("#x-copyLinks").disabled = !items.length; }
   $("#x-refsText").addEventListener("input", (ev) => { state.project.refs = ev.target.value; changed(); clearTimeout(refT); refT = setTimeout(renderExportRefs, 300); });
   $("#x-copyLinks").onclick = () => copyLinks(refItems());
