@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>골드제이의원 워크스페이스</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+@font-face { font-family: "Pretendard Variable"; font-weight: 45 920; font-style: normal; font-display: swap; src: url("blog/assets/fonts/PretendardVariable.woff2") format("woff2-variations"); }
+/* ===== 골드제이의원 워크스페이스 — shell (nav + home). Each tool keeps its own scoped styles. ===== */
+:root { --hub-h: 64px; --gold: #a8812a; color-scheme: light; }
+html, body { margin: 0; padding: 0; }
+body { background: #fff; color: #000; font-family: "Inter", "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; -webkit-font-smoothing: antialiased; }
+[hidden] { display: none !important; }
+
+.hub-nav { position: sticky; top: 0; z-index: 25; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 40px; padding: 0 28px; height: 64px; box-sizing: border-box; }
+.hub-nav * { box-sizing: border-box; }
+.hub-logo { font-family: "Pretendard Variable", Pretendard, sans-serif; font-weight: 800; font-size: 23px; letter-spacing: -0.6px; text-decoration: none; color: #000; white-space: nowrap; }
+.hub-logo .g { color: var(--gold); }
+.hub-logo { display: flex; align-items: center; }
+.hub-logo img { display: block; height: 40px; width: auto; }
+@media (max-width: 760px) { .hub-logo img { height: 34px; } }
+.hub-cats { display: flex; gap: 4px; height: 100%; }
+.hub-cats a { display: flex; align-items: center; padding: 0 14px; text-decoration: none; font-family: "Pretendard Variable", Pretendard, sans-serif; font-weight: 700; font-size: 16.5px; color: #3a3f45; border-bottom: 3px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.hub-cats a:hover { color: #000; }
+.hub-cats a[aria-current="page"] { border-bottom-color: #000; color: #000; }
+.hub-cats a:focus-visible, .hub-logo:focus-visible { outline: 3px solid #00f0a0; outline-offset: -3px; }
+.hub-right { margin-left: auto; font-size: 12.5px; color: #6b7480; font-weight: 500; white-space: nowrap; }
+@media (max-width: 760px) {
+  .hub-nav { gap: 6px 14px; padding: 8px 16px 0; height: auto; flex-wrap: wrap; }
+  .hub-cats { height: 44px; overflow-x: auto; order: 3; flex-basis: 100%; }
+  .hub-cats a { font-size: 15px; padding: 0 10px; }
+  .hub-right { display: none; }
+}
+
+
+.app-area { background: #fff; }
+.app-frame { display: block; width: 100%; height: calc(100vh - var(--hub-h)); height: calc(100dvh - var(--hub-h)); border: 0; }
+body.in-app { overflow: hidden; }
+
+#gj-home{
+  --mint: #00f0a0; --mint-wash: #ecffe0; --ink: #000; --canvas: #fff; --muted: #6b7480; --hairline: #e5e7eb; --soft: #f4f5f6;
+  --display: "Titillium Web", "Pretendard Variable", Pretendard, system-ui, sans-serif;
+  --body: "Inter", "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --kr: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+}
+#gj-home{ font-family: var(--body); font-size: 14px; font-weight: 500; line-height: 1.5; color: var(--ink); padding-bottom: 40px; word-break: keep-all; }
+#gj-home *, #gj-home{ box-sizing: border-box; }
+#gj-home h1, #gj-home h2, #gj-home h3{ margin: 0; font-family: var(--kr); font-weight: 800; line-height: 1.25; letter-spacing: -0.02em; text-wrap: balance; }
+#gj-home p{ margin: 0; }
+#gj-home a{ color: inherit; }
+#gj-home :focus-visible{ outline: 3px solid var(--mint); outline-offset: 2px; }
+#gj-home .wrap{ max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+@media (max-width: 560px){#gj-home .wrap{ padding: 0 16px; }
+ }
+#gj-home .hello{ background: var(--mint-wash); padding: 32px 0 30px; }
+#gj-home .hello .date{ font-size: 13px; color: #2c4a3e; font-weight: 600; }
+#gj-home .hello h1{ font-size: 32px; margin-top: 6px; }
+#gj-home .hello p{ font-size: 16px; font-weight: 400; margin-top: 8px; max-width: 64ch; color: #23302a; font-family: var(--kr); }
+@media (max-width: 560px){#gj-home .hello h1{ font-size: 25px; }
+#gj-home .hello p{ font-size: 14.5px; }
+ }
+#gj-home .tools{ display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding-top: 24px; }
+@media (max-width: 860px){#gj-home .tools{ grid-template-columns: 1fr; }
+ }
+#gj-home .tool{ border: 1px solid var(--hairline); border-radius: 24px; padding: 24px; display: grid; gap: 14px; align-content: start; background: var(--canvas); }
+#gj-home .tool-top{ display: flex; align-items: center; gap: 12px; }
+#gj-home .tool-ic{ width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; border: 1.5px solid var(--ink); flex: none; font-size: 18px; font-weight: 700; }
+#gj-home .tool-ic.blog{ background: #fff4d6; }
+#gj-home .tool-ic.ppt{ background: var(--mint); }
+#gj-home .tool h2{ font-size: 22px; }
+#gj-home .tool .desc{ color: #333; font-family: var(--kr); font-size: 14.5px; }
+#gj-home .chips{ display: flex; flex-wrap: wrap; gap: 6px; }
+#gj-home .chips a{ font-size: 12.5px; font-weight: 600; padding: 4px 11px; border-radius: 14px; background: var(--soft); text-decoration: none; font-family: var(--kr); }
+#gj-home .chips a:hover{ background: var(--mint-wash); }
+#gj-home .cont{ display: flex; align-items: center; gap: 12px; background: var(--soft); border-radius: 16px; padding: 12px 14px; min-height: 64px; }
+#gj-home .cont .t{ font-weight: 700; font-size: 14px; line-height: 1.35; font-family: var(--kr); overflow-wrap: anywhere; }
+#gj-home .cont .m{ font-size: 12.5px; color: var(--muted); margin-top: 2px; font-family: var(--kr); }
+#gj-home .cont .grow{ flex: 1; min-width: 0; }
+#gj-home .cont .lbl{ font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 0.04em; margin-bottom: 2px; }
+#gj-home .btn{ border: 1.5px solid var(--ink); background: var(--canvas); color: var(--ink); border-radius: 28px; padding: 9px 18px; cursor: pointer; white-space: nowrap; font: inherit; font-family: var(--kr); font-weight: 700; text-decoration: none; display: inline-flex; gap: 6px; align-items: center; justify-content: center; }
+#gj-home .btn:hover{ background: var(--mint-wash); }
+#gj-home .btn.primary{ background: var(--ink); color: #fff; }
+#gj-home .btn.primary:hover{ background: #222; }
+#gj-home .btn.sm{ padding: 6px 13px; font-size: 12.5px; }
+#gj-home .row{ display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+#gj-home .grid2{ display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 18px; padding-top: 18px; }
+@media (max-width: 860px){#gj-home .grid2{ grid-template-columns: 1fr; }
+ }
+#gj-home .card{ border: 1px solid var(--hairline); border-radius: 24px; padding: 22px; min-width: 0; }
+#gj-home .card h3{ font-size: 18px; margin-bottom: 12px; display: flex; align-items: baseline; gap: 8px; }
+#gj-home .card h3 small{ font-size: 13px; color: var(--muted); font-weight: 600; }
+#gj-home .list{ display: grid; }
+#gj-home .item{ display: grid; grid-template-columns: 78px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 6px; border-top: 1px solid var(--hairline); text-decoration: none; border-radius: 10px; }
+#gj-home .item:first-child{ border-top: 0; }
+#gj-home .item:hover{ background: #fafbfb; }
+@media (max-width: 560px){#gj-home .item{ grid-template-columns: minmax(0, 1fr) auto; }
+#gj-home .item .kind{ grid-column: 1 / -1; justify-self: start; }
+ }
+#gj-home .kind{ font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 10px; text-align: center; font-family: var(--kr); white-space: nowrap; }
+#gj-home .kind.blog{ background: #fff4d6; color: #6b4e0c; }
+#gj-home .kind.ppt{ background: var(--mint-wash); color: #0a6b48; }
+#gj-home .item .t{ font-weight: 700; line-height: 1.35; font-family: var(--kr); overflow-wrap: anywhere; }
+#gj-home .item .m{ font-size: 12px; color: var(--muted); font-family: var(--kr); }
+#gj-home .prog{ display: flex; gap: 3px; margin-top: 6px; }
+#gj-home .prog i{ width: 20px; height: 5px; border-radius: 3px; background: var(--hairline); display: block; }
+#gj-home .prog i.on{ background: var(--ink); }
+#gj-home .status{ font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 12px; border: 1px solid var(--hairline); white-space: nowrap; font-family: var(--kr); }
+#gj-home .status.warn{ background: #fff3e0; border-color: #ffd8a8; color: #8a4b00; }
+#gj-home .status.ok{ background: var(--mint-wash); border-color: #b8f0cf; color: #0a6b48; }
+#gj-home .cal{ display: grid; gap: 4px; }
+#gj-home .ev{ display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 6px; border-radius: 12px; text-decoration: none; }
+#gj-home .ev:hover{ background: #fafbfb; }
+#gj-home .d{ border-radius: 14px; background: var(--soft); text-align: center; padding: 6px 0; font-variant-numeric: tabular-nums; }
+#gj-home .d b{ display: block; font-family: var(--display); font-size: 22px; line-height: 1; }
+#gj-home .d span{ font-size: 11px; color: var(--muted); font-family: var(--kr); }
+#gj-home .ev .t{ font-weight: 700; font-family: var(--kr); line-height: 1.35; overflow-wrap: anywhere; }
+#gj-home .ev .m{ font-size: 12px; color: var(--muted); font-family: var(--kr); }
+#gj-home .dday{ font-size: 12px; font-weight: 800; font-family: var(--display); padding: 2px 8px; border-radius: 10px; background: var(--soft); white-space: nowrap; }
+#gj-home .dday.hot{ background: var(--ink); color: #fff; }
+#gj-home .note{ font-size: 12.5px; color: var(--muted); margin-top: 12px; font-family: var(--kr); }
+#gj-home .empty{ color: var(--muted); font-family: var(--kr); font-size: 13.5px; padding: 8px 0; }
+
+
+</style>
+</head>
+<body>
+<nav class="hub-nav" aria-label="주 메뉴">
+  <a class="hub-logo" href="#home" aria-label="골드제이의원 홈"><img src="logo.png" alt="골드제이의원 GOLD J SKIN DESIGN CLINIC" width="152" height="40"></a>
+  <div class="hub-cats">
+    <a href="#blog" data-area="blog">블로그 서포터</a>
+    <a href="#ppt" data-area="ppt" data-pptview="#setup">학회 PPT 스튜디오</a>
+  </div>
+  <span class="hub-right"></span>
+</nav>
+<section id="gj-home">
+  <div class="hello"><div class="wrap">
+    <div class="date" id="h-date"></div>
+    <h1 id="h-title">원장님, 오늘의 작업대예요</h1>
+    <p id="h-sub"></p>
+  </div></div>
+  <div class="wrap">
+    <div class="tools">
+      <article class="tool">
+        <div class="tool-top"><span class="tool-ic blog" aria-hidden="true">✎</span><h2>블로그 서포터</h2></div>
+        <p class="desc">주제 뱅크와 발행 캘린더로 글을 계획하고, 골드제이 형식으로 초안을 쓰고, 검수해서 네이버 에디터로 옮깁니다.</p>
+        <div class="chips"><a href="#blog" data-blog="#/calendar">발행 캘린더</a><a href="#blog" data-blog="#/topics">주제 뱅크</a><a href="#blog" data-blog="#/draft">초안 작성</a><a href="#blog" data-blog="#/review">초안 검수</a></div>
+        <div class="cont" id="h-blog-cont"></div>
+        <div class="row"><button class="btn primary" type="button" id="h-newblog">＋ 새 글 추가</button><a class="btn" href="#blog">블로그 서포터 열기</a></div>
+      </article>
+      <article class="tool">
+        <div class="tool-top"><span class="tool-ic ppt" aria-hidden="true">▲</span><h2>학회 PPT 스튜디오</h2></div>
+        <p class="desc">발표 주제를 넣으면 스토리라인 3안, 슬라이드 초안, 근거 논문 링크, 업체 폼 디자인까지. PPTX로 내려받습니다.</p>
+        <div class="chips"><a href="#ppt" data-pptview="#setup">1 주제</a><a href="#ppt" data-pptview="#story">2 스토리라인</a><a href="#ppt" data-pptview="#edit">3 슬라이드 편집</a><a href="#ppt" data-pptview="#design">4 디자인</a><a href="#ppt" data-pptview="#export">5 내보내기</a></div>
+        <div class="cont" id="h-ppt-cont"></div>
+        <div class="row"><a class="btn primary" href="#ppt" data-pptview="#setup">＋ 새 발표 만들기</a><a class="btn" href="#ppt" data-pptview="#setup">PPT 스튜디오 열기</a></div>
+      </article>
+    </div>
+    <div class="grid2">
+      <section class="card" aria-labelledby="h-prog"><h3 id="h-prog">진행 중인 작업 <small id="h-count"></small></h3><div class="list" id="h-list"></div></section>
+      <section class="card" aria-labelledby="h-calh"><h3 id="h-calh">다가오는 일정</h3><div class="cal" id="h-cal"></div><p class="note" id="h-calnote"></p></section>
+    </div>
+  </div>
+</section>
+<section id="gj-blog" class="app-area" hidden></section>
+<section id="gj-ppt" class="app-area" hidden></section>
+<script>
+/* 골드제이의원 워크스페이스 (GitHub 버전)
+   - 블로그 서포터: blog/ 폴더를 손대지 않고 그대로 띄움 (폴더째 덮어쓰면 업데이트 끝)
+   - 학회 PPT 스튜디오: ppt/ 폴더
+   - 홈 "오늘의 작업대": 두 앱이 이 브라우저에 저장한 데이터를 읽어서 보여줌 */
+(function () {
+  "use strict";
+  const BLOG_KEY = "goldj-blog-supporter-v1";   // 블로그 서포터 저장 이름
+  const BLOG_STATUSES = ["아이디어", "기획", "초안 작성", "초안 검수", "원장님 검수", "발행 완료"];
+  const PPT_KEY = "pptstudio.v1";               // 학회 PPT 스튜디오 저장 이름
+  const PPT_STAGES = ["주제", "스토리라인", "슬라이드 편집", "디자인", "내보내기"];
+  const SRC = { blog: "blog/index.html", ppt: "ppt/index.html" };
+  const AREAS = ["home", "blog", "ppt"];
+
+  const $ = (s, r) => (r || document).querySelector(s);
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const DOW = ["일", "월", "화", "수", "목", "금", "토"];
+  const pad = (n) => String(n).padStart(2, "0");
+  const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const parse = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+  const today = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+  const days = (s) => Math.round((parse(s) - today()) / 86400000);
+  const md = (s) => { const d = parse(s); return `${d.getMonth() + 1}/${d.getDate()}(${DOW[d.getDay()]})`; };
+  const dday = (s) => { const n = days(s); return `<span class="dday${n <= 3 ? " hot" : ""}">${n === 0 ? "오늘" : "D-" + n}</span>`; };
+  const prog = (n, total) => `<div class="prog" aria-label="${total}단계 중 ${n}단계">${Array.from({ length: total }, (_, i) => `<i class="${i < n ? "on" : ""}"></i>`).join("")}</div>`;
+  const ago = (t) => { if (!t) return ""; const d = new Date(t); return `${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())} 수정`; };
+  const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } };
+
+  /* ---------- 화면 전환 + 앱 프레임 ---------- */
+  const frames = {};
+  function frame(name, hash) {
+    let f = frames[name];
+    if (!f) {
+      f = document.createElement("iframe");
+      f.className = "app-frame"; f.title = name === "blog" ? "블로그 서포터" : "학회 PPT 스튜디오";
+      f.src = SRC[name] + (hash || "");
+      f.addEventListener("load", () => { try { f.contentWindow.addEventListener("gj:data", renderHome); } catch (e) {} });
+      $("#gj-" + name).appendChild(f); frames[name] = f;
+    } else if (hash) {
+      f.src = SRC[name] + hash; // 같은 문서 안에서 해시만 바뀜
+    }
+    return f;
+  }
+  const area = () => { const h = location.hash.slice(1); return AREAS.includes(h) ? h : "home"; };
+  function apply() {
+    const a = area();
+    AREAS.forEach((x) => { $("#gj-" + x).hidden = x !== a; });
+    document.querySelectorAll(".hub-cats a").forEach((l) => { if (l.dataset.area === a) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
+    document.body.classList.toggle("in-app", a !== "home");
+    if (a === "home") renderHome();
+    else {
+      const f = frame(a);
+      // 숨겨져 있던 동안 크기를 못 쟀던 화면(슬라이드 목록·편집기 높이)을 다시 맞춤
+      setTimeout(() => { try { f.contentWindow.dispatchEvent(new Event("resize")); } catch (e) {} }, 30);
+    }
+    window.scrollTo(0, 0);
+  }
+  function openIn(name, hash) { frame(name, hash); if (area() !== name) location.hash = name; else apply(); }
+  window.addEventListener("hashchange", apply);
+
+  /* ---------- 홈 데이터 ---------- */
+  function blogData() {
+    const st = read(BLOG_KEY); if (!st || !Array.isArray(st.items)) return null;
+    const idx = (s) => Math.max(0, BLOG_STATUSES.indexOf(s));
+    const t = ymd(today());
+    const active = st.items.filter((i) => idx(i.status) >= 1 && idx(i.status) <= 4);
+    const upcoming = st.items.filter((i) => i.date && i.date >= t && i.status !== "발행 완료").sort((a, b) => a.date.localeCompare(b.date));
+    const route = (i) => (["초안 검수", "원장님 검수"].includes(i.status) ? "#/review/" : "#/draft/") + i.id;
+    return { idx, active, upcoming, route, next: upcoming[0] || active[0] || null };
+  }
+  function pptData() {
+    // 학회 PPT 스튜디오가 남겨 두는 목록 요약 (프로젝트 본문은 브라우저의 큰 저장소에 있음)
+    const meta = read("pptstudio.meta");
+    if (Array.isArray(meta)) return meta.map((m) => Object.assign({}, m, { name: m.name || m.topic || "제목 없음", stage: m.stage || 1, count: m.count || 0 })).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    const all = read(PPT_KEY); const projects = (all && all.projects) || {};
+    const stageOf = (p) => (p.exportedAt ? 5 : p.form || (p.style && Object.keys(p.style).length) ? 4 : (p.slides || []).length ? 3 : (p.options || []).length ? 2 : 1);
+    const list = Object.values(projects).map((p) => { const i = p.info || {}; return { id: p.id, name: p.name || i.topic || "제목 없음", topic: i.topic || "", date: i.date || "", conf: i.conf || "", minutes: i.minutes || "", count: (p.slides || []).length, updatedAt: p.updatedAt, stage: stageOf(p) }; });
+    return list.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  }
+
+  function renderHome() {
+    if ($("#gj-home").hidden) return;
+    const b = blogData(), list = pptData();
+    const d = new Date();
+    $("#h-date").textContent = `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 ${DOW[d.getDay()]}요일`;
+
+    const rows = [];
+    if (b) b.active.forEach((i) => rows.push({ key: i.date || "9999", html: `<a class="item" href="#blog" data-blog="${esc(b.route(i))}"><span class="kind blog">블로그</span><div><div class="t">${esc(i.draftTitle || i.title)}</div><div class="m">${esc(i.category || "")}${i.date ? " · 발행 " + md(i.date) : " · 발행일 미정"}</div>${prog(b.idx(i.status) + 1, BLOG_STATUSES.length)}</div><span class="status${i.date && days(i.date) <= 3 && days(i.date) >= 0 && b.idx(i.status) < 4 ? " warn" : ""}">${esc(i.status)}</span></a>` }));
+    list.filter((m) => m.stage < 5 || (m.date && days(m.date) >= 0)).forEach((m) => rows.push({ key: m.date || "9999", html: `<a class="item" href="#ppt" data-ppt="${esc(m.id)}"><span class="kind ppt">학회 PPT</span><div><div class="t">${esc(m.name)}</div><div class="m">${[m.conf, m.minutes ? m.minutes + "분" : "", m.count + "장", m.date ? "발표 " + md(m.date) : "", ago(m.updatedAt)].filter(Boolean).map(esc).join(" · ")}</div>${prog(m.stage, 5)}</div><span class="status${m.stage >= 5 ? " ok" : ""}">${m.stage >= 5 ? "내보냄" : esc(PPT_STAGES[m.stage - 1])}</span></a>` }));
+    rows.sort((x, y) => x.key.localeCompare(y.key));
+    const n = rows.length;
+    $("#h-title").textContent = n ? `원장님, 이어서 할 일이 ${n}개 있어요` : "원장님, 오늘은 새로 시작해 볼까요?";
+    const soon = b && b.upcoming[0];
+    $("#h-sub").textContent = soon ? `가장 가까운 블로그 발행은 ${md(soon.date)} “${soon.draftTitle || soon.title}”이에요. 아래에서 멈춘 단계로 바로 이어갈 수 있어요.` : "블로그 원고와 학회 발표를 한 곳에서 이어서 작업하세요. 항목을 누르면 그 단계가 바로 열립니다.";
+    $("#h-list").innerHTML = rows.slice(0, 8).map((r) => r.html).join("") || `<p class="empty">${b ? "진행 중인 작업이 없어요. 위에서 새 원고나 새 발표를 시작하세요." : "블로그 서포터를 한 번 열면 원고 목록이 여기에 모여요."}</p>`;
+    $("#h-count").textContent = n > 8 ? `${n}개 중 8개` : "";
+
+    const i = b && b.next;
+    $("#h-blog-cont").innerHTML = i ? `<div class="grow"><div class="lbl">${b.upcoming[0] === i ? "다음 발행" : "진행 중"}</div><div class="t">${esc(i.draftTitle || i.title)}</div><div class="m">${esc(i.status)}${i.date ? " · " + md(i.date) + " 발행" : ""}</div></div><a class="btn sm" href="#blog" data-blog="${esc(b.route(i))}">이어서</a>`
+      : `<div class="grow"><div class="t">${b ? "진행 중인 원고가 없어요" : "아직 열어 본 적이 없어요"}</div><div class="m">${b ? "주제 뱅크에서 다음 글을 고르세요" : "블로그 서포터를 열면 발행 계획이 준비돼요"}</div></div><a class="btn sm" href="#blog" data-blog="#/topics">주제 뱅크</a>`;
+    const m = list[0];
+    $("#h-ppt-cont").innerHTML = m ? `<div class="grow"><div class="lbl">최근 발표</div><div class="t">${esc(m.name)}</div><div class="m">${m.count}장 · ${esc(PPT_STAGES[m.stage - 1])} 단계${m.date ? " · 발표 " + md(m.date) : ""}</div></div><a class="btn sm" href="#ppt" data-ppt="${esc(m.id)}">이어서</a>`
+      : `<div class="grow"><div class="t">저장된 발표가 아직 없어요</div><div class="m">예시 프로젝트로 둘러보거나 새로 시작하세요</div></div><a class="btn sm" href="#ppt" data-pptview="#edit">예시 보기</a>`;
+
+    const evs = [];
+    if (b) b.upcoming.forEach((x) => evs.push({ date: x.date, html: `<a class="ev" href="#blog" data-blog="${esc(b.route(x))}"><div class="d"><b>${parse(x.date).getDate()}</b><span>${parse(x.date).getMonth() + 1}월</span></div><div><div class="t">${esc(x.draftTitle || x.title)}</div><div class="m">블로그 발행 · ${esc(x.status)}</div></div>${dday(x.date)}</a>` }));
+    list.filter((x) => x.date && days(x.date) >= 0).forEach((x) => evs.push({ date: x.date, html: `<a class="ev" href="#ppt" data-ppt="${esc(x.id)}"><div class="d"><b>${parse(x.date).getDate()}</b><span>${parse(x.date).getMonth() + 1}월</span></div><div><div class="t">${esc(x.name)}</div><div class="m">학회 발표${x.conf ? " · " + esc(x.conf) : ""}</div></div>${dday(x.date)}</a>` }));
+    evs.sort((x, y) => x.date.localeCompare(y.date));
+    $("#h-cal").innerHTML = evs.slice(0, 6).map((e) => e.html).join("") || '<p class="empty">정해진 일정이 없어요.</p>';
+    $("#h-calnote").textContent = !list.some((x) => x.date) ? "학회 발표는 PPT 스튜디오 1단계 ‘발표일’을 넣으면 여기에 함께 표시돼요." : "";
+  }
+
+  /* ---------- 홈에서 앱의 특정 화면으로 ---------- */
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest("[data-blog],[data-ppt],[data-pptview],#h-newblog"); if (!a) return;
+    e.preventDefault();
+    if (a.id === "h-newblog") {
+      openIn("blog", "#/home");
+      const f = frames.blog; let tries = 0;
+      const click = () => { try { const btn = f.contentDocument.querySelector("[data-new]"); if (btn) { btn.click(); return; } } catch (err) { return; } if (++tries < 40) setTimeout(click, 100); };
+      setTimeout(click, 150); return;
+    }
+    if (a.dataset.blog) return openIn("blog", a.dataset.blog);
+    if (a.dataset.pptview) return openIn("ppt", a.dataset.pptview);
+    const id = a.dataset.ppt;
+    openIn("ppt");
+    const f = frames.ppt; let tries = 0;
+    const go = () => {
+      try { const G = f.contentWindow.GJ && f.contentWindow.GJ.ppt; if (G) { const cur = G.current(); if (!(cur && cur.id === id && !G.unsaved())) G.open(id); return; } } catch (err) { return; }
+      if (++tries < 50) setTimeout(go, 100);
+    };
+    go();
+  });
+  window.addEventListener("storage", renderHome);
+  window.addEventListener("focus", renderHome);
+
+  /* ---------- 상단 바 높이 ---------- */
+  const nav = $(".hub-nav");
+  const setH = () => document.documentElement.style.setProperty("--hub-h", nav.offsetHeight + "px");
+  setH(); if (window.ResizeObserver) new ResizeObserver(setH).observe(nav);
+
+  apply();
+  // 두 앱을 미리 띄워 두면 탭 전환이 바로 되고, 블로그 첫 실행 데이터도 홈에 잡힘
+  setTimeout(() => { frame("blog"); frame("ppt"); setTimeout(renderHome, 1200); }, 400);
+})();
+
+</script>
+</body>
+</html>
