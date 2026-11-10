@@ -1,0 +1,2177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>학회 PPT 스튜디오</title>
+<link rel="icon" type="image/png" href="../favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Spring-mint accent on black and white; pale-mint bands carry the rhythm. Layout: top step bar, one working view at a time. */
+  --mint: #00f0a0;
+  --mint-wash: #ecffe0;
+  --ink: #000000;
+  --canvas: #ffffff;
+  --muted: #6b7480;
+  --hairline: #e5e7eb;
+  --soft: #f2f4f5;
+  --danger: #c62828;
+  --display: "Titillium Web", "Arial Narrow", system-ui, sans-serif;
+  --body: "Inter", "Apple SD Gothic Neo", "Malgun Gothic", Helvetica, Arial, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--canvas); color: var(--ink); font-family: var(--body); font-size: 14px; font-weight: 500; line-height: 1.5; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; margin: 0; text-wrap: balance; line-height: 1.15; }
+h1 { font-size: 34px; letter-spacing: -0.3px; }
+h2 { font-size: 22px; }
+h3 { font-size: 17px; }
+p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--mint); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* top bar */
+.topbar { position: sticky; top: 0; z-index: 20; background: var(--canvas); border-bottom: 1px solid var(--hairline); display: flex; align-items: center; gap: 16px; padding: 10px 20px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 700; font-size: 19px; white-space: nowrap; }
+.brand-mark { width: 26px; height: 26px; border-radius: 8px; background: var(--mint); border: 1.5px solid var(--ink); display: grid; place-items: center; font-size: 13px; }
+.steps { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; justify-content: center; }
+.steps a { text-decoration: none; color: var(--ink); padding: 7px 14px; border-radius: 18px; font-weight: 600; font-size: 13px; display: flex; gap: 6px; align-items: center; }
+.steps a .n { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--ink); display: grid; place-items: center; font-size: 11px; }
+.steps a:hover { background: var(--soft); }
+.steps a[aria-current="page"] { background: var(--ink); color: var(--canvas); }
+@media (max-width: 1240px) { .topbar { gap: 10px; padding: 10px 14px; } .steps { flex-wrap: nowrap; } .steps a { padding: 6px 9px; font-size: 12.5px; } .brand { font-size: 17px; } #saveChip { max-width: 150px; overflow: hidden; text-overflow: ellipsis; } }
+@media (max-width: 900px) { .steps { order: 3; flex-basis: 100%; overflow-x: auto; justify-content: flex-start; } }
+.steps a[aria-current="page"] .n { background: var(--mint); color: var(--ink); border-color: var(--mint); }
+.top-right { display: flex; align-items: center; gap: 10px; }
+.chip { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 12px; background: var(--soft); color: var(--muted); white-space: nowrap; }
+.chip.ok { background: var(--mint-wash); color: #0a6b48; }
+.chip.warn { background: #fff3e0; color: #8a4b00; }
+
+/* buttons */
+.btn { border: 1.5px solid var(--ink); background: var(--canvas); border-radius: 28px; padding: 9px 18px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.btn:hover { background: var(--soft); }
+.btn.primary { background: var(--ink); color: var(--canvas); }
+.btn.primary:hover { background: #222; }
+.btn.mint { background: var(--mint); color: var(--ink); border-radius: 36px; padding: 11px 26px; }
+.btn.mint:hover { filter: brightness(0.96); }
+.btn.sm { padding: 5px 12px; font-size: 12px; }
+.btn.ghost { border-color: var(--hairline); }
+.btn.danger { border-color: var(--danger); color: var(--danger); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* views */
+main { min-height: calc(100% - 60px); }
+.view { display: none; }
+.view.active { display: block; }
+.band { background: var(--mint-wash); padding: 28px 24px 24px; }
+.band-inner, .wrap { max-width: 1240px; margin: 0 auto; }
+.band p.lead { font-size: 16px; font-weight: 300; margin-top: 8px; max-width: 70ch; }
+.wrap { padding: 24px; display: grid; gap: 20px; }
+.card { background: var(--canvas); border: 1px solid var(--hairline); border-radius: 24px; padding: 22px; }
+.card > h2, .card > h3 { margin-bottom: 14px; }
+.grid-2 { display: grid; grid-template-columns: minmax(280px, 380px) 1fr; gap: 20px; align-items: start; }
+@media (max-width: 860px) { .grid-2 { grid-template-columns: 1fr; } }
+
+/* forms */
+.field { display: grid; gap: 5px; }
+.field label { font-size: 12px; font-weight: 600; color: var(--muted); }
+.field input, .field select, .field textarea { border: 1px solid var(--hairline); border-radius: 12px; padding: 9px 12px; background: var(--canvas); width: 100%; }
+.field textarea { resize: vertical; min-height: 70px; line-height: 1.45; }
+.field .hint { font-size: 11.5px; color: var(--muted); }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.form-grid .full { grid-column: 1 / -1; }
+@media (max-width: 560px) { .form-grid { grid-template-columns: 1fr; } }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.spacer { flex: 1; }
+
+/* project list */
+.plist { display: grid; gap: 10px; }
+.pitem { border: 1px solid var(--hairline); border-radius: 16px; padding: 12px 14px; display: flex; gap: 10px; align-items: center; }
+.pitem.current { border: 2px solid var(--ink); }
+.pitem .meta { font-size: 12px; color: var(--muted); }
+.pitem .name { font-weight: 600; }
+.tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; background: var(--mint); }
+
+/* storyline options */
+.opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1000px) { .opts { grid-template-columns: 1fr; } }
+.opt { border: 1px solid var(--hairline); border-radius: 24px; padding: 20px; display: grid; gap: 12px; align-content: start; background: var(--canvas); cursor: pointer; }
+.opt.sel { border: 2px solid var(--ink); box-shadow: 0 6px 24px rgba(0,0,0,0.06); }
+.opt-head { display: flex; gap: 10px; align-items: center; }
+.opt-key { width: 34px; height: 34px; border-radius: 50%; background: var(--ink); color: var(--canvas); display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 18px; flex: none; }
+.opt.sel .opt-key { background: var(--mint); color: var(--ink); border: 1.5px solid var(--ink); }
+.opt .concept { color: #333; }
+.opt .intent { font-size: 13px; background: var(--mint-wash); border-radius: 10px; padding: 7px 10px; color: #1d3b2f; }
+.opt .intent b { margin-right: 4px; }
+#f-intent { min-height: 132px; }
+.toc { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.toc td { border-top: 1px solid var(--hairline); padding: 6px 4px; vertical-align: top; }
+.toc td.r { white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+.pc { display: grid; gap: 4px; font-size: 12.5px; }
+.pc b { font-weight: 600; }
+.empty { border: 1.5px dashed var(--hairline); border-radius: 24px; padding: 36px; text-align: center; color: var(--muted); display: grid; gap: 12px; justify-items: center; }
+
+/* editor */
+.editor { display: grid; grid-template-columns: 230px minmax(0, 1fr) 340px; gap: 0; align-items: start; }
+@media (max-width: 1100px) { .editor { grid-template-columns: 190px minmax(0, 1fr); height: auto; } .inspector { grid-column: 1 / -1; border-left: 0 !important; border-top: 1px solid var(--hairline); } }
+@media (max-width: 700px) { .editor { grid-template-columns: 1fr; } .slist { max-height: 260px; } }
+.slist { border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); border-bottom-right-radius: 16px; overflow-y: auto; overscroll-behavior: contain; padding: 12px; display: grid; gap: 8px; align-content: start; background: var(--soft); }
+.sitem { display: grid; grid-template-columns: 22px 1fr; gap: 6px; align-items: start; cursor: pointer; padding: 6px; border-radius: 12px; border: 2px solid transparent; background: transparent; text-align: left; }
+.sitem.cur { border-color: var(--ink); background: var(--canvas); }
+.sitem .num { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 2px; }
+.sitem .thumb { border-radius: 6px; overflow: hidden; border: 1px solid var(--hairline); }
+.sitem .stitle { grid-column: 2; font-size: 11px; line-height: 1.3; color: #333; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.chap { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 8px 6px 0; }
+.stage { padding: 18px 22px 22px; display: grid; gap: 14px; align-content: start; }
+.stage-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.stage-bar .pos { font-variant-numeric: tabular-nums; font-weight: 600; }
+.canvas-wrap { background: var(--soft); border-radius: 16px; padding: 14px; }
+.inspector { border-left: 1px solid var(--hairline); padding: 16px; display: grid; gap: 14px; align-content: start; }
+.inspector h3 { font-size: 15px; }
+.sect { display: grid; gap: 10px; padding-top: 12px; border-top: 1px solid var(--hairline); }
+.slot { display: grid; grid-template-columns: 56px 1fr; gap: 8px; align-items: center; }
+.slot .sw { width: 56px; height: 42px; border-radius: 6px; background: var(--soft) center/cover no-repeat; border: 1px solid var(--hairline); }
+.slot .acts { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* slide canvas */
+.sc { position: relative; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+.sc .e { position: absolute; }
+.sc .tx { display: flex; flex-direction: column; white-space: pre-wrap; line-height: 1.16; overflow-wrap: anywhere; }
+.sc .tx.v-middle { justify-content: center; }
+.sc .tx.v-bottom { justify-content: flex-end; }
+.sc .fr { display: grid; place-items: center; text-align: center; background-repeat: no-repeat; background-position: center; }
+.sc .fr.ph { border-style: dashed; border-width: 1px; }
+.sc .fr.click { cursor: pointer; }
+.sc .fr.click:hover { outline: 3px solid var(--mint); outline-offset: -3px; }
+.sc table { border-collapse: collapse; table-layout: fixed; }
+.sc td { padding: 0 0.6em; overflow: hidden; }
+
+/* design */
+#designPanel { display: grid; gap: 22px; }
+#designPanel .sect { padding-top: 20px; gap: 12px; }
+#designPanel .sect > h3 { margin: 0; }
+.dform { display: grid; gap: 12px; }
+.dform > h2 { margin-bottom: 2px; }
+.dform > p { font-size: 13px; line-height: 1.55; }
+.dform .toggle { align-items: flex-start; }
+.dform .toggle input { margin-top: 3px; flex: none; }
+.dform > .btn, .dform > label.btn { justify-self: start; margin-top: 4px; }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.swatch { border: 1px solid var(--hairline); border-radius: 16px; padding: 10px; cursor: pointer; display: grid; gap: 8px; background: var(--canvas); text-align: left; }
+.swatch.sel { border: 2px solid var(--ink); }
+.swatch .bar { display: flex; height: 26px; border-radius: 8px; overflow: hidden; }
+.swatch .bar span { flex: 1; }
+.colors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.colors .field input[type=color] { height: 38px; padding: 3px; }
+.preview-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.toggle { display: flex; gap: 8px; align-items: center; font-weight: 500; }
+
+/* export */
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.stat { background: var(--mint-wash); border-radius: 16px; padding: 14px; }
+.stat .v { font-family: var(--display); font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 12px; color: #333; }
+.reflist { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.reflist li { border-top: 1px solid var(--hairline); padding-top: 10px; display: grid; gap: 6px; }
+.reflist li:first-child { border-top: 0; padding-top: 0; }
+.reflist .rt { font-size: 13px; line-height: 1.4; }
+.reflist .rl { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.reflist .lk { font-size: 11.5px; font-weight: 600; text-decoration: none; color: var(--ink); border: 1px solid var(--hairline); border-radius: 14px; padding: 3px 10px; background: var(--canvas); }
+.reflist .lk:hover { border-color: var(--ink); }
+.reflist .lk.pdf { background: var(--mint); border-color: var(--ink); }
+.reflist .lk.free { background: var(--mint-wash); border-color: #9be7c4; }
+.reflist .id { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.reflist.compact .rt { font-size: 12px; }
+.reflist.compact { gap: 8px; }
+.warnlist { font-size: 12.5px; color: #8a4b00; display: grid; gap: 2px; }
+
+/* overlay + toast + dialog */
+.overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.86); display: none; place-items: center; z-index: 50; }
+.overlay.on { display: grid; }
+.busy { background: var(--canvas); border: 1px solid var(--hairline); border-radius: 24px; padding: 26px 30px; display: grid; gap: 10px; justify-items: center; max-width: 420px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
+.spin { width: 34px; height: 34px; border-radius: 50%; border: 4px solid var(--mint-wash); border-top-color: var(--ink); animation: sp 0.9s linear infinite; }
+@keyframes sp { to { transform: rotate(360deg); } }
+.toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--canvas); padding: 10px 18px; border-radius: 20px; z-index: 60; font-weight: 600; display: none; max-width: calc(100% - 32px); }
+.toast.on { display: block; }
+.dlg { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; place-items: center; z-index: 70; padding: 16px; }
+.dlg.on { display: grid; }
+.dlg-box { background: var(--canvas); border-radius: 24px; padding: 24px; max-width: 440px; display: grid; gap: 14px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+.hint { font-weight: 500; color: var(--muted); font-size: 11.5px; margin-left: 4px; }
+.pc-title { font-family: var(--display); font-size: 20px; min-width: 86px; text-align: center; font-variant-numeric: tabular-nums; }
+.pc-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 18px; align-items: start; }
+@media (max-width: 900px) { .pc-wrap { grid-template-columns: 1fr; } }
+.pc-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--hairline); border-radius: 16px; overflow: hidden; }
+.pc-dow { background: var(--soft); text-align: center; font-size: 12px; font-weight: 600; padding: 7px 0; border-bottom: 1px solid var(--hairline); }
+.pc-cell { min-height: 92px; padding: 6px; border-top: 1px solid var(--hairline); border-left: 1px solid var(--hairline); display: flex; flex-direction: column; gap: 3px; cursor: pointer; min-width: 0; }
+.pc-cell:nth-child(7n+1) { border-left: 0; }
+.pc-dow + .pc-cell, .pc-dow ~ .pc-cell:nth-child(-n+14) { border-top: 0; }
+.pc-cell:hover { background: #fafbfb; }
+.pc-cell.out { background: #fcfcfd; }
+.pc-cell.out .pc-n { color: #b7bdc4; }
+.pc-n { font-size: 12.5px; font-weight: 600; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; font-variant-numeric: tabular-nums; }
+.pc-cell.sun .pc-n { color: #c0392b; }
+.pc-cell.today .pc-n { background: var(--ink); color: #fff; }
+.pc-ev { display: block; width: 100%; text-align: left; border: 0; background: var(--mint); color: var(--ink); font: inherit; font-size: 11.5px; font-weight: 600; padding: 3px 6px; border-radius: 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.pc-ev.cur { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.pc-ev.past { background: var(--soft); color: var(--muted); }
+.pc-side h3 { font-size: 15px; margin-bottom: 10px; }
+.pc-up { display: flex; gap: 10px; align-items: center; width: 100%; text-align: left; border: 1px solid var(--hairline); background: var(--canvas); border-radius: 14px; padding: 9px 10px; margin-bottom: 8px; font: inherit; cursor: pointer; }
+.pc-up:hover { background: #fafbfb; }
+.pc-up b { display: block; font-size: 13px; line-height: 1.3; }
+.pc-up small { color: var(--muted); font-size: 11.5px; }
+.pc-d { flex: none; font-family: var(--display); font-weight: 700; font-size: 13px; background: var(--ink); color: #fff; border-radius: 10px; padding: 3px 8px; }
+.pc-empty { color: var(--muted); font-size: 13px; }
+@media (max-width: 560px) { .pc-cell { min-height: 64px; padding: 4px 3px; } .pc-ev { font-size: 10px; padding: 2px 3px; } .pc-title { font-size: 17px; min-width: 70px; } }
+
+[hidden] { display: none !important; }
+.steps a { white-space: nowrap; }
+.rf-box { max-width: 860px; width: 100%; max-height: calc(100vh - 32px); grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto; overflow: hidden; }
+.rf-sub { color: var(--muted); font-size: 13px; margin-top: -6px; }
+.rf-q { display: flex; gap: 8px; flex-wrap: wrap; }
+.rf-q input { flex: 1 1 260px; border: 1.5px solid var(--ink); border-radius: 28px; padding: 9px 16px; font: inherit; min-width: 0; }
+.rf-f { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 13px; }
+.rf-f select { border: 1px solid var(--hairline); border-radius: 10px; padding: 5px 8px; font: inherit; margin-left: 4px; }
+.rf-status { font-size: 13px; color: #333; min-height: 20px; }
+.rf-status a { color: inherit; font-weight: 600; }
+.rf-list { overflow-y: auto; min-height: 0; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
+.rf-list:empty { border: 0; }
+.rf-item { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; padding: 12px 4px; border-top: 1px solid var(--hairline); }
+.rf-item:first-child { border-top: 0; }
+.rf-item input { width: 18px; height: 18px; margin-top: 2px; accent-color: #000; }
+.rf-item.rec { background: var(--mint-wash); border-radius: 12px; padding: 12px 10px; }
+.rf-item.done { opacity: 0.6; }
+.rf-rec { font-size: 12px; font-weight: 700; color: #0a6b48; margin-bottom: 4px; }
+.rf-sl { color: var(--ink); font-weight: 600; }
+.rf-t { font-weight: 700; line-height: 1.35; font-size: 14px; }
+.rf-t a { color: var(--ink); text-decoration: none; }
+.rf-t a:hover { text-decoration: underline; }
+.rf-m { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.rf-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.rf-tags .chip { font-size: 11px; padding: 2px 8px; }
+.rf-item details { margin-top: 6px; font-size: 12.5px; }
+.rf-item details summary { cursor: pointer; color: var(--muted); font-weight: 600; }
+.rf-item details p { margin-top: 6px; line-height: 1.55; color: #333; }
+.rf-foot { gap: 10px; flex-wrap: wrap; }
+.rf-foot .toggle { font-size: 13px; }
+#rfSel:empty { display: none; }
+@media (max-width: 560px) { .rf-box { padding: 16px; border-radius: 18px; } }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+</head>
+<body>
+<div id="gj-ppt">
+<header class="topbar">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">▲</span>학회 PPT 스튜디오</div>
+  <nav class="steps" aria-label="작업 단계">
+    <a href="#setup" data-v="setup"><span class="n">1</span>주제</a>
+    <a href="#story" data-v="story"><span class="n">2</span>스토리라인</a>
+    <a href="#edit" data-v="edit"><span class="n">3</span>슬라이드 편집</a>
+    <a href="#design" data-v="design"><span class="n">4</span>디자인</a>
+    <a href="#export" data-v="export"><span class="n">5</span>내보내기</a>
+  </nav>
+  <div class="top-right">
+    <span id="saveChip" class="chip">불러오는 중</span>
+    <button class="btn primary sm" id="topDownload" type="button">PPTX 다운로드</button>
+  </div>
+</header>
+
+<main>
+  <!-- 1. SETUP -->
+  <section class="view" id="view-setup">
+    <div class="band"><div class="band-inner">
+      <h1>주제만 정하면, 스토리라인부터 PPT까지</h1>
+      <p class="lead">발표 정보를 넣으면 Claude가 스토리라인 3안을 제안해요. 고른 안으로 슬라이드를 만들고, 사진·문구·디자인을 고친 뒤 PowerPoint 파일로 내려받습니다.</p>
+    </div></div>
+    <div class="wrap grid-2">
+      <div class="card">
+        <div class="row" style="margin-bottom:12px"><h2>내 프로젝트</h2><span class="spacer"></span><button class="btn sm primary" id="newProject" type="button">＋ 새 프로젝트</button></div>
+        <div class="plist" id="projectList"></div>
+        <h3 style="margin:18px 0 10px">예시로 시작</h3>
+        <div class="plist" id="exampleList"></div>
+      </div>
+      <div class="card">
+        <h2>발표 정보</h2>
+        <form class="form-grid" id="infoForm" autocomplete="off">
+          <div class="field full"><label for="f-name">프로젝트 이름</label><input id="f-name" data-k="name"></div>
+          <div class="field full"><label for="f-topic">발표 주제</label><input id="f-topic" data-k="topic" placeholder="예: Forehead & Temple Filler Technique with BELOTERO"></div>
+          <div class="field"><label for="f-date">발표일 <span class="hint">캘린더에 표시돼요</span></label><input id="f-date" data-k="date" type="date"></div>
+          <div class="field"><label for="f-conf">학회명</label><input id="f-conf" data-k="conf"></div>
+          <div class="field"><label for="f-audience">청중</label><input id="f-audience" data-k="audience" placeholder="예: 피부과/성형외과 전문의"></div>
+          <div class="field"><label for="f-minutes">발표 시간 (분)</label><input id="f-minutes" data-k="minutes" type="number" min="5" max="120"></div>
+          <div class="field"><label for="f-count">슬라이드 수</label><input id="f-count" data-k="count" type="number" min="5" max="60"></div>
+          <div class="field"><label for="f-language">언어</label><select id="f-language" data-k="language"><option>English slides</option><option>한국어 슬라이드</option><option>English slides, Korean notes</option></select></div>
+          <div class="field full"><label for="f-intent">기획의도 <span class="hint">스토리라인 3안과 슬라이드에 그대로 반영돼요</span></label><textarea id="f-intent" data-k="intent" rows="6" placeholder="이 발표로 무엇을 전하고 싶은지, 청중이 무엇을 가져가면 좋을지, 꼭 강조할 제품·메시지나 넣고 싶은 케이스를 편하게 적어 주세요.&#10;예: 이마·관자를 따로 보지 않고 상안면 하나의 프레임으로 보는 관점을 전하고 싶다. 해부학 근거로 안전한 층을 먼저 설명하고, 케이스로 결과를 보여 준 뒤 BELOTERO 제품 선택 이유로 마무리. 청중이 다음 날 바로 따라 할 수 있는 주입 순서를 남기는 게 목표."></textarea></div>
+        </form>
+        <div class="row" style="margin-top:18px"><span class="spacer"></span><button class="btn mint" id="goStory" type="button">스토리라인 3안 보기 →</button></div>
+      </div>
+    </div>
+    <div class="wrap" style="padding-top:0"><section class="card" id="pcal" aria-label="발표 캘린더"></section></div>
+  </section>
+
+  <!-- 2. STORY -->
+  <section class="view" id="view-story">
+    <div class="band"><div class="band-inner">
+      <div class="row"><h1>스토리라인 3안</h1><span class="spacer"></span>
+        <button class="btn" id="genOptions" type="button">3안 새로 만들기</button></div>
+      <p class="lead" id="storyLead"></p>
+    </div></div>
+    <div class="wrap">
+      <div id="optsBox"></div>
+      <div class="card" id="storyRefCard"><div class="row" style="margin-bottom:12px"><h2>근거 논문</h2><span class="chip" id="storyRefCount"></span><span class="spacer"></span><button class="btn sm primary" type="button" id="storyFind" hidden>🔍 참고문헌 찾기</button><button class="btn sm" type="button" id="storyCopy">링크 목록 복사</button></div>
+        <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px"><b style="color:var(--ink)">전문·PDF 찾기</b>는 Europe PMC에서 무료 전문과 PDF를 내려받을 수 있는지 보여 줘요. 무료가 아니면 <b style="color:var(--ink)">출판사</b>·<b style="color:var(--ink)">PubMed</b> 링크에서 병원·학교 계정으로 받으세요.</p>
+        <div id="storyRefs"></div></div>
+      <div class="card row" id="buildBar">
+        <div style="flex:1;min-width:240px"><h3 id="buildTitle">선택한 안으로 슬라이드 만들기</h3><p class="hint" id="buildHint" style="color:var(--muted);font-size:12.5px;margin-top:4px"></p></div>
+        <button class="btn" id="openEditor" type="button">편집 화면으로</button>
+        <button class="btn mint" id="buildSlides" type="button">이 안으로 슬라이드 만들기</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. EDIT -->
+  <section class="view" id="view-edit">
+    <div class="editor">
+      <div class="slist" id="slideList" aria-label="슬라이드 목록"></div>
+      <div class="stage">
+        <div class="stage-bar">
+          <button class="btn sm ghost" id="prevSlide" type="button" aria-label="이전 슬라이드">←</button>
+          <span class="pos" id="slidePos"></span>
+          <button class="btn sm ghost" id="nextSlide" type="button" aria-label="다음 슬라이드">→</button>
+          <span class="spacer"></span>
+          <span class="chip" id="layoutChip"></span>
+        </div>
+        <div class="canvas-wrap"><div id="bigCanvas"></div></div>
+        <p style="font-size:12px;color:var(--muted)">점선 칸을 클릭하면 사진·그림을 넣을 수 있어요. 그림은 잘리지 않게, 사진은 프레임을 꽉 채우게 들어갑니다.</p>
+        <div class="field"><label for="e-notes">발표자 노트 (PPT 노트에 들어가요)</label><textarea id="e-notes" data-s="notes" rows="4"></textarea></div>
+      </div>
+      <aside class="inspector" id="inspector"></aside>
+    </div>
+  </section>
+
+  <!-- 4. DESIGN -->
+  <section class="view" id="view-design">
+    <div class="band"><div class="band-inner">
+      <h1>디자인</h1>
+      <p class="lead">테마를 고르거나 색·글꼴·사진 프레임을 직접 바꾸세요. 학회 로고를 넣으면 외부업체 폼처럼 모든 슬라이드 위에 표시됩니다.</p>
+    </div></div>
+    <div class="wrap grid-2">
+      <div class="card" id="designPanel"></div>
+      <div class="card">
+        <div class="row" style="margin-bottom:12px"><h2>미리보기</h2><span class="spacer"></span><span class="chip" id="designPos"></span></div>
+        <div id="designCanvas"></div>
+        <div class="preview-strip" id="designStrip" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. EXPORT -->
+  <section class="view" id="view-export">
+    <div class="band"><div class="band-inner">
+      <h1>내보내기</h1>
+      <p class="lead">PowerPoint(.pptx)로 내려받으면 사진 위치는 [자르기]로, 글자는 바로 수정할 수 있어요. 발표자 노트와 참고문헌 부록(논문 링크 포함)도 함께 들어갑니다.</p>
+    </div></div>
+    <div class="wrap grid-2">
+      <div class="card" style="display:grid;gap:16px">
+        <h2>PPTX 파일</h2>
+        <div class="stat-row" id="exportStats"></div>
+        <div class="warnlist" id="exportWarn"></div>
+        <label class="toggle"><input type="checkbox" id="x-notes" checked> 발표자 노트 포함</label>
+        <label class="toggle"><input type="checkbox" id="x-refs" checked> 참고문헌 부록 슬라이드 포함</label>
+        <label class="toggle"><input type="checkbox" id="x-ph" checked> 비어 있는 그림 자리 표시</label>
+        <button class="btn primary" id="doExport" type="button" style="justify-self:start;padding:12px 28px">PPTX 다운로드</button>
+        <p id="exportMsg" style="font-size:12.5px;color:var(--muted)"></p>
+        <div class="sect">
+          <h3>프로젝트 백업</h3>
+          <p style="font-size:12.5px;color:var(--muted)">사진까지 포함한 프로젝트 파일(.json)로 저장하거나 불러올 수 있어요.</p>
+          <div class="row"><button class="btn sm" id="saveJson" type="button">프로젝트 파일 저장</button>
+            <label class="btn sm" for="loadJson">프로젝트 파일 불러오기</label><input type="file" id="loadJson" accept=".json,application/json" class="sr"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row" style="margin-bottom:12px"><h2>참고문헌</h2><span class="spacer"></span><button class="btn sm primary" type="button" id="x-findRefs" hidden>🔍 참고문헌 찾기</button></div>
+        <div class="field"><label for="x-refsText">한 줄에 하나: 번호 | 제목 | PMID 또는 DOI</label><textarea id="x-refsText" rows="18" style="font-size:12px"></textarea>
+          <span class="hint">PMID·DOI·PMC 번호나 PDF 주소를 같이 적으면 링크가 자동으로 생겨요. Claude가 만든 문구에는 참고문헌을 넣지 않으니, 확인된 논문만 적어 주세요.</span></div>
+        <div class="row" style="margin:16px 0 10px"><h3>링크</h3><span class="spacer"></span><button class="btn sm" type="button" id="x-copyLinks">링크 목록 복사</button></div>
+        <div id="x-refList"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<input type="file" id="imgInput" accept="image/*" class="sr">
+<input type="file" id="formInput" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" class="sr">
+<div class="overlay" id="overlay"><div class="busy"><div class="spin"></div><h3 id="busyTitle">작업 중</h3><p id="busyText" style="color:var(--muted);font-size:13px"></p><button class="btn sm" id="busyCancel" type="button">취소</button></div></div>
+<div class="dlg" id="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgTitle"><div class="dlg-box"><h3 id="dlgTitle"></h3><p id="dlgText" style="color:#333"></p><div class="row"><span class="spacer"></span><button class="btn" id="dlgNo" type="button">취소</button><button class="btn primary" id="dlgYes" type="button">확인</button></div></div></div>
+<div class="dlg" id="refDlg" role="dialog" aria-modal="true" aria-labelledby="rfTitle"><div class="dlg-box rf-box">
+  <div class="row"><h3 id="rfTitle">참고문헌 찾기</h3><span class="spacer"></span><button class="btn sm ghost" id="rfClose" type="button">닫기</button></div>
+  <p class="rf-sub" id="rfSub"></p>
+  <div class="rf-q"><input id="rfQ" placeholder="영어 검색어 (예: temple filler hyaluronic acid)" aria-label="검색어"><button class="btn primary" id="rfGo" type="button">검색</button><button class="btn mint" id="rfAi" type="button">✦ Claude 추천</button></div>
+  <div class="rf-f">
+    <label>기간 <select id="rfYears"><option value="0">전체</option><option value="5">최근 5년</option><option value="10" selected>최근 10년</option><option value="15">최근 15년</option></select></label>
+    <label>정렬 <select id="rfSort"><option value="rel">관련도</option><option value="cited">인용 많은 순</option><option value="new">최신순</option></select></label>
+    <label class="toggle"><input type="checkbox" id="rfReview"> 리뷰 논문만</label>
+    <label class="toggle"><input type="checkbox" id="rfOa"> 무료 전문만</label>
+  </div>
+  <div class="rf-status" id="rfStatus" role="status"></div>
+  <div class="rf-list" id="rfList"></div>
+  <div class="row rf-foot"><label class="toggle" id="rfToSlidesWrap"><input type="checkbox" id="rfToSlides" checked> Claude가 고른 슬라이드 근거 칸에도 번호 넣기</label><span class="spacer"></span><span id="rfSel" class="chip"></span><button class="btn primary" id="rfAdd" type="button" disabled>선택한 논문 추가</button></div>
+</div></div>
+<div class="toast" id="toast" role="status"></div>
+
+</div>
+<script>
+/* Claude 연결 공용 모듈: claude.ai 안에서는 앱 안의 Claude(sample), 밖(깃허브 등)에서는 사용자의 Anthropic API 키 */
+window.GJAI = (function () {
+  "use strict";
+  const KEY = "goldj-anthropic";
+  const inClaude = !!(window.claude && typeof window.claude.use === "function");
+  const MODELS = { quick: "claude-haiku-5-5", default: "claude-sonnet-5-5", complex: "claude-opus-5-5" };
+  let capFn = null;
+  function cfg() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  function saveKey(k) { try { if (k) localStorage.setItem(KEY, JSON.stringify(Object.assign(cfg(), { key: k }))); else localStorage.removeItem(KEY); } catch (e) {} }
+  function err(code, message) { const e = new Error(message); e.code = code; return e; }
+  async function api(input, opts) {
+    opts = opts || {};
+    const c = cfg(); if (!c.key) throw err("not_granted", "API 키가 없어요");
+    const messages = typeof input === "string" ? [{ role: "user", content: input }] : input;
+    let res;
+    try {
+      res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST", signal: opts.signal,
+        headers: { "content-type": "application/json", "x-api-key": c.key, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+        body: JSON.stringify({ model: MODELS[opts.modelTier] || MODELS.default, max_tokens: 16000, stream: true, messages }),
+      });
+    } catch (e) { if (e && e.name === "AbortError") throw e; throw err("network", "Claude API에 연결하지 못했어요"); }
+    if (!res.ok) {
+      let msg = await res.text(); try { msg = JSON.parse(msg).error.message; } catch (e) {}
+      throw err(res.status === 401 || res.status === 403 ? "bad_key" : res.status === 429 || res.status === 529 ? "rate_limited" : "api_error", `${res.status} ${msg}`.slice(0, 300));
+    }
+    const reader = res.body.getReader(); const dec = new TextDecoder();
+    let buf = "", out = "", stop = "";
+    for (;;) {
+      const { done, value } = await reader.read(); if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+        if (!line.startsWith("data:")) continue;
+        let ev; try { ev = JSON.parse(line.slice(5).trim()); } catch (e) { continue; }
+        if (ev.type === "content_block_delta" && ev.delta && ev.delta.type === "text_delta") { out += ev.delta.text; if (opts.onText) opts.onText({ text: out, delta: ev.delta.text }); }
+        if (ev.type === "message_delta" && ev.delta && ev.delta.stop_reason) stop = ev.delta.stop_reason;
+        if (ev.type === "error") throw err("api_error", (ev.error && ev.error.message) || "API 오류");
+      }
+    }
+    return { text: out, truncated: stop === "max_tokens" };
+  }
+  function download(name, blob) {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  }
+  return {
+    inClaude, cfg, saveKey, download,
+    setCap(fn) { capFn = fn || null; },
+    cap() { return capFn; },
+    fn() { return capFn || (!inClaude && cfg().key ? api : null); },
+  };
+})();
+
+</script>
+<script>
+/* Slide engine: one geometry for the on-screen preview and the PPTX export (inches, 16:9 = 13.333 x 7.5). */
+(function (root) {
+  const W = 13.333, H = 7.5, M = 0.6, CW = W - 2 * M, TOP = 2.05, BOT = 6.75;
+
+  const THEMES = {
+    plum: { name: "Clinical Plum", primary: "4A2340", accent: "C9973F", bg: "FFFFFF", ink: "2A2230", muted: "7A6A78", tint: "F4EEF2", dark: "4A2340", headFont: "Cambria", bodyFont: "Calibri" },
+    burgundy: { name: "Burgundy Form", primary: "94344B", accent: "D9A5B2", bg: "FFFFFF", ink: "222222", muted: "777777", tint: "F7EEF0", dark: "94344B", headFont: "Times New Roman", bodyFont: "Calibri" },
+    mint: { name: "Fresh Mint", primary: "111111", accent: "00F0A0", bg: "FFFFFF", ink: "111111", muted: "6B7480", tint: "ECFFE0", dark: "000000", headFont: "Arial", bodyFont: "Arial" },
+    navy: { name: "Navy Classic", primary: "1E2761", accent: "7FA7F5", bg: "FFFFFF", ink: "1B1E2B", muted: "687087", tint: "EEF2FC", dark: "1E2761", headFont: "Cambria", bodyFont: "Calibri" },
+    charcoal: { name: "Charcoal Minimal", primary: "36454F", accent: "E07A5F", bg: "FFFFFF", ink: "212121", muted: "6E7A82", tint: "F2F2F2", dark: "212121", headFont: "Arial", bodyFont: "Calibri" },
+  };
+  const DEFAULT_STYLE = { titleSize: 30, frameRatio: "4:3", frameBorder: true, showPart: true, logo: null, logoPos: "right" };
+
+  const LAYOUTS = [
+    ["title", "표지"], ["divider", "간지(챕터 시작)"], ["figure", "그림 1장 + 제목"], ["image", "그림만 (글 없음)"],
+    ["photos", "사진 1~3장 + 캡션"], ["points", "핵심 포인트 + 그림"], ["text", "글머리 목록"], ["table", "표"],
+    ["stats", "숫자 카드"], ["flow", "단계 흐름"], ["checklist", "체크리스트"], ["numbered", "번호 카드(요약)"], ["closing", "마무리"],
+  ];
+
+  function theme(project) {
+    const base = typeof project.theme === "string" ? (THEMES[project.theme] || THEMES.plum) : Object.assign({}, THEMES.plum, project.theme || {});
+    return Object.assign({}, DEFAULT_STYLE, base, project.style || {});
+  }
+  function lum(hex) {
+    const n = parseInt(hex, 16), c = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  const textOn = (hex) => (lum(hex) > 0.45 ? "111111" : "FFFFFF");
+  // a color readable as text on the slide background: the primary, unless it is too light
+  const strong = (t) => (lum(t.primary) > 0.45 ? t.ink : t.primary);
+  const ratio = (t) => { const [a, b] = String(t.frameRatio || "4:3").split(":").map(Number); return a && b ? a / b : 4 / 3; };
+  const lines = (s) => String(s || "").split("\n").map((x) => x.trim()).filter(Boolean);
+
+  function build(project, slide, index) {
+    const t = theme(project);
+    const els = [];
+    const L = slide.layout;
+    const dark = L === "title" || L === "closing" || L === "divider";
+    const F = project.form && project.form.enabled !== false ? project.form : null;
+    const fbg = F ? (dark ? F.coverBg : F.contentBg) : null;
+    const bg = fbg || (dark ? t.dark : t.bg);
+    const onDark = F && dark && F.coverTitle && F.coverTitle.color ? F.coverTitle.color : textOn(dark ? bg : t.dark);
+    if (F) (dark ? F.cover : F.content || []).forEach((g) => els.push(Object.assign({}, g)));
+    const S = strong(t);
+    const txt = (o) => els.push(Object.assign({ t: "text", font: "body", color: t.ink, size: 16, align: "left", valign: "top" }, o));
+    const rect = (o) => els.push(Object.assign({ t: "rect", radius: 0.12 }, o));
+    const circle = (x, y, d, label, fill, color) => { els.push({ t: "oval", x, y, w: d, h: d, fill }); txt({ x, y, w: d, h: d, text: label, size: Math.round(d * 30), bold: true, color, align: "center", valign: "middle" }); };
+    const frame = (x, y, w, h, slot, fit, label, desc) => els.push({ t: "frame", x, y, w, h, img: (slide.photos || [])[slot] || null, slot, fit, label, desc, tint: t.tint, line: t.muted, border: t.frameBorder });
+    const hasLogo = !!t.logo;
+    const partName = (project.chapters || [])[slide.part];
+
+    if (dark) {
+      if (L === "divider") {
+        txt({ x: M + 0.4, y: 1.6, w: 4, h: 1.4, text: String((slide.part || 0) + 1).padStart(2, "0"), size: 80, bold: true, font: "head", color: t.accent, valign: "bottom" });
+        txt({ x: M + 0.4, y: 3.2, w: CW - 0.8, h: 1.6, text: slide.title || partName || "", size: 40, bold: true, font: "head", color: onDark });
+        if (slide.sub) txt({ x: M + 0.4, y: 4.9, w: CW - 0.8, h: 0.6, text: slide.sub, size: 20, color: onDark });
+      } else if (F && F.coverTitle) {
+        const ct = F.coverTitle, cs = F.coverSub;
+        txt({ x: ct.x, y: ct.y, w: ct.w, h: ct.h, text: slide.title || "", size: L === "title" ? ct.size : ct.size + 6, bold: ct.bold !== false, font: "head", fontName: ct.fontName, color: ct.color || onDark, align: ct.align || "left", valign: ct.valign || "bottom" });
+        if (cs) txt({ x: cs.x, y: cs.y, w: cs.w, h: cs.h, text: slide.sub || "", size: cs.size, fontName: cs.fontName, color: cs.color || onDark, align: cs.align || "left", valign: cs.valign || "top" });
+        else txt({ x: ct.x, y: ct.y + ct.h + 0.15, w: ct.w, h: 0.6, text: slide.sub || "", size: 20, color: ct.color || onDark, align: ct.align || "left" });
+      } else {
+        txt({ x: M + 0.4, y: 2.1, w: CW - 0.8, h: 2.0, text: slide.title || "", size: L === "title" ? 40 : 48, bold: true, font: "head", color: onDark, valign: "bottom" });
+        txt({ x: M + 0.4, y: 4.35, w: CW - 0.8, h: 0.6, text: slide.sub || "", size: 20, color: onDark });
+        const eyebrow = L === "title" ? (project.info && project.info.conf) || "" : "";
+        if (eyebrow) txt({ x: M + 0.4, y: 6.55, w: 9, h: 0.4, text: eyebrow.toUpperCase(), size: 12, bold: true, color: t.accent, spacing: 2 });
+      }
+      if (hasLogo) els.push({ t: "logo", x: t.logoPos === "left" ? M : W - M - 1.8, y: 0.35, w: 1.8, h: 0.55, img: t.logo });
+      return { bg, els, number: false };
+    }
+
+    // content header
+    if (t.showPart && partName) txt({ x: M, y: 0.45, w: 8, h: 0.3, text: `${String((slide.part || 0) + 1).padStart(2, "0")} · ${partName.toUpperCase()}`, size: 12, bold: true, color: S, spacing: 2 });
+    const logoLeft = hasLogo && t.logoPos === "left";
+    if (F && F.titleBox) {
+      const tb = F.titleBox;
+      txt({ x: tb.x, y: tb.y, w: tb.w, h: tb.h, text: slide.title || "", size: tb.size || t.titleSize, bold: tb.bold !== false, font: "head", fontName: tb.fontName, color: tb.color || t.ink, align: tb.align || "left", valign: tb.valign || "middle" });
+    } else txt({ x: logoLeft ? M + 2.0 : M, y: 0.8, w: CW - (hasLogo ? 2.0 : 0), h: 1.05, text: slide.title || "", size: t.titleSize, bold: true, font: "head" });
+    if (hasLogo) els.push({ t: "logo", x: logoLeft ? M : W - M - 1.8, y: 0.3, w: 1.8, h: 0.55, img: t.logo });
+    if (slide.refs) txt({ x: M, y: 6.95, w: 10, h: 0.3, text: "Source: " + slide.refs, size: 10, color: t.muted });
+
+    const items = slide.items || [];
+    const h = BOT - TOP;
+    switch (L) {
+      case "figure": frame(M, TOP, CW, h, 0, "contain", "FIGURE", slide.fig); break;
+      case "image": frame(M, TOP, CW, h, 0, "contain", "IMAGE ONLY", slide.fig); break;
+      case "text":
+        txt({ x: M, y: TOP, w: CW, h, text: items.join("\n"), size: 20, bullets: true });
+        break;
+      case "points": {
+        const lw = 5.2;
+        items.slice(0, 5).forEach((p, i) => {
+          const y = TOP + 0.2 + i * 1.0;
+          circle(M, y, 0.55, String(i + 1), S, textOn(S));
+          txt({ x: M + 0.8, y: y - 0.1, w: lw - 0.8, h: 0.75, text: p, size: 18, valign: "middle" });
+        });
+        frame(M + lw + 0.4, TOP, CW - lw - 0.4, h, 0, "contain", "FIGURE", slide.fig);
+        break;
+      }
+      case "table": {
+        const rows = items.map((r) => r.split("|").map((c) => c.trim()));
+        if (rows.length) {
+          const nc = Math.max(...rows.map((r) => r.length));
+          rows.forEach((r) => { while (r.length < nc) r.push(""); });
+          els.push({ t: "table", x: M, y: TOP + 0.1, w: CW, rowH: 0.7, rows, head: S, headText: textOn(S), firstCol: rows[0][0] === "", tint: t.tint, line: "D9D2D8", size: 16 });
+          if (slide.fig) txt({ x: M, y: TOP + 0.3 + 0.7 * rows.length, w: CW, h: 0.4, text: slide.fig, size: 12, italic: true, color: t.muted });
+        }
+        break;
+      }
+      case "stats": {
+        const st = items.slice(0, 4).map((r) => r.split("|").map((c) => c.trim()));
+        const k = Math.max(1, st.length), cw = (CW - 0.3 * (k - 1)) / k;
+        st.forEach(([num, lab, ref], i) => {
+          const x = M + i * (cw + 0.3);
+          rect({ x, y: TOP + 0.3, w: cw, h: 3.6, fill: t.tint });
+          txt({ x: x + 0.3, y: TOP + 0.8, w: cw - 0.6, h: 1.3, text: num || "", size: 54, bold: true, font: "head", color: S, align: "center" });
+          txt({ x: x + 0.3, y: TOP + 2.2, w: cw - 0.6, h: 0.6, text: lab || "", size: 18, align: "center" });
+          txt({ x: x + 0.3, y: TOP + 2.9, w: cw - 0.6, h: 0.4, text: ref || "", size: 12, color: t.muted, align: "center" });
+        });
+        break;
+      }
+      case "flow": {
+        const st = items.slice(0, 6), n = Math.max(1, st.length), gap = 0.5, bw = (CW - gap * (n - 1)) / n, y = TOP + 1.0;
+        st.forEach((s, i) => {
+          const x = M + i * (bw + gap), first = i === 0, fill = first ? S : t.tint, fg = first ? textOn(S) : t.ink;
+          rect({ x, y, w: bw, h: 2.2, fill });
+          circle(x + bw / 2 - 0.3, y + 0.35, 0.6, String(i + 1), first ? textOn(S) : S, first ? S : textOn(S));
+          txt({ x: x + 0.15, y: y + 1.1, w: bw - 0.3, h: 0.9, text: s, size: 18, bold: true, align: "center", valign: "middle", color: fg });
+          if (i < n - 1) els.push({ t: "arrow", x: x + bw + 0.1, y: y + 0.92, w: 0.3, h: 0.36, fill: t.muted });
+        });
+        break;
+      }
+      case "checklist":
+        items.slice(0, 6).forEach((p, i) => {
+          const y = TOP + 0.1 + i * 0.8;
+          rect({ x: M, y, w: CW, h: 0.66, fill: i % 2 ? t.bg : t.tint, radius: 0.1 });
+          circle(M + 0.2, y + 0.1, 0.46, "✓", S, textOn(S));
+          txt({ x: M + 0.95, y, w: CW - 1.2, h: 0.66, text: p, size: 20, valign: "middle" });
+        });
+        break;
+      case "numbered": {
+        const k = Math.min(6, items.length) || 1, cols = k <= 4 ? 2 : 3, rws = Math.ceil(k / cols);
+        const cw = (CW - 0.4 * (cols - 1)) / cols, ch = Math.min(2.05, (h - 0.1 - 0.35 * (rws - 1)) / rws);
+        items.slice(0, 6).forEach((p, i) => {
+          const x = M + (i % cols) * (cw + 0.4), y = TOP + 0.1 + Math.floor(i / cols) * (ch + 0.35);
+          rect({ x, y, w: cw, h: ch, fill: t.tint });
+          txt({ x: x + 0.35, y: y + 0.2, w: 1.6, h: 0.85, text: String(i + 1).padStart(2, "0"), size: 40, bold: true, font: "head", color: S });
+          txt({ x: x + 0.35, y: y + 1.0, w: cw - 0.7, h: ch - 1.1, text: p, size: 18, bold: true });
+        });
+        break;
+      }
+      case "photos": {
+        const n = Math.min(3, Math.max(1, slide.frames || 1)), r = ratio(t), gap = 0.3;
+        const caps = (slide.caps || []).slice(0, n);
+        const capLines = Math.max(0, ...caps.map((c) => lines(c).length));
+        const capH = capLines ? 0.12 + 0.32 * capLines : 0;
+        let textH = 0;
+        if (slide.emphasis) textH += 0.65;
+        if (slide.summary) textH += lines(slide.summary).length * 0.3 + 0.15;
+        if (slide.message) textH += 0.5;
+        const availH = h - capH - textH - 0.15;
+        const maxW = (CW - gap * (n - 1)) / n;
+        const fh = Math.max(1.2, Math.min(availH, maxW / r, n === 1 ? 3.9 : n === 2 ? 3.7 : 3.0)), fw = fh * r;
+        const total = n * fw + (n - 1) * gap, x0 = M + (CW - total) / 2;
+        for (let i = 0; i < n; i++) {
+          const x = x0 + i * (fw + gap);
+          frame(x, TOP, fw, fh, i, "cover", "PHOTO " + (i + 1), "사진을 넣으세요");
+          if (caps[i]) txt({ x, y: TOP + fh + 0.08, w: fw, h: capH, text: caps[i], size: 16, align: "center" });
+        }
+        let y = TOP + fh + (capH ? capH + 0.15 : 0.2);
+        if (slide.emphasis) { txt({ x: M, y, w: CW, h: 0.55, text: slide.emphasis, size: 26, bold: true, font: "head", color: S, align: "center" }); y += 0.65; }
+        if (slide.summary) { const nl = lines(slide.summary).length; txt({ x: x0, y, w: CW - (x0 - M), h: nl * 0.3 + 0.1, text: lines(slide.summary).join("\n"), size: 16, bold: true }); y += nl * 0.3 + 0.15; }
+        if (slide.message) txt({ x: M, y: Math.max(6.25, y), w: CW, h: 0.45, text: slide.message, size: 18, align: "center" });
+        break;
+      }
+    }
+    return { bg, els, number: true };
+  }
+
+  // "R21 | title | PMID 39082612 | doi:10.x/y | PMC123 | https://...pdf"
+  function parseRef(line) {
+    const parts = String(line).split("|").map((s) => s.trim());
+    const r = { raw: line, id: "", title: "", pmid: "", doi: "", pmc: "", url: "" };
+    if (/^R?\d+[a-z]?$/i.test(parts[0] || "")) { r.id = parts.shift(); }
+    r.title = (parts.shift() || "").replace(/\.$/, "");
+    const rest = parts.join(" | ");
+    const pm = rest.match(/PMID\s*:?\s*(\d{5,9})/i) || parts.map((p) => p.match(/^(\d{6,9})$/)).find(Boolean); if (pm) r.pmid = pm[1];
+    const noUrl = rest.replace(/https?:\/\/[^\s|]+/g, " ");
+    const d = noUrl.match(/\b(10\.\d{4,9}\/[^\s|]+)/); if (d) r.doi = d[1].replace(/[.,;]$/, "");
+    const c = rest.match(/\b(PMC\d+)\b/i); if (c) r.pmc = c[1].toUpperCase();
+    const u = rest.match(/(https?:\/\/[^\s|]+)/); if (u) r.url = u[1];
+    return r;
+  }
+  function refLinks(r) {
+    const L = [];
+    if (r.url) L.push({ kind: "pdf", label: "원문/PDF", url: r.url });
+    if (r.pmc) { L.push({ kind: "pdf", label: "PMC 무료 전문", url: `https://pmc.ncbi.nlm.nih.gov/articles/${r.pmc}/` }); }
+    if (r.pmid) L.push({ kind: "free", label: "전문·PDF 찾기", url: `https://europepmc.org/article/MED/${r.pmid}` });
+    if (r.doi) L.push({ kind: "pub", label: "출판사", url: `https://doi.org/${r.doi}` });
+    if (r.pmid) L.push({ kind: "pubmed", label: "PubMed", url: `https://pubmed.ncbi.nlm.nih.gov/${r.pmid}/` });
+    if (r.title) L.push({ kind: "scholar", label: "Scholar", url: `https://scholar.google.com/scholar?q=${encodeURIComponent(r.title)}` });
+    return L;
+  }
+  function refsSlides(project) {
+    const rl = lines(project.refs);
+    const out = [];
+    for (let i = 0; i < rl.length; i += 20) out.push(rl.slice(i, i + 20));
+    return out;
+  }
+
+  // --- PPTX export (pptxgenjs) ---
+  function imgDims(img) { return { w: img.w || 4, h: img.h || 3 }; }
+  function fitRect(box, dims) {
+    const s = Math.min(box.w / dims.w, box.h / dims.h), w = dims.w * s, h = dims.h * s;
+    return { x: box.x + (box.w - w) / 2, y: box.y + (box.h - h) / 2, w, h };
+  }
+
+  function exportDeck(Pptx, project, images, opts) {
+    opts = opts || {};
+    const t = theme(project);
+    const pres = new Pptx();
+    pres.layout = "LAYOUT_WIDE";
+    pres.title = (project.info && project.info.topic) || project.name || "Presentation";
+    const font = (f, name) => name || (f === "head" ? t.headFont : t.bodyFont);
+    const getImg = (id) => (id && images[id]) || null;
+
+    const draw = (s, e) => {
+      switch (e.t) {
+        case "text": {
+          const base = { x: e.x, y: e.y, w: e.w, h: e.h, fontFace: font(e.font, e.fontName), fontSize: e.size, bold: !!e.bold, italic: !!e.italic,
+            color: e.color, align: e.align, valign: e.valign, margin: 0, isTextBox: true };
+          if (e.spacing) base.charSpacing = e.spacing;
+          if (e.bullets) {
+            s.addText(lines(e.text).map((l) => ({ text: l, options: { bullet: true, breakLine: true } })), Object.assign(base, { paraSpaceAfter: 8 }));
+          } else s.addText(String(e.text || ""), base);
+          break;
+        }
+        case "rect":
+          if (!e.radius) s.addShape(pres.shapes.RECTANGLE, { x: e.x, y: e.y, w: e.w, h: e.h, fill: { color: e.fill }, line: { color: e.fill } });
+          else s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: e.x, y: e.y, w: e.w, h: e.h, rectRadius: e.radius, fill: { color: e.fill }, line: { color: e.fill } });
+          break;
+        case "img": { const im = getImg(e.img); if (im) s.addImage({ data: im.data, x: e.x, y: e.y, w: e.w, h: e.h }); break; }
+        case "oval": s.addShape(pres.shapes.OVAL, { x: e.x, y: e.y, w: e.w, h: e.h, fill: { color: e.fill }, line: { color: e.fill } }); break;
+        case "arrow": s.addShape(pres.shapes.RIGHT_ARROW, { x: e.x, y: e.y, w: e.w, h: e.h, fill: { color: e.fill }, line: { color: e.fill } }); break;
+        case "logo": {
+          const im = getImg(e.img); if (!im) break;
+          const r = fitRect(e, imgDims(im)); s.addImage({ data: im.data, x: r.x, y: r.y, w: r.w, h: r.h }); break;
+        }
+        case "frame": {
+          const im = getImg(e.img);
+          if (im) {
+            const d = imgDims(im);
+            if (e.fit === "cover") {
+              const sc = Math.max(e.w / d.w, e.h / d.h);
+              s.addImage({ data: im.data, x: e.x, y: e.y, w: d.w * sc, h: d.h * sc, sizing: { type: "crop", x: (d.w * sc - e.w) / 2, y: (d.h * sc - e.h) / 2, w: e.w, h: e.h } });
+            } else { const r = fitRect(e, d); s.addImage({ data: im.data, x: r.x, y: r.y, w: r.w, h: r.h }); }
+            if (e.border) s.addShape(pres.shapes.RECTANGLE, { x: e.x, y: e.y, w: e.w, h: e.h, fill: { type: "none" }, line: { color: "D9D9D9", width: 0.75 } });
+          } else if (opts.placeholders !== false) {
+            s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: e.x, y: e.y, w: e.w, h: e.h, rectRadius: 0.12, fill: { color: e.tint }, line: { color: e.line, width: 1, dashType: "dash" } });
+            s.addText([{ text: e.label, options: { fontSize: 11, bold: true, color: e.line, charSpacing: 2, breakLine: true } },
+              { text: e.desc || "", options: { fontSize: 14, color: "333333" } }],
+              { x: e.x + 0.3, y: e.y, w: e.w - 0.6, h: e.h, align: "center", valign: "middle", fontFace: t.bodyFont, margin: 0 });
+          }
+          break;
+        }
+        case "table": {
+          const rows = e.rows.map((r, i) => r.map((c, j) => ({ text: c, options: i === 0 ? { bold: true, color: e.headText, fill: { color: e.head } }
+            : (j === 0 && e.firstCol ? { bold: true, color: e.head, fill: { color: e.tint } } : { color: "222222" }) })));
+          s.addTable(rows, { x: e.x, y: e.y, w: e.w, rowH: e.rowH, fontFace: t.bodyFont, fontSize: e.size, valign: "middle", margin: 0.08, border: { type: "solid", pt: 1, color: e.line } });
+          break;
+        }
+      }
+    };
+
+    project.slides.forEach((sl, i) => {
+      const b = build(project, sl, i);
+      const s = pres.addSlide();
+      s.background = { color: b.bg };
+      b.els.forEach((e) => draw(s, e));
+      if (b.number) s.slideNumber = { x: 12.25, y: 6.95, w: 0.5, h: 0.3, fontFace: t.bodyFont, fontSize: 10, color: t.muted, align: "right" };
+      if (opts.notes !== false) {
+        const note = [sl.notes, sl.fig ? "화면: " + sl.fig : "", sl.refs ? "근거: " + sl.refs : ""].filter(Boolean).join("\n");
+        if (note) s.addNotes(note);
+      }
+    });
+
+    if (opts.references !== false) {
+      const pages = refsSlides(project);
+      pages.forEach((chunk, k) => {
+        const s = pres.addSlide();
+        s.background = { color: t.bg };
+        s.addText("APPENDIX", { x: M, y: 0.45, w: 8, h: 0.3, fontFace: t.bodyFont, fontSize: 12, bold: true, color: strong(t), charSpacing: 2, margin: 0 });
+        s.addText(`References${pages.length > 1 ? ` (${k + 1}/${pages.length})` : ""}`, { x: M, y: 0.8, w: CW, h: 0.8, fontFace: t.headFont, fontSize: 30, bold: true, color: t.ink, margin: 0 });
+        const runs = [];
+        chunk.forEach((l, i) => {
+          const r = parseRef(l), links = refLinks(r), main = links.find((x) => x.kind === "pubmed") || links.find((x) => x.kind === "pub") || links[0];
+          if (r.id) runs.push({ text: r.id + "  ", options: { bold: true, color: strong(t) } });
+          runs.push({ text: (r.title || l) + ". ", options: main ? { hyperlink: { url: main.url }, color: t.ink } : {} });
+          const ids = [r.pmid && "PMID " + r.pmid, r.doi && "doi:" + r.doi].filter(Boolean).join(" · ");
+          if (ids) runs.push({ text: ids, options: { color: t.muted } });
+          const free = links.find((x) => x.kind === "pdf") || links.find((x) => x.kind === "free");
+          if (free) runs.push({ text: "  [" + free.label + "]", options: { hyperlink: { url: free.url }, color: strong(t) } });
+          runs[runs.length - 1].options.breakLine = i < chunk.length - 1;
+        });
+        s.addText(runs, { x: M, y: 1.75, w: CW, h: 5.1, fontFace: t.bodyFont, fontSize: 11, color: t.ink, valign: "top", paraSpaceAfter: 2, margin: 0 });
+        s.slideNumber = { x: 12.25, y: 6.95, w: 0.5, h: 0.3, fontFace: t.bodyFont, fontSize: 10, color: t.muted, align: "right" };
+      });
+    }
+    return pres;
+  }
+
+  const api = { W, H, THEMES, DEFAULT_STYLE, LAYOUTS, theme, build, exportDeck, textOn, lines, refsSlides, parseRef, refLinks };
+  if (typeof module !== "undefined" && module.exports) module.exports = api; else root.Engine = api;
+})(typeof window !== "undefined" ? window : globalThis);
+
+</script>
+<script>
+const EXAMPLES = [{"id": "example-belotero", "example": true, "name": "Forehead & Temple with BELOTERO", "info": {"conf": "", "topic": "Forehead & Temple Filler Technique with BELOTERO", "minutes": 30, "count": 40, "audience": "피부과/성형외과 전문의", "language": "English slides", "focus": "", "speaker": "", "affiliation": ""}, "chapters": ["Opening", "Assessment", "Temple Anatomy", "Forehead Anatomy", "Why BELOTERO", "Technique · Temple", "Technique · Forehead", "Safety"], "options": [{"key": "A", "name": "Layer by Layer — 해부학 중심", "concept": "\"어느 층에, 왜\"를 체계적으로 가르치는 교과서형 구성", "chapters": [{"title": "Opening", "range": "1–4", "message": "상안면이 얼굴의 프레임"}, {"title": "Assessment", "range": "5–8", "message": "템플·이마 평가 스케일"}, {"title": "Temple Anatomy", "range": "9–15", "message": "층, 지방패드, STA·MTV"}, {"title": "Forehead Anatomy", "range": "16–20", "message": "층, 동맥 지도, 실명 경로"}, {"title": "Why BELOTERO", "range": "21–25", "message": "CPM 물성과 층별 제품 선택"}, {"title": "Technique", "range": "26–35", "message": "템플(26–30) · 이마(31–35)"}, {"title": "Safety & Takeaways", "range": "36–40", "message": "예방, HDPH, 핵심 4가지"}], "pros": "논리가 탄탄하고 논문 근거를 가장 많이 활용", "cons": "앞부분이 이론 위주라 집중도가 떨어질 수 있음", "materials": "논문 그림 위주, 케이스 2건 이상", "recommend": "학술 세션"}, {"key": "B", "name": "Case by Case — 케이스 중심", "concept": "환자 유형 3가지를 따라가며 진단→해부→제품→술기→결과를 반복", "chapters": [{"title": "Opening — 3 patient types", "range": "1–5", "message": "이런 환자, 어떻게 하시나요?"}, {"title": "Case 1 — Temple hollowing", "range": "6–15", "message": "평가 → 해부 → BELOTERO Volume → 술기 → 결과"}, {"title": "Case 2 — Flat forehead", "range": "16–25", "message": "평가 → 동맥 지도 → 골막상 캐뉼라 → 결과"}, {"title": "Case 3 — Combined upper third", "range": "26–32", "message": "단일 진입점으로 이마+템플"}, {"title": "Why BELOTERO", "range": "33–36", "message": "세 케이스에서 본 CPM의 공통점"}, {"title": "Safety & Takeaways", "range": "37–40", "message": "예방과 대처"}], "pros": "실전 느낌, 집중도 최고, 제품을 자연스럽게 노출", "cons": "좋은 케이스 3건(전후 사진+영상)이 꼭 필요", "materials": "본인 케이스 위주", "recommend": "스폰서 심포지엄"}, {"key": "C", "name": "Danger to Safe — 안전 중심", "concept": "합병증 숫자로 시작해 위험 구역 → 안전한 층 → 안전한 술기로 좁혀가는 구성", "chapters": [{"title": "Opening — why upper face is risky", "range": "1–5", "message": "실명·혈관 합병증"}, {"title": "Danger Zone Map", "range": "6–15", "message": "이마 동맥, 템플 STA·MTV"}, {"title": "Safe Planes", "range": "16–22", "message": "골막상 vs 근막사이 근거 비교"}, {"title": "Product for Safe Planes", "range": "23–27", "message": "층에 맞는 물성, CPM 근거"}, {"title": "Safe Technique", "range": "28–35", "message": "캐뉼라·초음파·저압"}, {"title": "If It Goes Wrong", "range": "36–40", "message": "고용량 히알루로니다제, Takeaways"}], "pros": "전문의 청중에게 신뢰도 높고 홍보색이 옅음", "cons": "분위기가 무겁고 제품 메시지가 약함", "materials": "합병증 논문 위주, 케이스 1~2건", "recommend": "안전·교육 세션"}], "selected": "A", "theme": "plum", "slides": [{"id": "s1", "part": 0, "title": "Forehead & Temple Filler Technique with BELOTERO", "sub": "[Speaker name] · [Affiliation]", "items": [], "fig": "", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "", "notes": "제목 슬라이드. 연자명·소속 입력.", "layout": "title"}, {"id": "s2", "part": 0, "title": "Disclosure", "sub": "", "items": ["[학회 규정에 맞는 이해관계 공개 문구]"], "fig": "", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "", "notes": "Merz 등 관계 고지 (학회 규정 문구).", "layout": "text"}, {"id": "s3", "part": 0, "title": "The upper third frames the face", "sub": "", "items": [], "fig": "템플 꺼짐·평평한 이마 환자 정면/45° (본인 케이스)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "Own case, R18", "notes": "템플·이마 윤곽이 피곤하고 나이 들어 보이는 인상을 만든다. 한국 환자는 볼록한 이마를 선호.", "layout": "image"}, {"id": "s4", "part": 0, "title": "Today's roadmap", "sub": "", "items": ["Assess", "Anatomy", "Product", "Technique", "Safety"], "fig": "", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "", "notes": "30분 흐름 소개: 평가 → 해부 → 제품 → 술기 → 안전.", "layout": "flow"}, {"id": "s5", "part": 1, "title": "Bone resorption + fat atrophy → hollow temple, flat forehead", "sub": "", "items": [], "fig": "나이에 따른 골·지방 변화 모식도", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R1, R25", "notes": "템플은 오목해지고 이마는 평탄해지는 기전.", "layout": "figure"}, {"id": "s6", "part": 1, "title": "Grade the temple before you inject", "sub": "", "items": [], "fig": "템플 볼륨 결핍 사진 스케일 (R16 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R16", "notes": "시술 전 등급, 전후 비교 기준. 등급 수·신뢰도는 원문 확인 필요.", "layout": "figure"}, {"id": "s7", "part": 1, "title": "Asian forehead: grade the slope", "sub": "", "items": [], "fig": "아시아인 이마 경사 스케일 (R18 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R18", "notes": "측면 윤곽을 등급으로 나눠 목표를 정한다.", "layout": "figure"}, {"id": "s8", "part": 1, "title": "Measure what patients feel: FACE-Q Temples", "sub": "", "items": [], "fig": "FACE-Q 템플 만족도 문항 예시", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R17", "notes": "환자 보고 결과로 만족도를 측정.\n전환 멘트(8→9): \"Now we know how much to correct. The next question is where.\"", "layout": "figure"}, {"id": "s9", "part": 2, "title": "Temple layers", "sub": "", "items": [], "fig": "템플 층 단면 모식도 (R1 / R2 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R1, R2", "notes": "피부 → 피하지방 → 천층측두근막 → 근막사이 → 심층측두근막 → 측두근 → 골막. 초음파로 17개 층을 구분한 연구도 있음.", "layout": "image"}, {"id": "sa", "part": 2, "title": "Intermediate temporal fat pad: a new target?", "sub": "", "items": [], "fig": "중간 측두 지방패드 해부·초음파 (R3 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R3, R14", "notes": "근막 사이 지방패드가 볼륨·리프팅의 새 타깃으로 제안됨.", "layout": "figure"}, {"id": "sb", "part": 2, "title": "Superficial temporal artery: avoid the subcutaneous plane", "sub": "", "items": [], "fig": "STA 주행·직경 (R4 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R4", "notes": "얕은 층 주사 시 STA 손상 위험. 직경 수치는 원문 확인 필요.", "layout": "figure"}, {"id": "sc", "part": 2, "title": "Middle temporal vein: the venous danger zone", "sub": "", "items": [], "fig": "MTV 위치 — 해부 / CTA (R5, R6 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R5, R6", "notes": "굵은 정맥이 깊은 층을 지나 정맥 색전 위험. 관골궁으로부터의 거리는 원문 확인 필요.", "layout": "figure"}, {"id": "sd", "part": 2, "title": "See the layers before you inject", "sub": "", "items": [], "fig": "템플 초음파 영상 (R12 / R2 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R12, R2", "notes": "층과 혈관을 주사 전에 실시간으로 확인.", "layout": "image"}, {"id": "se", "part": 2, "title": "Where is the safe plane?", "sub": "", "items": [" | Subcutaneous | Interfascial | Supraperiosteal", "Vessel risk |  |  | ", "Correction |  |  | ", "Device |  |  | "], "fig": "빈 칸은 R7·R9·R25 원문 확인 후 채움", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R7, R9, R25", "notes": "층마다 혈관 위험과 교정 효과가 다르다. 이 비교표가 술기 파트의 다리.", "layout": "table"}, {"id": "sf", "part": 2, "title": "Interfascial injection: what the evidence says", "sub": "", "items": [], "fig": "메타분석 결과 그림 (R10 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R10, R8", "notes": "천층·심층 측두근막 사이 주사의 효과·안전 근거.\n전환 멘트(15→16): \"The temple is about layers. The forehead is about arteries.\"", "layout": "figure"}, {"id": "sg", "part": 3, "title": "Forehead layers", "sub": "", "items": [], "fig": "이마 층·구획 모식도 (R19 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R19, R1", "notes": "피부 → 피하지방 → 전두근 → 모상건막 → 모상건막하 → 골막.", "layout": "image"}, {"id": "sh", "part": 3, "title": "Forehead ultrasound: toward a consensus", "sub": "", "items": [], "fig": "이마 초음파 영상 (R20 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R20", "notes": "초음파 층 해석에 논쟁이 있고 합의안이 제시됨.", "layout": "figure"}, {"id": "si", "part": 3, "title": "High-risk arteries in Korean foreheads", "sub": "", "items": [], "fig": "도플러 동맥 지도 (R21 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R21", "notes": "안와상·활차상 동맥 주행을 지도화한 한국인 데이터. 국내 청중에게 가장 설득력 있는 근거.", "layout": "figure"}, {"id": "sj", "part": 3, "title": "Thickness varies — adjust depth and device", "sub": "", "items": [], "fig": "이마 연부조직 두께 그래프 (R23 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R23", "notes": "두께가 사람마다 달라 바늘 깊이·기구 선택에 영향. 요인은 원문 확인 필요.", "layout": "figure"}, {"id": "sk", "part": 3, "title": "Forehead arteries connect to the ophthalmic artery", "sub": "", "items": [], "fig": "활차상·안와상 동맥 → 안동맥 역류 경로 모식도", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R36, R37", "notes": "필러가 역류해 망막동맥을 막는 기전. 이마는 실명 보고 부위 상위권.\n전환 멘트(20→21): \"Once we know the plane, the next question is which gel belongs there.\"", "layout": "figure"}, {"id": "sl", "part": 4, "title": "CPM: Cohesive Polydensified Matrix", "sub": "", "items": [], "fig": "CPM 가교 구조 모식도 (R29 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R29", "notes": "밀도가 다른 단상 젤 구조, 조직 내 통합.", "layout": "figure"}, {"id": "sm", "part": 4, "title": "The right rheology for the right plane", "sub": "", "items": [], "fig": "제품별 G′·응집력 비교표 (R30)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R30", "notes": "깊은 층은 높은 G′, 얕은 층은 부드러운 젤. 수치는 원문 확인 필요.", "layout": "figure"}, {"id": "sn", "part": 4, "title": "CPM gels adapt to tissue planes", "sub": "", "items": [], "fig": "현미경 비교 (R31) + ex vivo 초음파 (R32)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R31, R32", "notes": "가교 기술에 따라 젤이 조직면에 퍼지는 모양이 다르다.", "layout": "figure"}, {"id": "so", "part": 4, "title": "BELOTERO for the upper face: plane-matched selection", "sub": "", "items": ["Plane | BELOTERO product | Area", "Supraperiosteal | BELOTERO Volume | Temple · Forehead", "Interfascial | [연자 확정] | Temple", "Subcutaneous | [연자 확정] | Forehead"], "fig": "국내 허가 적응증 기준으로 확정", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "Product IFU", "notes": "깊은 볼륨은 BELOTERO Volume, 그 외 매칭은 연자 확정. 국내 허가 적응증 확인.", "layout": "table"}, {"id": "sp", "part": 4, "title": "CPM volume filler: clinical evidence", "sub": "", "items": ["[수치] | Midface RCT | R33", "110 | Real-world patients | R34", "[수치] | Chin RCT | R35"], "fig": "", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R33, R34, R35", "notes": "볼륨 제품의 효과·지속 근거(중안면·턱 데이터). 템플·이마 직접 데이터는 아님을 밝힘. 수치는 원문 확인 필요.\n전환 멘트(25→26): \"Plane, product — now let's put them together, starting with the temple.\"", "layout": "stats"}, {"id": "sq", "part": 5, "title": "Landmarks", "sub": "", "items": [], "fig": "시술 전 마킹 사진 (본인) — 측두선, 안와외측연, 관골궁, STA", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R11", "notes": "측두선, 안와외측연, 관골궁, STA 촉지.", "layout": "image"}, {"id": "sr", "part": 5, "title": "Technique 1: Deep supraperiosteal bolus (needle)", "sub": "", "items": ["Needle down to bone", "Small aliquots", "Slow, low pressure"], "fig": "모식도 + 시술 영상 캡처", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R11, R25", "notes": "골막까지 도달 후 소량씩 천천히. 주입량·지점은 연자 프로토콜로 확정.", "layout": "points"}, {"id": "ss", "part": 5, "title": "Technique 2: Interfascial cannula", "sub": "", "items": ["Entry above the zygomatic arch", "Blunt 22G cannula", "Between superficial and deep temporal fascia"], "fig": "모식도 (R13 Fig 1–2) + 시술 영상 캡처", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R8, R9, R13", "notes": "22G 캐뉼라로 천층·심층 측두근막 사이에 주입. 20명 전원 초음파로 층 확인(비교군 없는 소규모 연구, R13).", "layout": "points"}, {"id": "st", "part": 5, "title": "Ultrasound-guided temple injection", "sub": "", "items": [], "fig": "초음파 유도 주입 영상", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R12, R22", "notes": "혈관 확인 후 층을 보며 주입.", "layout": "image"}, {"id": "su", "part": 5, "title": "Temple case", "sub": "", "items": [], "fig": "", "photos": [null, null, null], "caps": ["Before · [date]", "After · [date]", ""], "frames": 2, "emphasis": "", "summary": "", "message": "[Age/Sex] · BELOTERO [product] [mL] · [plane]", "refs": "Own case", "notes": "제품·용량·층·결과. 6번 스케일 점수 전후 비교.\n전환 멘트(30→31): \"From the side of the head to the front — the forehead.\"", "layout": "photos"}, {"id": "sv", "part": 6, "title": "Five-step forehead contouring", "sub": "", "items": [], "fig": "5단계 주입 모식도 (R27 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R27", "notes": "높은 G′ HA로 단계별 설계.", "layout": "figure"}, {"id": "sw", "part": 6, "title": "Supraperiosteal cannula technique", "sub": "", "items": ["Stay deep: supraperiosteal plane", "Fan with a blunt cannula", "Stay away from the supraorbital rim"], "fig": "진입점·주입 영역 모식도", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R25, R26", "notes": "골막상 층에 캐뉼라로 부채꼴 주입, 안와상연 근처 주의.", "layout": "points"}, {"id": "sx", "part": 6, "title": "Needle vs cannula: accuracy in the forehead", "sub": "", "items": [], "fig": "카데바 결과 그림 (R24 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R24", "notes": "기구·각도가 층 정확도에 영향. 수치는 원문 확인 필요.", "layout": "figure"}, {"id": "sy", "part": 6, "title": "One entry point for forehead + temple", "sub": "", "items": ["Forehead: supraperiosteal", "Temple: above the deep temporal fascia", "3 cadavers + 2 volunteers"], "fig": "단일 진입점 모식도 (R26 Figure)", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R26", "notes": "이마는 골막상, 템플은 심층측두근막 위. 카데바 3구·지원자 2명, 약 3개월 유지.", "layout": "points"}, {"id": "sz", "part": 6, "title": "Forehead case", "sub": "", "items": [], "fig": "", "photos": [null, null, null], "caps": ["Before · [date]", "After · [date]", ""], "frames": 2, "emphasis": "", "summary": "", "message": "[Age/Sex] · BELOTERO [product] [mL] · [plane]", "refs": "Own case, R28", "notes": "본인 케이스 + 장기 안정성 근거(R28).\n전환 멘트(35→36): \"Great results mean nothing without safety.\"", "layout": "photos"}, {"id": "s10", "part": 7, "title": "Vascular complications: the numbers", "sub": "", "items": [], "fig": "실명 사례 부위별 분포 + 대규모(29만 건) 합병증 빈도 그래프", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R36, R37, R38, R42", "notes": "미간·코·이마가 고위험. 29만 건 후향 연구의 빈도. 수치는 원문 확인 필요.", "layout": "figure"}, {"id": "s11", "part": 7, "title": "Prevention checklist", "sub": "", "items": ["Safe plane", "Small aliquots, low pressure", "Cannula where possible", "Ultrasound mapping", "Hyaluronidase on hand"], "fig": "", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R22, R25", "notes": "5가지 예방 원칙.", "layout": "checklist"}, {"id": "s12", "part": 7, "title": "If occlusion occurs: high-dose pulsed hyaluronidase", "sub": "", "items": ["Recognize", "Stop & HDPH", "Reassess", "Follow up"], "fig": "", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "R39, R40, R41", "notes": "가이드라인과 프로토콜, 늦게 개입해도 호전된 이마 사례. 세부 용량은 원문 확인 필요.", "layout": "flow"}, {"id": "s13", "part": 7, "title": "Key takeaways", "sub": "", "items": ["Assess with validated scales", "Know the layers and vessels", "Match BELOTERO rheology to the plane", "Be ready for complications"], "fig": "", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "", "notes": "발표 전체 요약.", "layout": "numbered"}, {"id": "s14", "part": 7, "title": "Thank you", "sub": "Q&A · [Contact]", "items": [], "fig": "", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "", "refs": "", "notes": "연락처, 참고문헌 QR(선택).", "layout": "closing"}], "refs": "R1 | Applied anatomy of the temporal region and forehead for injectable fillers | PMID 19891119\nR2 | HA filler for temple hollowness by sonographic identifying 17 soft tissue layers | PMID 39267731\nR3 | A new target for temple volumization? The intermediate temporal fat pad | PMID 33630064\nR4 | Diameter of superficial temporal arteries related to temporal filler injection | PMID 38558211\nR5 | Middle temporal vein anatomy: 'venous danger zone' (systematic review) | PMID 32472312\nR6 | The middle temporal vein on computed tomographic angiography | PMID 36696313\nR7 | An anatomy study of temporal layers: the safe space for HA injection | PMID 30044573\nR8 | Temple augmentation with HA between superficial and deep temporal fasciae | PMID 35435310\nR9 | \"Not above, not below: right in the middle!\" temporal augmentation technique | PMID 32443157\nR10 | Injection between superficial and deep temporal fascia: systematic review & meta-analysis | PMID 41466484\nR11 | An expert guide to anatomy-based filler injection for the temple | PMID 40003675\nR12 | Ultrasound-guided temple filler injection | PMID 36351192\nR13 | Leveraging anatomy in temple augmentations: case series of 20 patients | PMID 41079298 | https://www.frontiersin.org/journals/surgery/articles/10.3389/fsurg.2025.1603177/pdf\nR14 | Temporal fat pad filler injection for lifting purposes | PMID 40000367\nR15 | RCT: pure HA vs HA–CaHA combination for temporal volumization | PMID 40860960\nR16 | Photonumeric scale for evaluation of volume deficit of the temple | PMID 27661742\nR17 | Psychometric validation of FACE-Q Satisfaction with Temples scale | PMID 39101674\nR18 | Photonumeric scale for grading the slope of the Asian forehead | PMID 31246870\nR19 | An update on the anatomy of the forehead compartments | PMID 28350656\nR20 | Forehead ultrasound anatomy: the current debate and a way to consensus | PMID 39187994\nR21 | Mapping high-risk arteries with Doppler ultrasound for forehead contouring in Koreans | PMID 39082612\nR22 | Ultrasound-guided HA augmentation of the upper face in Asians: recommendations | PMID 39740068\nR23 | Factors influencing forehead soft-tissue thickness: an ultrasound study | PMID 41451119\nR24 | Needle and cannula placement accuracy in the forehead: fresh frozen specimens | PMID 39227473\nR25 | HA filler usage and technique for the facial upper third: comprehensive review | PMID 40297763\nR26 | Singular entry point technique for forehead and temple filler augmentation | PMID 38837504\nR27 | Evolving forehead augmentation: a five-step approach with high G' HA | PMID 38274103\nR28 | Long-term stability and HA filler selection for forehead contouring | PMID 40601608\nR29 | HA fillers with cohesive polydensified matrix: literature review | PMID 27660479\nR30 | Biophysical characteristics of HA soft-tissue fillers | PMID 24077013\nR31 | Effect of crosslinking technologies on HA behavior: seven HA gels | PMID 27168268\nR32 | Tissue-plane adaptability of HA gels of five crosslinking technologies (ex vivo US) | PMID 42138417\nR33 | Validation of a midfacial scale and RCT of CPM-HA-V | PMID 38206155\nR34 | Real-world volume augmentation with CPM HA: 110 consecutive patients | PMID 30666277\nR35 | HA filler CPM-V ± lidocaine for chin augmentation: randomized study | PMID 41982380\nR36 | Avoiding and treating blindness from fillers: review of the world literature | PMID 26356847\nR37 | Update in soft-tissue filler-associated blindness | PMID 31490297\nR38 | Serious complications of HA fillers: retrospective study of 290,307 cases | PMID 40358958\nR39 | Guideline for management of HA filler-induced vascular occlusion | PMID 34188752\nR40 | New high dose pulsed hyaluronidase protocol for HA filler vascular events | PMID 28333326\nR41 | High-dose pulsed hyaluronidase for forehead filler vascular complication | PMID 40936506\nR42 | Update on blindness from filler: a century of published cases (ASJ 2024) | doi:10.1093/asj/sjae091 | https://academic.oup.com/asj/article/44/10/1091/7649223"}, {"id": "example-photo-cases", "example": true, "name": "Under-eye 케이스 발표 (사진형)", "info": {"conf": "JUPITER Symposium", "topic": "Under-eye dark circles: volume and skin quality", "minutes": 10, "count": 7, "audience": "피부과 전문의", "language": "English slides", "focus": "Juveacell", "speaker": "", "affiliation": ""}, "chapters": ["Cases"], "options": [], "selected": null, "theme": "burgundy", "slides": [{"id": "s15", "layout": "photos", "part": 0, "title": "Is It Really Just a Volume Problem?", "sub": "", "items": [], "fig": "", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "What makes the under-eye look dark and tired?", "summary": "", "message": "", "refs": "", "notes": ""}, {"id": "s16", "layout": "photos", "part": 0, "title": "Step 1. Correct the Structure", "sub": "", "items": [], "fig": "", "photos": [null, null, null], "caps": ["", "", ""], "frames": 1, "emphasis": "", "summary": "", "message": "When shadow is caused by volume deficiency, volume correction works.", "refs": "", "notes": ""}, {"id": "s17", "layout": "photos", "part": 0, "title": "Step 1. Correct the Structure", "sub": "", "items": [], "fig": "", "photos": [null, null, null], "caps": ["2026.05.04", "2026.07.06 Re2O 1vial", ""], "frames": 2, "emphasis": "", "summary": "", "message": "When shadow is caused by volume deficiency, volume correction works.", "refs": "", "notes": ""}, {"id": "s18", "layout": "photos", "part": 0, "title": "But Is Volume Correction Enough?", "sub": "", "items": [], "fig": "", "photos": [null, null, null], "caps": ["2026.01.03", "2026.01.17 HA filler 3cc", "2026.05.15 juveacell 8% 2회 후"], "frames": 3, "emphasis": "", "summary": "", "message": "", "refs": "", "notes": ""}, {"id": "s19", "layout": "photos", "part": 0, "title": "Case 1. Filler Was Not the End", "sub": "", "items": [], "fig": "", "photos": [null, null, null], "caps": ["2026.02.23", "2026.03.04 HA filler 2cc", "2026.07.25 juveacell 8% 2회 후"], "frames": 3, "emphasis": "", "summary": "Volume deficit → corrected\nSkin transparency → remained\n→ Additional Juveacell", "message": "", "refs": "", "notes": ""}, {"id": "s1a", "layout": "photos", "part": 0, "title": "Case 2. No volume loss, But thin translucent skin", "sub": "", "items": [], "fig": "", "photos": [null, null, null], "caps": ["2026.02.13", "2026.04.08 Juveacell 8% 1회 후", "2026.05.28 juveacell 8% 2회 후"], "frames": 3, "emphasis": "", "summary": "No significant volume deficit\nVisible underlying muscle / reddish appearance\n→ Juveacell alone", "message": "", "refs": "", "notes": ""}, {"id": "s1b", "layout": "photos", "part": 0, "title": "Case 3. When Volume Loss Comes with Skin Laxity", "sub": "", "items": [], "fig": "", "photos": [null, null, null], "caps": ["2026.01.13", "2026.02.13 HA filler 1cc +\nJuveacell 8% 1회 후", "2026.03.31 juveacell 8% 2회 후"], "frames": 3, "emphasis": "", "summary": "", "message": "", "refs": "", "notes": ""}], "refs": ""}];
+</script>
+<script>
+(function () {
+  "use strict";
+  /* 워크스페이스 통합: 이 앱의 화면은 #gj-ppt 안에만 그립니다 */
+  const ROOT = document.getElementById("gj-ppt");
+  const visible = () => !ROOT.hidden;
+  const $ = (s, r) => (r || ROOT).querySelector(s);
+  const $$ = (s, r) => Array.from((r || ROOT).querySelectorAll(s));
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const clone = (o) => JSON.parse(JSON.stringify(o));
+  const newId = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const VIEWS = ["setup", "story", "edit", "design", "export"];
+  const LAYOUT_NAMES = Object.fromEntries(Engine.LAYOUTS);
+  const CSSFONT = {
+    Cambria: "Cambria, Caladea, Georgia, serif", Calibri: "Calibri, Carlito, Inter, sans-serif", Arial: "Arial, Helvetica, sans-serif",
+    "Times New Roman": "'Times New Roman', Times, serif", Georgia: "Georgia, serif", "Malgun Gothic": "'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif",
+    "Bookman Old Style": "'Bookman Old Style', Georgia, serif",
+  };
+  const FONTS = Object.keys(CSSFONT);
+
+  const state = { project: null, images: {}, cur: 0, projects: [], view: "setup", uid: null, db: null, sample: null, downloads: null, unsaved: true };
+  // Claude: 앱 안의 Claude가 있으면 그것을, 없으면(깃허브 등) 블로그 설정에 넣은 API 키를 씀
+  Object.defineProperty(state, "sample", { get: () => window.GJAI.fn(), set: (v) => window.GJAI.setCap(v), enumerable: true });
+  window.addEventListener("storage", (e) => { if (e.key === "goldj-anthropic" && state.project && visible()) show(state.view); });
+  window.addEventListener("gj:data", (e) => { if (e.detail === "blog" && ["story", "edit"].includes(state.view) && visible()) show(state.view); });
+
+  /* ---------------- UI helpers ---------------- */
+  let toastTimer;
+  function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("on"), 3200); }
+  function chip(text, kind) { const c = $("#saveChip"); c.textContent = text; c.className = "chip" + (kind ? " " + kind : ""); }
+  function confirmDlg(title, text, yes) {
+    return new Promise((res) => {
+      $("#dlgTitle").textContent = title; $("#dlgText").textContent = text; $("#dlgYes").textContent = yes || "확인";
+      const d = $("#dlg"); d.classList.add("on");
+      const done = (v) => { d.classList.remove("on"); $("#dlgYes").onclick = $("#dlgNo").onclick = null; res(v); };
+      $("#dlgYes").onclick = () => done(true); $("#dlgNo").onclick = () => done(false);
+      $("#dlgYes").focus();
+    });
+  }
+  let busyCtl = null;
+  function busy(on, title, text) {
+    $("#overlay").classList.toggle("on", on);
+    if (title) $("#busyTitle").textContent = title;
+    $("#busyText").textContent = text || "";
+  }
+  $("#busyCancel").onclick = () => { if (busyCtl) busyCtl.abort(); busy(false); };
+
+  /* ---------------- storage ---------------- */
+  const LS = "pptstudio.v1";
+  const store = {
+    kind: "memory",
+    base() { return "data/users/" + state.uid; },
+    async list() {
+      if (this.kind === "db") {
+        const snap = await state.db.collection(this.base()).get();
+        return snap.docs.filter((d) => d.exists && !/^blog-/.test(d.id)).map((d) => Object.assign({}, d.data(), { id: d.id }));
+      }
+      if (this.kind === "local") { const all = readLocal(); return Object.values(all.projects || {}); }
+      return [];
+    },
+    async saveProject(p) {
+      const data = clone(p); delete data.example;
+      if (JSON.stringify(data).length > 240000) throw new Error("too_big");
+      if (this.kind === "db") return state.db.collection(this.base()).doc(p.id).set(data);
+      if (this.kind === "local") { const all = readLocal(); all.projects = all.projects || {}; all.projects[p.id] = data; writeLocal(all); }
+    },
+    async deleteProject(id) {
+      if (this.kind === "db") {
+        const imgs = await state.db.doc(this.base() + "/" + id).collection("images").get();
+        for (const d of imgs.docs) await state.db.doc(this.base() + "/" + id).collection("images").doc(d.id).delete();
+        return state.db.collection(this.base()).doc(id).delete();
+      }
+      if (this.kind === "local") { const all = readLocal(); delete (all.projects || {})[id]; delete (all.images || {})[id]; writeLocal(all); }
+    },
+    async loadImages(pid) {
+      if (this.kind === "db") {
+        const snap = await state.db.doc(this.base() + "/" + pid).collection("images").get();
+        const out = {}; snap.docs.forEach((d) => { if (d.exists) out[d.id] = d.data(); }); return out;
+      }
+      if (this.kind === "local") return (readLocal().images || {})[pid] || {};
+      return {};
+    },
+    async saveImage(pid, id, img) {
+      if (this.kind === "db") return state.db.doc(this.base() + "/" + pid).collection("images").doc(id).set(img);
+      if (this.kind === "local") { const all = readLocal(); all.images = all.images || {}; (all.images[pid] = all.images[pid] || {})[id] = img; writeLocal(all); }
+    },
+    async deleteImage(pid, id) {
+      if (this.kind === "db") return state.db.doc(this.base() + "/" + pid).collection("images").doc(id).delete();
+      if (this.kind === "local") { const all = readLocal(); if (all.images && all.images[pid]) { delete all.images[pid][id]; writeLocal(all); } }
+    },
+  };
+  function readLocal() { try { return JSON.parse(localStorage.getItem(LS) || "{}"); } catch (e) { return {}; } }
+  function writeLocal(o) { localStorage.setItem(LS, JSON.stringify(o)); }
+
+  let saveTimer = null, saving = false, dirty = false;
+  function changed(opts) {
+    const p = state.project; if (!p) return;
+    p.updatedAt = Date.now(); dirty = true;
+    chip("저장 전");
+    clearTimeout(saveTimer); saveTimer = setTimeout(flush, 1200);
+    if (!opts || !opts.quiet) refreshCounters();
+  }
+  async function flush() {
+    if (saving) { saveTimer = setTimeout(flush, 700); return; }
+    if (!dirty || !state.project) return;
+    if (store.kind === "memory") { chip("저장 안 됨 · 프로젝트 파일로 백업", "warn"); dirty = false; return; }
+    dirty = false; saving = true; chip("저장 중");
+    try {
+      if (state.unsaved) { // first save of a project opened from an example: its images too
+        for (const [id, img] of Object.entries(state.images)) await store.saveImage(state.project.id, id, img);
+      }
+      await store.saveProject(state.project);
+      state.unsaved = false;
+      chip(store.kind === "db" ? "저장됨" : "이 브라우저에 저장됨", "ok");
+      upsertList(state.project);
+    } catch (e) {
+      dirty = true; chip("저장 실패", "warn");
+      toast(e && e.message === "too_big" ? "프로젝트가 너무 커서 저장하지 못했어요. 슬라이드 수를 줄이거나 프로젝트 파일로 백업하세요." :
+        (e && e.code === "quota_exceeded" ? "저장 공간이 가득 찼어요. 쓰지 않는 프로젝트를 지워 주세요." : "저장하지 못했어요. 잠시 후 다시 시도합니다."));
+      if (!(e && (e.message === "too_big" || e.code === "quota_exceeded" || e.code === "invalid_argument"))) saveTimer = setTimeout(flush, 5000);
+    }
+    saving = false;
+  }
+  function stageOf(p) {
+    if (p.exportedAt) return 5;
+    if (p.form || (p.style && Object.keys(p.style).length)) return 4;
+    if ((p.slides || []).length) return 3;
+    if ((p.options || []).length) return 2;
+    return 1;
+  }
+  function metaOf(p) { const info = p.info || {}; return { id: p.id, name: p.name, updatedAt: p.updatedAt, count: (p.slides || []).length, topic: info.topic || "", date: info.date || "", conf: info.conf || "", minutes: info.minutes || "", stage: stageOf(p) }; }
+  function notifyHub() { try { window.dispatchEvent(new CustomEvent("gj:data", { detail: "ppt" })); } catch (e) {} }
+  function upsertList(p) {
+    const i = state.projects.findIndex((x) => x.id === p.id);
+    const meta = metaOf(p); notifyHub();
+    if (i >= 0) state.projects[i] = meta; else state.projects.unshift(meta);
+    if (state.view === "setup") { renderProjects(); renderPcal(); }
+  }
+
+  /* ---------------- project open / new ---------------- */
+  function blankProject() {
+    return { id: newId("p"), name: "새 발표", info: { conf: "", topic: "", minutes: 30, count: 40, audience: "", language: "English slides", focus: "", speaker: "", affiliation: "" },
+      chapters: [], options: [], selected: null, theme: "plum", style: {}, slides: [], refs: "", updatedAt: Date.now() };
+  }
+  function setProject(p, images, unsaved) {
+    state.project = p; p.style = p.style || {}; state.images = images || {}; state.cur = 0; state.unsaved = !!unsaved;
+    chip(unsaved ? (store.kind === "memory" ? "저장 안 됨" : "수정하면 저장돼요") : (store.kind === "db" ? "저장됨" : "이 브라우저에 저장됨"), unsaved ? "" : "ok");
+    renderAll();
+  }
+  function openExample(i) {
+    const p = clone(EXAMPLES[i]); p.id = newId("p"); delete p.example; p.style = p.style || {}; p.updatedAt = Date.now();
+    setProject(p, {}, true);
+  }
+  async function openProject(id) {
+    await flush();
+    const all = await store.list();
+    const p = all.find((x) => x.id === id); if (!p) { toast("프로젝트를 찾지 못했어요."); return; }
+    busy(true, "프로젝트 여는 중", "사진을 불러오고 있어요");
+    let imgs = {};
+    try { imgs = await store.loadImages(id); } catch (e) { toast("사진 일부를 불러오지 못했어요."); }
+    busy(false);
+    setProject(p, imgs, false);
+  }
+
+  /* ---------------- slide canvas ---------------- */
+  function renderCanvas(host, slide, idx, widthPx, interactive) {
+    const p = state.project, t = Engine.theme(p), b = Engine.build(p, slide, idx);
+    const k = widthPx / Engine.W, px = (v) => (v * k).toFixed(2) + "px", fs = (pt) => (pt / 72 * k).toFixed(2) + "px";
+    const sc = document.createElement("div");
+    sc.className = "sc"; sc.style.width = widthPx + "px"; sc.style.height = (Engine.H * k) + "px"; sc.style.background = "#" + b.bg;
+    const font = (f, name) => { const n = name || (f === "head" ? t.headFont : t.bodyFont); return CSSFONT[n] || `"${n}", ${f === "head" ? "Georgia, serif" : "Arial, sans-serif"}`; };
+    const place = (d, e) => { d.classList.add("e"); d.style.left = px(e.x); d.style.top = px(e.y); d.style.width = px(e.w); d.style.height = px(e.h); sc.appendChild(d); return d; };
+    for (const e of b.els) {
+      if (e.t === "text") {
+        const d = document.createElement("div"); d.className = "tx" + (e.valign === "middle" ? " v-middle" : e.valign === "bottom" ? " v-bottom" : "");
+        Object.assign(d.style, { fontFamily: font(e.font, e.fontName), fontSize: fs(e.size), color: "#" + e.color, fontWeight: e.bold ? "700" : "400", fontStyle: e.italic ? "italic" : "normal", textAlign: e.align });
+        if (e.spacing) d.style.letterSpacing = fs(e.spacing);
+        if (e.bullets) Engine.lines(e.text).forEach((l) => { const li = document.createElement("div"); li.textContent = "•  " + l; li.style.marginBottom = fs(8); d.appendChild(li); });
+        else d.textContent = e.text || "";
+        place(d, e);
+      } else if (e.t === "rect" || e.t === "oval") {
+        const d = document.createElement("div"); d.style.background = "#" + e.fill; d.style.borderRadius = e.t === "oval" ? "50%" : px(e.radius || 0); place(d, e);
+      } else if (e.t === "arrow") {
+        const d = document.createElement("div"); d.innerHTML = `<svg viewBox="0 0 10 12" width="100%" height="100%" preserveAspectRatio="none"><polygon points="0,3 5,3 5,0 10,6 5,12 5,9 0,9" fill="#${e.fill}"/></svg>`; place(d, e);
+      } else if (e.t === "img") {
+        const im = state.images[e.img]; if (!im) continue;
+        const d = document.createElement("img"); d.src = im.data; d.alt = ""; d.style.objectFit = "fill"; place(d, e);
+      } else if (e.t === "logo") {
+        const im = state.images[e.img]; if (!im) continue;
+        const d = document.createElement("img"); d.src = im.data; d.alt = "로고"; d.style.objectFit = "contain"; place(d, e);
+      } else if (e.t === "frame") {
+        const im = e.img && state.images[e.img];
+        const d = document.createElement("div"); d.className = "fr";
+        if (im) {
+          d.style.backgroundImage = `url("${im.data}")`; d.style.backgroundSize = e.fit;
+          if (e.border) d.style.boxShadow = "inset 0 0 0 1px #D9D9D9";
+        } else {
+          d.classList.add("ph"); d.style.background = "#" + e.tint; d.style.borderColor = "#" + e.line; d.style.borderRadius = px(0.12);
+          const inner = document.createElement("div"); inner.style.padding = "0 " + px(0.3);
+          const l1 = document.createElement("div"); l1.textContent = e.label; Object.assign(l1.style, { fontSize: fs(11), fontWeight: 700, letterSpacing: fs(2), color: "#" + e.line, fontFamily: font("body") });
+          const l2 = document.createElement("div"); l2.textContent = e.desc || ""; Object.assign(l2.style, { fontSize: fs(14), color: "#333", fontFamily: font("body") });
+          inner.append(l1, l2); d.appendChild(inner);
+        }
+        if (interactive) { d.classList.add("click"); d.title = im ? "클릭해 사진 바꾸기" : "클릭해 사진 넣기"; d.onclick = () => pickImage({ slot: e.slot }); }
+        place(d, e);
+      } else if (e.t === "table") {
+        const d = document.createElement("table"); d.style.width = px(e.w); d.style.fontFamily = font("body"); d.style.fontSize = fs(e.size);
+        e.rows.forEach((r, i) => {
+          const tr = document.createElement("tr"); tr.style.height = px(e.rowH);
+          r.forEach((c, j) => {
+            const td = document.createElement("td"); td.textContent = c; td.style.border = "1px solid #" + e.line;
+            if (i === 0) { td.style.background = "#" + e.head; td.style.color = "#" + e.headText; td.style.fontWeight = 700; }
+            else if (j === 0 && e.firstCol) { td.style.background = "#" + e.tint; td.style.color = "#" + e.head; td.style.fontWeight = 700; }
+            tr.appendChild(td);
+          });
+          d.appendChild(tr);
+        });
+        d.classList.add("e"); d.style.left = px(e.x); d.style.top = px(e.y); sc.appendChild(d);
+      }
+    }
+    if (b.number) {
+      const d = document.createElement("div"); d.className = "tx"; d.textContent = String(idx + 1);
+      Object.assign(d.style, { fontSize: fs(10), color: "#" + t.muted, textAlign: "right", fontFamily: font("body") });
+      place(d, { x: 12.25, y: 6.95, w: 0.5, h: 0.3 });
+    }
+    host.innerHTML = ""; host.appendChild(sc);
+  }
+
+  /* ---------------- references with links ---------------- */
+  function refItems(filterIds) {
+    const all = Engine.lines(state.project.refs).map(Engine.parseRef);
+    if (!filterIds) return all;
+    const want = new Set(filterIds.map((x) => x.toUpperCase()));
+    return all.filter((r) => r.id && want.has(r.id.toUpperCase()));
+  }
+  function refListHtml(items, compact) {
+    if (!items.length) return "";
+    return `<ol class="reflist${compact ? " compact" : ""}">${items.map((r) => `<li><div class="rt">${r.id ? `<b>${esc(r.id)}</b> ` : ""}${esc(r.title || r.raw)}</div>
+      <div class="rl">${Engine.refLinks(r).filter((l) => !compact || l.kind !== "scholar").map((l) => `<a class="lk ${l.kind}" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label)}</a>`).join("")}
+      ${r.pmid ? `<span class="id">PMID ${esc(r.pmid)}</span>` : ""}${r.doi ? `<span class="id">doi:${esc(r.doi)}</span>` : ""}</div></li>`).join("")}</ol>`;
+  }
+  function linksText(items) {
+    return items.map((r) => [`${r.id ? r.id + " " : ""}${r.title}`, ...Engine.refLinks(r).filter((l) => l.kind !== "scholar").map((l) => `  ${l.label}: ${l.url}`)].join("\n")).join("\n\n");
+  }
+  async function copyLinks(items) {
+    try { await navigator.clipboard.writeText(linksText(items)); toast("링크 목록을 복사했어요."); }
+    catch (e) { toast("복사하지 못했어요. 목록의 링크를 직접 눌러 주세요."); }
+  }
+
+  /* ---------------- views ---------------- */
+  function show(view) {
+    if (!VIEWS.includes(view)) view = "setup";
+    state.view = view;
+    VIEWS.forEach((v) => $("#view-" + v).classList.toggle("active", v === view));
+    $$(".steps a").forEach((a) => { if (a.dataset.v === view) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+    ({ setup: renderSetup, story: renderStory, edit: renderEditor, design: renderDesign, export: renderExport })[view]();
+  }
+  window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (VIEWS.includes(h)) show(h); else if (h === "ppt") show(state.view); });
+  function go(view) { if (location.hash.slice(1) === view) show(view); else location.hash = view; }
+  function renderAll() { if (visible()) show(state.view); }
+  function refreshCounters() { if (state.view === "export") renderExportStats(); }
+
+  /* ---- 1. setup ---- */
+  function renderProjects() {
+    const box = $("#projectList");
+    const items = state.projects.slice().sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    const cur = state.project && state.project.id;
+    let html = items.map((m) => `<div class="pitem${m.id === cur ? " current" : ""}"><div style="flex:1;min-width:0"><div class="name">${esc(m.name || "제목 없음")}</div>
+      <div class="meta">${m.count || 0}장 · ${m.updatedAt ? new Date(m.updatedAt).toLocaleString("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</div></div>
+      ${m.id === cur ? '<span class="tag">편집 중</span>' : `<button class="btn sm" data-open="${esc(m.id)}" type="button">열기</button>`}
+      <button class="btn sm ghost" data-del="${esc(m.id)}" type="button" aria-label="삭제">삭제</button></div>`).join("");
+    if (state.unsaved && state.project) html = `<div class="pitem current"><div style="flex:1"><div class="name">${esc(state.project.name)}</div><div class="meta">${state.project.slides.length}장 · 아직 저장 안 됨</div></div><span class="tag">편집 중</span></div>` + html;
+    if (!html) html = `<p style="color:var(--muted);font-size:13px">${store.kind === "memory" ? "이 화면에서는 저장소를 쓸 수 없어요. 작업 후 프로젝트 파일로 백업하세요." : "아직 저장된 프로젝트가 없어요."}</p>`;
+    box.innerHTML = html;
+    $("#exampleList").innerHTML = EXAMPLES.map((e, i) => `<div class="pitem"><div style="flex:1;min-width:0"><div class="name">${esc(e.name)}</div><div class="meta">${e.slides.length}장 · ${esc(e.info.topic)}</div></div><button class="btn sm" data-ex="${i}" type="button">예시 열기</button></div>`).join("");
+  }
+  $("#projectList").addEventListener("click", async (ev) => {
+    const o = ev.target.closest("[data-open]"), d = ev.target.closest("[data-del]");
+    if (o) { await openProject(o.dataset.open); go("edit"); }
+    if (d) {
+      const m = state.projects.find((x) => x.id === d.dataset.del);
+      if (!(await confirmDlg("프로젝트 삭제", `"${m ? m.name : ""}" 프로젝트와 사진을 지울까요? 되돌릴 수 없어요.`, "삭제"))) return;
+      try { await store.deleteProject(d.dataset.del); } catch (e) { toast("삭제하지 못했어요."); return; }
+      state.projects = state.projects.filter((x) => x.id !== d.dataset.del);
+      if (state.project && state.project.id === d.dataset.del) openExample(0);
+      renderProjects();
+    }
+  });
+  $("#exampleList").addEventListener("click", async (ev) => {
+    const b = ev.target.closest("[data-ex]"); if (!b) return;
+    await flush(); openExample(+b.dataset.ex); go("edit");
+  });
+  $("#newProject").onclick = async () => { await flush(); setProject(blankProject(), {}, true); go("setup"); $("#f-topic").focus(); };
+
+  /* ---- 발표 캘린더: 저장된 프로젝트의 발표일을 달력으로 ---- */
+  const cal = { y: null, m: null };
+  const pad2 = (n) => String(n).padStart(2, "0");
+  const ymdOf = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  function calEvents() {
+    const out = state.projects.filter((m) => m.date).map((m) => ({ id: m.id, name: m.name || m.topic || "제목 없음", date: m.date, conf: m.conf || "" }));
+    const p = state.project;
+    if (p && p.info && p.info.date) {
+      const i = out.findIndex((e) => e.id === p.id);
+      const e = { id: p.id, name: p.name || p.info.topic || "제목 없음", date: p.info.date, conf: p.info.conf || "", unsaved: state.unsaved };
+      if (i >= 0) out[i] = e; else out.push(e);
+    } else if (p) { const i = out.findIndex((e) => e.id === p.id); if (i >= 0) out.splice(i, 1); }
+    return out.sort((a, b) => a.date.localeCompare(b.date));
+  }
+  function renderPcal() {
+    const box = $("#pcal"); if (!box) return;
+    const now = new Date(); now.setHours(0, 0, 0, 0);
+    if (cal.y == null) { cal.y = now.getFullYear(); cal.m = now.getMonth(); }
+    const evs = calEvents(); const byDay = {};
+    evs.forEach((e) => (byDay[e.date] = byDay[e.date] || []).push(e));
+    const first = new Date(cal.y, cal.m, 1); const start = new Date(first); start.setDate(1 - first.getDay());
+    const todayS = ymdOf(now); const cur = state.project && state.project.id;
+    let cells = "";
+    for (let i = 0; i < 42; i++) {
+      const d = new Date(start); d.setDate(start.getDate() + i); const s = ymdOf(d);
+      if (i >= 35 && d.getMonth() !== cal.m) break;
+      const list = byDay[s] || [];
+      const past = s < todayS;
+      cells += `<div class="pc-cell${d.getMonth() !== cal.m ? " out" : ""}${s === todayS ? " today" : ""}${d.getDay() === 0 ? " sun" : ""}" data-day="${s}" role="button" tabindex="0" aria-label="${d.getMonth() + 1}월 ${d.getDate()}일${list.length ? ", 발표 " + list.length + "건" : ""}">
+        <span class="pc-n">${d.getDate()}</span>
+        ${list.map((e) => `<button type="button" class="pc-ev${past ? " past" : ""}${e.id === cur ? " cur" : ""}" data-pev="${esc(e.id)}" title="${esc(e.name)}${e.conf ? " · " + esc(e.conf) : ""}">${esc(e.name)}</button>`).join("")}</div>`;
+    }
+    const up = evs.filter((e) => e.date >= todayS);
+    const dd = (s) => { const n = Math.round((new Date(s + "T00:00:00") - now) / 86400000); return n === 0 ? "오늘" : "D-" + n; };
+    box.innerHTML = `<div class="row" style="margin-bottom:12px;gap:10px"><h2>발표 캘린더</h2><span class="spacer"></span>
+        <button class="btn sm ghost" type="button" id="pcPrev" aria-label="이전 달">‹</button><b class="pc-title">${cal.y}. ${pad2(cal.m + 1)}</b><button class="btn sm ghost" type="button" id="pcNext" aria-label="다음 달">›</button><button class="btn sm" type="button" id="pcToday">오늘</button></div>
+      <div class="pc-wrap"><div class="pc-grid">${["일", "월", "화", "수", "목", "금", "토"].map((w) => `<div class="pc-dow">${w}</div>`).join("")}${cells}</div>
+      <aside class="pc-side"><h3>다가오는 발표</h3>${up.length ? up.slice(0, 6).map((e) => `<button type="button" class="pc-up" data-pev="${esc(e.id)}"><span class="pc-d">${dd(e.date)}</span><span><b>${esc(e.name)}</b><small>${esc(e.date.slice(5).replace("-", "/"))}${e.conf ? " · " + esc(e.conf) : ""}${e.unsaved ? " · 저장 전" : ""}</small></span></button>`).join("") : '<p class="pc-empty">발표일이 정해진 발표가 없어요. 오른쪽 ‘발표 정보’의 <b>발표일</b>을 넣거나, 달력의 날짜를 눌러 그날 발표로 새 프로젝트를 만드세요.</p>'}</aside></div>`;
+    $("#pcPrev").onclick = () => { cal.m--; if (cal.m < 0) { cal.m = 11; cal.y--; } renderPcal(); };
+    $("#pcNext").onclick = () => { cal.m++; if (cal.m > 11) { cal.m = 0; cal.y++; } renderPcal(); };
+    $("#pcToday").onclick = () => { cal.y = now.getFullYear(); cal.m = now.getMonth(); renderPcal(); };
+  }
+  async function pcalClick(ev) {
+    const evb = ev.target.closest("[data-pev]");
+    if (evb) {
+      const id = evb.dataset.pev;
+      if (state.project && state.project.id === id) { $("#f-date").focus(); return; }
+      await openProject(id); go("setup"); return;
+    }
+    const cell = ev.target.closest("[data-day]"); if (!cell) return;
+    const day = cell.dataset.day; const [, mm, dd2] = day.split("-").map(Number);
+    const p = state.project;
+    if (p && !p.info.date) {
+      if (await confirmDlg("발표일 정하기", `지금 프로젝트 “${p.name || p.info.topic || "제목 없음"}”의 발표일을 ${mm}월 ${dd2}일로 정할까요?`, "발표일로 정하기")) { p.info.date = day; changed(); renderSetup(); toast(`발표일을 ${mm}/${dd2}로 정했어요.`); }
+      return;
+    }
+    if (await confirmDlg("새 발표 만들기", `${mm}월 ${dd2}일 발표로 새 프로젝트를 만들까요?`, "새 프로젝트")) {
+      await flush(); const np = blankProject(); np.info.date = day; setProject(np, {}, true); go("setup"); changed(); $("#f-topic").focus();
+    }
+  }
+  $("#pcal").addEventListener("click", pcalClick);
+  $("#pcal").addEventListener("keydown", (ev) => { if ((ev.key === "Enter" || ev.key === " ") && ev.target.matches("[data-day]")) { ev.preventDefault(); pcalClick(ev); } });
+
+  function renderSetup() {
+    renderProjects(); renderPcal();
+    const p = state.project;
+    $$("#infoForm [data-k]").forEach((el) => { const k = el.dataset.k; el.value = k === "name" ? p.name : (p.info[k] == null ? "" : p.info[k]); });
+  }
+  $("#infoForm").addEventListener("input", (ev) => {
+    const el = ev.target, k = el.dataset.k; if (!k) return;
+    const p = state.project;
+    if (k === "name") p.name = el.value; else p.info[k] = el.type === "number" ? (parseInt(el.value, 10) || "") : el.value;
+    changed();
+    if (k === "date" || k === "name") { if (k === "date" && el.value) { const d = new Date(el.value + "T00:00:00"); cal.y = d.getFullYear(); cal.m = d.getMonth(); } renderPcal(); }
+  });
+  $("#infoForm").addEventListener("submit", (e) => e.preventDefault());
+  $("#goStory").onclick = () => {
+    const p = state.project;
+    if (!p.info.topic) { toast("발표 주제를 먼저 적어 주세요."); $("#f-topic").focus(); return; }
+    if (!p.name || p.name === "새 발표") { p.name = p.info.topic.slice(0, 40); changed(); }
+    go("story");
+    if (!p.options || !p.options.length) generateOptions();
+  };
+
+  /* ---- 2. storyline ---- */
+  function renderStory() {
+    const p = state.project, info = p.info;
+    $("#storyLead").textContent = `${info.topic || "주제 미정"} · ${info.minutes || "?"}분 · ${info.count || "?"}장 · ${info.audience || "청중 미정"}`;
+    $("#genOptions").textContent = state.sample ? "Claude로 3안 새로 만들기" : "기본 템플릿으로 3안 만들기";
+    const box = $("#optsBox");
+    if (!p.options || !p.options.length) {
+      box.innerHTML = `<div class="empty"><h3>아직 스토리라인이 없어요</h3><p>주제·시간·청중을 바탕으로 서로 다른 3가지 흐름을 제안합니다.</p><button class="btn mint" type="button" id="genEmpty">${state.sample ? "Claude로 3안 만들기" : "기본 템플릿으로 3안 만들기"}</button></div>`;
+      $("#genEmpty").onclick = generateOptions;
+    } else {
+      box.innerHTML = `<div class="opts">${p.options.map((o) => `<article class="opt${p.selected === o.key ? " sel" : ""}" data-key="${esc(o.key)}" tabindex="0" aria-pressed="${p.selected === o.key}">
+        <div class="opt-head"><span class="opt-key">${esc(o.key)}</span><h3>${esc(o.name)}</h3></div>
+        <p class="concept">${esc(o.concept)}</p>${o.intent ? `<p class="intent"><b>기획의도 반영</b>${esc(o.intent)}</p>` : ""}
+        <table class="toc"><tbody>${(o.chapters || []).map((c, i) => `<tr><td>${i + 1}. <b>${esc(c.title)}</b><br><span style="color:var(--muted)">${esc(c.message || "")}</span></td><td class="r">${esc(c.range || "")}</td></tr>`).join("")}</tbody></table>
+        <div class="pc"><div><b>장점</b> ${esc(o.pros)}</div><div><b>약점</b> ${esc(o.cons)}</div><div><b>필요 자료</b> ${esc(o.materials)}</div>${o.recommend ? `<div><b>추천</b> ${esc(o.recommend)}</div>` : ""}</div>
+        <div class="row"><span class="spacer"></span><span class="${p.selected === o.key ? "tag" : "chip"}">${p.selected === o.key ? "선택됨" : "클릭해서 선택"}</span></div></article>`).join("")}</div>`;
+    }
+    const sel = (p.options || []).find((o) => o.key === p.selected);
+    $("#buildBar").style.display = p.options && p.options.length ? "" : "none";
+    $("#buildTitle").textContent = sel ? `${sel.key}안으로 ${info.count || 40}장 만들기` : "먼저 한 가지 안을 고르세요";
+    $("#buildHint").textContent = p.slides.length ? `지금 슬라이드 ${p.slides.length}장이 있어요. 새로 만들면 바뀝니다. 기존 장을 고치려면 편집 화면으로 가세요.` :
+      (state.sample ? "Claude가 장마다 영어 제목, 넣을 그림, 말할 포인트를 씁니다. 1~2분 걸려요." : "기본 템플릿으로 장 구성을 만들어요. 제목과 내용은 편집 화면에서 채웁니다." + (window.GJAI.inClaude ? "" : " Claude로 만들려면 블로그 서포터 왼쪽 아래 ‘설정 · Claude 연결’에서 API 키를 넣으세요."));
+    $("#buildSlides").disabled = !sel;
+    $("#buildSlides").textContent = state.sample ? "Claude로 슬라이드 만들기" : "템플릿으로 슬라이드 만들기";
+    $("#openEditor").style.display = p.slides.length ? "" : "none";
+    const items = refItems();
+    $("#storyRefs").innerHTML = items.length ? refListHtml(items) : `<p style="color:var(--muted);font-size:13px">아직 참고문헌이 없어요. ${canSearch() ? "위의 <b>참고문헌 찾기</b>로 논문을 찾아 추가하세요." : "채팅에서 Claude에게 이 주제의 근거 논문을 찾아 달라고 한 뒤, 받은 목록을 내보내기 탭의 참고문헌 칸에 붙여넣으세요."}</p>`;
+    $("#storyRefCount").textContent = items.length ? `${items.length}편` : "";
+  }
+  $("#optsBox").addEventListener("click", (ev) => { const o = ev.target.closest(".opt"); if (!o) return; state.project.selected = o.dataset.key; changed(); renderStory(); });
+  $("#optsBox").addEventListener("keydown", (ev) => { if ((ev.key === "Enter" || ev.key === " ") && ev.target.classList.contains("opt")) { ev.preventDefault(); ev.target.click(); } });
+  $("#genOptions").onclick = generateOptions;
+  $("#openEditor").onclick = () => go("edit");
+  $("#buildSlides").onclick = buildSlides;
+
+  function distribute(n, weights) {
+    const tot = weights.reduce((a, b) => a + b, 0);
+    const raw = weights.map((w) => (w / tot) * n), out = raw.map((r) => Math.max(1, Math.floor(r)));
+    let diff = n - out.reduce((a, b) => a + b, 0);
+    const order = raw.map((r, i) => [r - Math.floor(r), i]).sort((a, b) => b[0] - a[0]);
+    for (let i = 0; diff > 0; i = (i + 1) % order.length, diff--) out[order[i][1]]++;
+    for (let i = out.length - 1; diff < 0 && i >= 0; i--) while (out[i] > 1 && diff < 0) { out[i]--; diff++; }
+    return out;
+  }
+  function withRanges(chapters, n) {
+    const counts = distribute(n, chapters.map((c) => c[1]));
+    let s = 1;
+    return chapters.map((c, i) => { const r = { title: c[0], range: counts[i] > 1 ? `${s}–${s + counts[i] - 1}` : `${s}`, message: c[2] }; s += counts[i]; return r; });
+  }
+  function templateOptions() {
+    const n = +state.project.info.count || 30, f = state.project.info.focus || "제품";
+    return [
+      { key: "A", name: "Layer by Layer — 원리 중심", concept: "배경과 원리를 차근차근 쌓아 술기로 이어가는 교과서형 구성",
+        chapters: withRanges([["Opening", 1, "주제와 오늘의 흐름"], ["Background & Assessment", 1.2, "왜 중요한가, 어떻게 평가하나"], ["Anatomy & Mechanism", 2.8, "어디에, 왜"], [`${f} & Evidence`, 1.4, "무엇으로, 근거는"], ["Technique", 2.4, "어떻게"], ["Safety & Takeaways", 1.2, "안전과 핵심 요약"]], n),
+        pros: "논리가 탄탄하고 논문 근거를 많이 쓸 수 있음", cons: "앞부분이 이론 위주라 집중도가 떨어질 수 있음", materials: "논문 그림 위주, 케이스 2건 이상", recommend: "학술 세션" },
+      { key: "B", name: "Case by Case — 케이스 중심", concept: "환자 유형을 따라가며 진단 → 해부 → 제품 → 술기 → 결과를 반복하는 구성",
+        chapters: withRanges([["Opening — patient types", 1.2, "이런 환자, 어떻게 하시나요?"], ["Case 1", 2.4, "평가부터 결과까지"], ["Case 2", 2.4, "다른 유형, 다른 접근"], ["Case 3", 1.8, "복합 케이스"], [`Why ${f}`, 1, "케이스에서 본 공통점"], ["Takeaways", 1.2, "안전과 핵심 요약"]], n),
+        pros: "실전 느낌, 집중도가 가장 높음", cons: "좋은 케이스 3건(전후 사진+영상)이 꼭 필요", materials: "본인 케이스 위주", recommend: "스폰서 심포지엄" },
+      { key: "C", name: "Danger to Safe — 안전 중심", concept: "합병증으로 시작해 위험 구역 → 안전한 층 → 안전한 술기로 좁혀가는 구성",
+        chapters: withRanges([["Opening — the risk", 1.2, "왜 위험한가"], ["Danger Zones", 2.4, "피해야 할 구조"], ["Safe Planes", 1.8, "안전한 층의 근거"], [`${f} for Safe Planes`, 1.2, "층에 맞는 물성"], ["Safe Technique", 2.2, "단계별 술기"], ["If It Goes Wrong", 1.2, "합병증 대처와 요약"]], n),
+        pros: "전문의 청중에게 신뢰도가 높고 홍보색이 옅음", cons: "분위기가 무겁고 제품 메시지가 약함", materials: "합병증 논문 위주, 케이스 1~2건", recommend: "안전·교육 세션" },
+    ];
+  }
+  function parseJSON(text) {
+    const s = String(text || "").replace(/```(?:json)?/g, ""), i = s.indexOf("{"), j = s.lastIndexOf("}");
+    if (i < 0 || j < i) throw new Error("no json");
+    return JSON.parse(s.slice(i, j + 1));
+  }
+  async function ask(prompt, title) {
+    busyCtl = new AbortController();
+    busy(true, title, "Claude가 생각하는 중…");
+    try {
+      const res = await state.sample(prompt, { modelTier: "default", cache: false, signal: busyCtl.signal,
+        onText: ({ text }) => { $("#busyText").textContent = `${(text || "").length.toLocaleString()}자 작성 중…`; } });
+      return res.text;
+    } finally { busy(false); busyCtl = null; }
+  }
+  function aiError(e) {
+    if (e && e.name === "AbortError") return;
+    if (e && e.code === "not_granted") { state.sample = null; toast("Claude 사용이 허용되지 않아 기본 템플릿을 씁니다."); renderAll(); return; }
+    if (e && e.code === "rate_limited") { toast("요청이 많아요. 잠시 후 다시 눌러 주세요."); return; }
+    if (e && e.code === "bad_key") { toast("API 키가 맞지 않아요. 블로그 서포터 설정에서 키를 확인해 주세요."); return; }
+    toast("Claude 응답을 읽지 못했어요. 다시 시도해 주세요.");
+  }
+  function infoText() {
+    const i = state.project.info;
+    return `Talk title: ${i.topic}\nConference: ${i.conf || "-"}\nAudience: ${i.audience || "-"}\nLength: ${i.minutes || 30} minutes\nSlides: ${i.count || 40}\nLanguage: ${i.language}` + (i.focus ? `\nMust include: ${i.focus}` : "")
+      + (String(i.intent || "").trim() ? `\n\nPlanning intent from the speaker (기획의도 — the storyline MUST serve this; keep its goals, emphasis, products and cases):\n"""\n${String(i.intent).trim().slice(0, 3000)}\n"""` : "");
+  }
+  async function generateOptions() {
+    const p = state.project;
+    if (!p.info.topic) { toast("발표 주제를 먼저 적어 주세요."); go("setup"); return; }
+    if (p.options && p.options.length && !(await confirmDlg("3안 다시 만들기", "지금 보이는 A/B/C 안이 새 안으로 바뀝니다.", "다시 만들기"))) return;
+    if (!state.sample) { p.options = templateOptions(); p.selected = "A"; changed(); renderStory(); toast("기본 템플릿 3안을 만들었어요."); return; }
+    const n = +p.info.count || 40;
+    const prompt = `You are a senior medical-conference presentation strategist helping a Korean physician prepare a talk.
+${infoText()}
+
+Propose three clearly different storylines (A, B, C) for this talk, for example one principle/anatomy-first, one case-driven, one safety- or problem-first. Each must fit exactly ${n} slides.${String(p.info.intent || "").trim() ? " All three must realize the speaker's planning intent above (its message, emphasis, products and cases) and differ only in how they get there. In \"intent\", say in one Korean sentence how this option carries out the planning intent." : ""}
+Return ONLY JSON, no prose, in this shape:
+{"options":[{"key":"A","name":"Short English name — 한국어 부제","concept":"한 문장 한국어 설명","intent":"기획의도를 어떻게 반영했는지 한국어 한 문장","chapters":[{"title":"English chapter title","range":"1–4","message":"한국어 핵심 메시지"}],"pros":"한국어 한 줄","cons":"한국어 한 줄","materials":"필요 자료 (한국어)","recommend":"추천 상황 (한국어)"}]}
+Rules: 4–8 chapters per option; chapter ranges are consecutive, start at 1 and end exactly at ${n}; slide 1 is the title slide inside the first chapter. Do not cite papers, authors or numbers.`;
+    try {
+      const out = parseJSON(await ask(prompt, "스토리라인 3안 만드는 중"));
+      if (!out.options || out.options.length < 2) throw new Error("bad");
+      p.options = out.options.slice(0, 3).map((o, i) => ({ key: "ABC"[i], name: o.name || "", concept: o.concept || "", intent: String(p.info.intent || "").trim() ? o.intent || "" : "", chapters: (o.chapters || []).map((c) => ({ title: c.title || "", range: c.range || "", message: c.message || "" })),
+        pros: o.pros || "", cons: o.cons || "", materials: o.materials || "", recommend: o.recommend || "" }));
+      p.selected = "A"; changed(); renderStory();
+    } catch (e) { aiError(e); }
+  }
+  function rangeCounts(chapters, n) {
+    const c = chapters.map((ch) => { const m = String(ch.range || "").match(/(\d+)\s*[–\-~]\s*(\d+)/); const one = String(ch.range || "").match(/^\s*(\d+)\s*$/); return m ? +m[2] - +m[1] + 1 : one ? 1 : 0; });
+    const tot = c.reduce((a, b) => a + b, 0);
+    return tot === n && c.every((x) => x > 0) ? c : distribute(n, chapters.map(() => 1));
+  }
+  const LAYOUT_KEYS = Engine.LAYOUTS.map((l) => l[0]);
+  function normSlide(s, nParts) {
+    const layout = LAYOUT_KEYS.includes(s.layout) ? s.layout : "figure";
+    const arr = (v) => (Array.isArray(v) ? v.map(String) : typeof v === "string" && v ? v.split("\n") : []);
+    const caps = arr(s.caps); while (caps.length < 3) caps.push("");
+    return { id: newId("s"), layout, part: Math.min(Math.max(0, parseInt(s.part, 10) || 0), Math.max(0, nParts - 1)), title: String(s.title || ""), sub: String(s.sub || ""),
+      items: arr(s.items), fig: String(s.fig || ""), photos: [null, null, null], caps: caps.slice(0, 3), frames: Math.min(3, Math.max(1, parseInt(s.frames, 10) || (layout === "photos" ? 2 : 1))),
+      emphasis: String(s.emphasis || ""), summary: String(s.summary || ""), message: String(s.message || ""), refs: "", notes: String(s.notes || "") };
+  }
+  function templateSlides(opt, n) {
+    const counts = rangeCounts(opt.chapters, n), out = [], cycle = ["figure", "points", "image", "photos", "figure", "text", "figure", "table"];
+    const i = state.project.info;
+    opt.chapters.forEach((ch, ci) => {
+      for (let j = 0; j < counts[ci]; j++) {
+        const first = ci === 0 && j === 0, last = ci === opt.chapters.length - 1 && j === counts[ci] - 1, penult = ci === opt.chapters.length - 1 && j === counts[ci] - 2;
+        let layout = first ? "title" : last ? "closing" : penult ? "numbered" : ci === 0 && j === 1 ? "flow" : cycle[(out.length + ci) % cycle.length];
+        const s = normSlide({ layout, part: ci, title: first ? i.topic : last ? "Thank you" : `${ch.title}: [핵심 메시지 ${j + 1}]`, sub: first ? [i.speaker, i.affiliation].filter(Boolean).join(" · ") || "[Speaker · Affiliation]" : last ? "Q&A" : "",
+          fig: `${ch.message || ch.title} — 들어갈 그림·사진`, notes: ch.message || "" }, opt.chapters.length);
+        if (layout === "flow") s.items = opt.chapters.map((c) => c.title.split(/[—-]/)[0].trim()).slice(1, 6);
+        if (layout === "numbered") s.items = ["[핵심 1]", "[핵심 2]", "[핵심 3]", "[핵심 4]"];
+        if (layout === "points") s.items = ["[포인트 1]", "[포인트 2]", "[포인트 3]"];
+        if (layout === "text") s.items = ["[내용 1]", "[내용 2]", "[내용 3]"];
+        if (layout === "table") s.items = [" | [항목 A] | [항목 B]", "[비교 1] | | ", "[비교 2] | | "];
+        if (layout === "photos") { s.frames = 2; s.caps = ["Before · [date]", "After · [date]", ""]; }
+        out.push(s);
+      }
+    });
+    return out;
+  }
+  async function buildSlides() {
+    const p = state.project, opt = (p.options || []).find((o) => o.key === p.selected); if (!opt) return;
+    if (p.slides.length && !(await confirmDlg("슬라이드 새로 만들기", `지금 있는 ${p.slides.length}장이 ${opt.key}안 기준 새 슬라이드로 바뀝니다. 넣어 둔 사진 배치도 사라져요.`, "새로 만들기"))) return;
+    const n = +p.info.count || 40;
+    let slides;
+    if (state.sample) {
+      const lang = /한국어/.test(p.info.language) ? "Korean" : "English";
+      const prompt = `Build a slide-by-slide storyline for a medical conference talk.
+${infoText()}
+Chosen storyline (chapters in order, 0-based index = part):
+${JSON.stringify(opt.chapters.map((c, i) => ({ part: i, title: c.title, range: c.range, message: c.message })))}
+
+Write exactly ${n} slides following the chapter ranges. Return ONLY JSON:
+{"slides":[{"part":0,"layout":"title","title":"","sub":"","items":[],"fig":"","notes":"","frames":2,"caps":["",""],"emphasis":"","summary":"","message":""}]}
+Field rules:
+- layout, one of: title (slide 1 only), figure (one paper figure or image with a headline), image (picture only; title is a short caption), photos (1–3 clinical photos with captions; set frames and caps such as "Before · [date]"), points (2–4 short points beside a figure), text (2–5 bullets), table (items are rows "a | b | c", first row is the header), stats (items "number | label | source"; use "[수치]" when unknown), flow (3–5 steps), checklist (3–6 items), numbered (3–4 key takeaways), closing (last slide only).
+- title: the on-slide headline in ${lang}, at most 70 characters, a message rather than a topic label.
+- items: short on-slide phrases in ${lang}.
+- fig: in Korean, what picture belongs on this slide (예: "도플러 동맥 지도 논문 그림", "본인 케이스 전후 사진").
+- notes: in Korean, 2–3 sentences the speaker will say.
+- At least 40% of slides use figure, image or photos: this talk explains pictures.
+- Never cite papers, authors, PMIDs or numbers you were not given; write "[수치]" where a number belongs.${String(p.info.intent || "").trim() ? "\n- Follow the speaker's planning intent: give its key message, emphasis, products and cases their own slides, and let the notes carry that intent." : ""}`;
+      try {
+        const out = parseJSON(await ask(prompt, `${opt.key}안으로 ${n}장 만드는 중`));
+        slides = (out.slides || []).map((s) => normSlide(s, opt.chapters.length));
+        if (slides.length < Math.min(5, n)) throw new Error("bad");
+      } catch (e) { aiError(e); return; }
+    } else slides = templateSlides(opt, n);
+    p.chapters = opt.chapters.map((c) => c.title);
+    p.slides = slides; state.cur = 0; changed();
+    toast(`${slides.length}장을 만들었어요.`);
+    go("edit");
+  }
+
+  /* ---- 3. editor ---- */
+  function cur() { return state.project.slides[state.cur]; }
+  function thumbWidth() { const w = $("#slideList").clientWidth; return Math.max(90, Math.min(176, w - 24 - 28 - 4)); }
+  function syncListHeight() {
+    const list = $("#slideList"), stage = $("#view-edit .stage");
+    if (!list || !stage) return;
+    if (window.matchMedia("(max-width: 700px)").matches) { list.style.height = ""; return; }
+    list.style.height = Math.max(320, stage.offsetHeight) + "px";
+  }
+  if (typeof ResizeObserver !== "undefined") new ResizeObserver(() => { if (state.view === "edit") syncListHeight(); }).observe($("#view-edit .stage"));
+  function renderList() {
+    const p = state.project, box = $("#slideList");
+    box.innerHTML = "";
+    const add = document.createElement("button"); add.className = "btn sm primary"; add.type = "button"; add.textContent = "＋ 슬라이드 추가"; add.onclick = () => addSlide();
+    box.appendChild(add);
+    if (!p.slides.length) { const e = document.createElement("p"); e.style.cssText = "font-size:12px;color:var(--muted)"; e.textContent = "스토리라인에서 안을 고르면 슬라이드가 생겨요."; box.appendChild(e); return; }
+    let lastPart = -1;
+    p.slides.forEach((s, i) => {
+      if (s.part !== lastPart && (p.chapters || [])[s.part]) { const c = document.createElement("div"); c.className = "chap"; c.textContent = `${String(s.part + 1).padStart(2, "0")} ${p.chapters[s.part]}`; box.appendChild(c); lastPart = s.part; }
+      const it = document.createElement("button"); it.type = "button"; it.className = "sitem" + (i === state.cur ? " cur" : ""); it.dataset.i = i;
+      it.innerHTML = `<span class="num">${i + 1}</span><div class="thumb"></div><span class="stitle">${esc(s.title || LAYOUT_NAMES[s.layout])}</span>`;
+      it.onclick = () => select(i);
+      box.appendChild(it);
+      renderCanvas($(".thumb", it), s, i, thumbWidth(), false);
+    });
+  }
+  function refreshThumb(i) {
+    const it = $(`#slideList .sitem[data-i="${i}"]`); if (!it) return;
+    renderCanvas($(".thumb", it), state.project.slides[i], i, thumbWidth(), false);
+    $(".stitle", it).textContent = state.project.slides[i].title || LAYOUT_NAMES[state.project.slides[i].layout];
+  }
+  function bigWidth() { const w = $(".canvas-wrap").clientWidth - 28; return Math.max(260, Math.min(w, 1000)); }
+  function renderStage() {
+    const p = state.project, s = cur();
+    if (!s) { $("#bigCanvas").innerHTML = `<div class="empty"><h3>슬라이드가 없어요</h3><p>스토리라인에서 안을 고르거나 슬라이드를 추가하세요.</p></div>`; $("#slidePos").textContent = ""; $("#layoutChip").textContent = ""; $("#e-notes").value = ""; return; }
+    renderCanvas($("#bigCanvas"), s, state.cur, bigWidth(), true);
+    $("#slidePos").textContent = `${state.cur + 1} / ${p.slides.length}`;
+    $("#layoutChip").textContent = LAYOUT_NAMES[s.layout];
+    if (document.activeElement !== $("#e-notes")) $("#e-notes").value = s.notes || "";
+  }
+  function select(i) {
+    const n = state.project.slides.length; if (!n) return;
+    state.cur = Math.max(0, Math.min(n - 1, i));
+    $$("#slideList .sitem").forEach((el) => el.classList.toggle("cur", +el.dataset.i === state.cur));
+    const el = $(`#slideList .sitem[data-i="${state.cur}"]`); if (el) el.scrollIntoView({ block: "nearest" });
+    renderStage(); renderInspector();
+  }
+  function renderEditor() { state.cur = Math.min(state.cur, Math.max(0, state.project.slides.length - 1)); renderList(); renderStage(); renderInspector(); syncListHeight(); }
+  $("#prevSlide").onclick = () => select(state.cur - 1);
+  $("#nextSlide").onclick = () => select(state.cur + 1);
+  document.addEventListener("keydown", (ev) => {
+    if (!visible() || state.view !== "edit" || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) || document.activeElement.isContentEditable) return;
+    if (ev.key === "ArrowDown" || ev.key === "PageDown") { ev.preventDefault(); select(state.cur + 1); }
+    if (ev.key === "ArrowUp" || ev.key === "PageUp") { ev.preventDefault(); select(state.cur - 1); }
+  });
+  let resizeT; window.addEventListener("resize", () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if (!visible()) return; if (state.view === "edit") { renderStage(); renderList(); syncListHeight(); } if (state.view === "design") renderDesignPreview(); }, 150); });
+
+  const ITEM_HINT = { points: "한 줄에 하나, 2~5개", text: "한 줄에 하나 (글머리 목록)", table: "한 줄에 한 행, 칸은 | 로 구분. 첫 줄은 머리글", stats: "한 줄에 하나: 숫자 | 설명 | 출처", flow: "한 줄에 한 단계, 3~6개", checklist: "한 줄에 하나, 3~6개", numbered: "한 줄에 하나, 3~6개" };
+  function renderInspector() {
+    const box = $("#inspector"), s = cur(), p = state.project;
+    if (!s) { box.innerHTML = `<h3>슬라이드 속성</h3><p style="color:var(--muted);font-size:13px">편집할 슬라이드가 없어요.</p>`; return; }
+    const L = s.layout, dark = ["title", "closing", "divider"].includes(L);
+    const chapters = p.chapters && p.chapters.length ? p.chapters : ["(챕터 없음)"];
+    let h = `<div class="row"><h3>슬라이드 ${state.cur + 1}</h3><span class="spacer"></span>
+      <button class="btn sm ghost" data-act="up" type="button" aria-label="위로">↑</button><button class="btn sm ghost" data-act="down" type="button" aria-label="아래로">↓</button>
+      <button class="btn sm ghost" data-act="dup" type="button">복제</button><button class="btn sm danger" data-act="del" type="button">삭제</button></div>
+      <div class="field"><label for="i-layout">레이아웃</label><select id="i-layout" data-s="layout">${Engine.LAYOUTS.map(([k, n]) => `<option value="${k}"${k === L ? " selected" : ""}>${n}</option>`).join("")}</select></div>
+      <div class="field"><label for="i-part">챕터</label><select id="i-part" data-s="part">${chapters.map((c, i) => `<option value="${i}"${i === s.part ? " selected" : ""}>${String(i + 1).padStart(2, "0")} ${esc(c)}</option>`).join("")}</select></div>
+      <div class="field"><label for="i-title">${L === "image" ? "캡션 제목" : "슬라이드 제목 (화면 문구)"}</label><textarea id="i-title" data-s="title" rows="2">${esc(s.title)}</textarea></div>`;
+    if (dark) h += `<div class="field"><label for="i-sub">${L === "title" ? "연자 · 소속" : "부제"}</label><input id="i-sub" data-s="sub" value="${esc(s.sub)}"></div>`;
+    if (ITEM_HINT[L]) h += `<div class="field"><label for="i-items">화면 항목</label><textarea id="i-items" data-s="items" rows="5">${esc((s.items || []).join("\n"))}</textarea><span class="hint">${ITEM_HINT[L]}</span></div>`;
+    if (["figure", "image", "points", "table"].includes(L)) h += `<div class="field"><label for="i-fig">${L === "table" ? "표 아래 메모" : "넣을 그림 설명 (그림이 없을 때 자리에 표시)"}</label><input id="i-fig" data-s="fig" value="${esc(s.fig)}"></div>`;
+    if (["figure", "image", "points"].includes(L)) h += `<div class="sect"><h3>그림</h3>${slotRow(0, "그림")}</div>`;
+    if (L === "photos") {
+      h += `<div class="sect"><h3>사진 프레임</h3><div class="field"><label for="i-frames">사진 수</label><select id="i-frames" data-s="frames">${[1, 2, 3].map((n) => `<option${n === s.frames ? " selected" : ""}>${n}</option>`).join("")}</select></div>`;
+      for (let i = 0; i < s.frames; i++) h += slotRow(i, "사진 " + (i + 1)) + `<div class="field"><label for="i-cap${i}">사진 ${i + 1} 캡션 (날짜 / 시술)</label><textarea id="i-cap${i}" data-cap="${i}" rows="1">${esc(s.caps[i] || "")}</textarea></div>`;
+      h += `</div><div class="sect"><div class="field"><label for="i-emph">강조문구 (크게)</label><input id="i-emph" data-s="emphasis" value="${esc(s.emphasis)}"></div>
+        <div class="field"><label for="i-summ">요약 (왼쪽 굵게, 여러 줄)</label><textarea id="i-summ" data-s="summary" rows="3">${esc(s.summary)}</textarea></div>
+        <div class="field"><label for="i-msg">하단문구 (가운데)</label><input id="i-msg" data-s="message" value="${esc(s.message)}"></div></div>`;
+    }
+    if (!dark) h += `<div class="field"><label for="i-refs">근거 (슬라이드 하단 Source)</label><input id="i-refs" data-s="refs" value="${esc(s.refs)}" placeholder="예: R21, R36"></div><div id="i-refLinks"></div>${canSearch() ? '<button class="btn sm" type="button" id="i-findRefs" style="justify-self:start">🔍 이 슬라이드 근거 찾기</button>' : ""}`;
+    h += `<div class="sect"><h3>Claude에게 이 슬라이드 수정 요청</h3>${state.sample ? `<div class="field"><label for="i-ask" class="sr">요청</label><textarea id="i-ask" rows="2" placeholder="예: 제목을 더 짧게, 포인트를 3개로"></textarea></div><button class="btn sm primary" type="button" id="i-askBtn" style="justify-self:start">수정 요청</button>`
+      : `<p style="font-size:12px;color:var(--muted)">이 화면에서는 Claude를 부를 수 없어요. 직접 수정해 주세요.${window.GJAI.inClaude ? "" : " Claude를 쓰려면 블로그 서포터 왼쪽 아래 ‘설정 · Claude 연결’에서 API 키를 넣으세요."}</p>`}</div>`;
+    box.innerHTML = h;
+    renderSlideRefs();
+    if ($("#i-askBtn")) $("#i-askBtn").onclick = askSlide;
+  }
+  function renderSlideRefs() {
+    const host = $("#i-refLinks"), s = cur(); if (!host || !s) return;
+    const ids = String(s.refs || "").match(/R\d+[a-z]?/gi) || [];
+    host.innerHTML = refListHtml(refItems(ids), true);
+    const fb = $("#i-findRefs"); if (fb) fb.onclick = () => openRefFinder("slide", state.cur);
+  }
+  function slotRow(i, label) {
+    const s = cur(), id = (s.photos || [])[i], im = id && state.images[id];
+    return `<div class="slot"><div class="sw" style="${im ? `background-image:url('${im.data}')` : ""}" aria-hidden="true"></div><div class="acts">
+      <button class="btn sm" type="button" data-pick="${i}">${im ? label + " 바꾸기" : label + " 넣기"}</button>${im ? `<button class="btn sm ghost" type="button" data-rm="${i}">빼기</button>` : ""}</div></div>`;
+  }
+  $("#inspector").addEventListener("input", (ev) => {
+    const el = ev.target, s = cur(); if (!s) return;
+    if (el.dataset.cap != null) s.caps[+el.dataset.cap] = el.value;
+    else if (el.dataset.s) {
+      const k = el.dataset.s;
+      if (k === "items") s.items = el.value.split("\n").filter((x, i, a) => x.trim() || i < a.length - 1);
+      else if (k === "part" || k === "frames") s[k] = parseInt(el.value, 10) || 0;
+      else s[k] = el.value;
+      if (k === "layout") { if (s.layout === "photos" && !s.frames) s.frames = 2; renderInspector(); }
+      if (k === "frames" || k === "part") { renderInspector(); if (k === "part") renderList(); }
+    } else return;
+    if (el.dataset.s === "refs") renderSlideRefs();
+    renderStage(); refreshThumb(state.cur); changed({ quiet: true });
+  });
+  $("#e-notes").addEventListener("input", (ev) => { const s = cur(); if (!s) return; s.notes = ev.target.value; changed({ quiet: true }); });
+  $("#inspector").addEventListener("click", async (ev) => {
+    const a = ev.target.closest("[data-act]"), pk = ev.target.closest("[data-pick]"), rm = ev.target.closest("[data-rm]");
+    if (pk) pickImage({ slot: +pk.dataset.pick });
+    if (rm) { const s = cur(), id = s.photos[+rm.dataset.rm]; s.photos[+rm.dataset.rm] = null; dropImageIfUnused(id); afterSlideChange(); }
+    if (!a) return;
+    const p = state.project, i = state.cur;
+    if (a.dataset.act === "up" && i > 0) { [p.slides[i - 1], p.slides[i]] = [p.slides[i], p.slides[i - 1]]; state.cur--; }
+    else if (a.dataset.act === "down" && i < p.slides.length - 1) { [p.slides[i + 1], p.slides[i]] = [p.slides[i], p.slides[i + 1]]; state.cur++; }
+    else if (a.dataset.act === "dup") { const c = clone(p.slides[i]); c.id = newId("s"); p.slides.splice(i + 1, 0, c); state.cur++; }
+    else if (a.dataset.act === "del") {
+      if (!(await confirmDlg("슬라이드 삭제", `${i + 1}번 슬라이드를 지울까요?`, "삭제"))) return;
+      const [gone] = p.slides.splice(i, 1); (gone.photos || []).forEach(dropImageIfUnused); state.cur = Math.max(0, i - 1);
+    } else return;
+    changed(); renderEditor();
+  });
+  function afterSlideChange() { renderStage(); refreshThumb(state.cur); renderInspector(); changed(); }
+  function addSlide() {
+    const p = state.project, base = cur();
+    const s = normSlide({ layout: "figure", part: base ? base.part : 0, title: "", fig: "넣을 그림 설명" }, Math.max(1, (p.chapters || []).length));
+    p.slides.splice(p.slides.length ? state.cur + 1 : 0, 0, s); state.cur = p.slides.length === 1 ? 0 : state.cur + 1;
+    changed(); renderEditor(); setTimeout(() => $("#i-title") && $("#i-title").focus(), 0);
+  }
+  async function askSlide() {
+    const req = $("#i-ask").value.trim(); if (!req) { toast("무엇을 바꿀지 적어 주세요."); return; }
+    const s = cur(), p = state.project;
+    const plain = { layout: s.layout, title: s.title, sub: s.sub, items: s.items, fig: s.fig, notes: s.notes, frames: s.frames, caps: s.caps, emphasis: s.emphasis, summary: s.summary, message: s.message };
+    const prompt = `Revise one slide of a medical conference talk.
+${infoText()}
+Current slide (JSON): ${JSON.stringify(plain)}
+The speaker's request (Korean): ${req}
+
+Keep the same JSON keys. Allowed layouts: ${LAYOUT_KEYS.join(", ")}. Items for table are rows "a | b | c"; for stats "number | label | source". fig and notes stay in Korean.
+Never invent citations, authors, PMIDs or numbers; write "[수치]" where a number belongs. Return ONLY the revised slide as one JSON object.`;
+    try {
+      const out = parseJSON(await ask(prompt, "슬라이드 수정 중"));
+      const n = normSlide(Object.assign({}, plain, out, { part: s.part }), Math.max(1, (p.chapters || []).length));
+      Object.assign(s, { layout: n.layout, title: n.title, sub: n.sub, items: n.items, fig: n.fig, notes: n.notes, frames: n.frames, caps: n.caps, emphasis: n.emphasis, summary: n.summary, message: n.message });
+      afterSlideChange(); $("#e-notes").value = s.notes || ""; toast("슬라이드를 고쳤어요.");
+    } catch (e) { aiError(e); }
+  }
+
+  /* ---- images ---- */
+  let pickTarget = null;
+  function pickImage(target) { pickTarget = target; const inp = $("#imgInput"); inp.value = ""; inp.click(); }
+  $("#imgInput").addEventListener("change", async (ev) => {
+    const f = ev.target.files && ev.target.files[0]; if (!f || !pickTarget) return;
+    const target = pickTarget; pickTarget = null;
+    let img;
+    try { img = await shrink(f); } catch (e) { toast("이 파일은 이미지로 읽지 못했어요. JPG나 PNG로 올려 주세요."); return; }
+    const id = newId("i"), pid = state.project.id;
+    state.images[id] = img;
+    if (target.logo) { const old = state.project.style.logo; state.project.style.logo = id; dropImageIfUnused(old); }
+    else { const s = cur(); const old = s.photos[target.slot]; s.photos[target.slot] = id; dropImageIfUnused(old); }
+    if (!state.unsaved) { try { await store.saveImage(pid, id, img); } catch (e) { toast("사진을 저장하지 못했어요. 프로젝트 파일로 백업해 두세요."); } }
+    changed();
+    if (target.logo) renderDesign(); else { renderStage(); refreshThumb(state.cur); renderInspector(); }
+  });
+  function shrink(file, opts) {
+    const keepPng = opts && opts.keepPng;
+    return new Promise((res, rej) => {
+      const fr = new FileReader();
+      fr.onerror = rej;
+      fr.onload = () => {
+        const im = new Image();
+        im.onerror = rej;
+        im.onload = () => {
+          let max = 1600, q = 0.85, data, w, h;
+          for (let k = 0; k < 10; k++) {
+            const s = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
+            w = Math.round(im.naturalWidth * s); h = Math.round(im.naturalHeight * s);
+            const c = document.createElement("canvas"); c.width = w; c.height = h;
+            const g = c.getContext("2d");
+            if (keepPng && k < 5) { g.drawImage(im, 0, 0, w, h); data = c.toDataURL("image/png"); if (data.length < 235000) break; max = Math.round(max * 0.75); continue; }
+            g.fillStyle = "#fff"; g.fillRect(0, 0, w, h); g.drawImage(im, 0, 0, w, h);
+            data = c.toDataURL("image/jpeg", q);
+            if (data.length < 235000) break;
+            if (q > 0.6) q -= 0.1; else max = Math.round(max * 0.8);
+          }
+          res({ data, w, h });
+        };
+        im.src = fr.result; // eslint-disable-line
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+  function usedIds() {
+    const p = state.project, set = new Set();
+    p.slides.forEach((s) => (s.photos || []).forEach((x) => x && set.add(x)));
+    if (p.style && p.style.logo) set.add(p.style.logo);
+    if (p.form) [].concat(p.form.cover || [], p.form.content || []).forEach((g) => g.img && set.add(g.img));
+    return set;
+  }
+  function dropImageIfUnused(id) {
+    if (!id || usedIds().has(id)) return;
+    delete state.images[id];
+    if (!state.unsaved) store.deleteImage(state.project.id, id).catch(() => {});
+  }
+
+  /* ---- 4. design ---- */
+  function themeObj() { const p = state.project; return typeof p.theme === "string" ? Object.assign({}, Engine.THEMES[p.theme] || Engine.THEMES.plum) : p.theme; }
+  function renderDesign() {
+    const p = state.project, t = Engine.theme(p), st = Object.assign({}, Engine.DEFAULT_STYLE, p.style || {});
+    const presetKey = typeof p.theme === "string" ? p.theme : null;
+    const sw = Object.entries(Engine.THEMES).map(([k, v]) => `<button type="button" class="swatch${k === presetKey ? " sel" : ""}" data-preset="${k}"><span class="bar">${[v.dark, v.primary, v.accent, v.tint].map((c) => `<span style="background:#${c}"></span>`).join("")}</span><b style="font-size:12.5px">${esc(v.name)}</b></button>`).join("");
+    const col = (k, label) => `<div class="field"><label for="d-${k}">${label}</label><input type="color" id="d-${k}" data-c="${k}" value="#${t[k]}"></div>`;
+    const fsel = (k, label) => `<div class="field"><label for="d-${k}">${label}</label><select id="d-${k}" data-c="${k}">${FONTS.map((f) => `<option${f === t[k] ? " selected" : ""}>${f}</option>`).join("")}</select></div>`;
+    const logo = st.logo && state.images[st.logo];
+    const F = p.form;
+    const layOpts = (sel) => formCache ? formCache.layouts.map((l) => `<option value="${esc(l.path)}"${l.path === sel ? " selected" : ""}>${esc(l.name)}</option>`).join("") : "";
+    const formHtml = F ? `<div class="pitem current" style="align-items:flex-start"><div style="flex:1;min-width:0"><div class="name">${esc(F.name)}</div>
+        <div class="meta">표지: ${esc(F.coverLayout || "-")} · 본문: ${esc(F.bodyLayout || "-")}</div></div><span class="tag">폼 적용</span></div>
+        <label class="toggle"><input type="checkbox" id="d-formOn"${F.enabled !== false ? " checked" : ""}> 폼 디자인 사용 (배경·로고·제목 위치)</label>
+        ${formCache ? `<div class="form-grid"><div class="field"><label for="d-coverLay">표지 레이아웃</label><select id="d-coverLay">${layOpts(formCache.cover)}</select></div>
+          <div class="field"><label for="d-bodyLay">본문 레이아웃</label><select id="d-bodyLay">${layOpts(formCache.body)}</select></div></div>`
+          : `<span class="hint" style="font-size:11.5px;color:var(--muted)">다른 레이아웃을 고르려면 PPT를 다시 불러오세요.</span>`}
+        <div class="row"><label class="btn sm" for="formInput">다른 PPT 불러오기</label><button class="btn sm ghost" type="button" id="d-formRm">폼 빼기</button></div>`
+      : `<p style="font-size:13px">외부업체가 준 PPT 폼(.pptx)을 올리면 헤더 로고·배경 그림·색·글꼴·제목 위치를 그대로 가져와 모든 슬라이드에 씁니다.</p>
+        <label class="toggle"><input type="checkbox" id="d-withSlides"> 그 PPT의 슬라이드 내용(제목·본문·그림·노트)도 가져오기</label>
+        <label class="btn primary" for="formInput">PPT 폼 불러오기</label>`;
+    $("#designPanel").innerHTML = `<div class="dform"><h2>PPT 폼</h2>${formHtml}</div>
+      <div class="sect"><h3>테마</h3><div class="swatches">${sw}</div></div>
+      <div class="sect"><h3>색 ${presetKey ? "" : '<span class="chip">직접 설정</span>'}</h3><div class="colors">${col("primary", "메인")}${col("accent", "포인트")}${col("dark", "표지 배경")}${col("ink", "글자")}${col("tint", "칸 배경")}${col("muted", "보조 글자")}</div></div>
+      <div class="sect"><h3>글꼴</h3><div class="form-grid">${fsel("headFont", "제목")}${fsel("bodyFont", "본문")}</div>
+        <div class="field"><label for="d-titleSize">제목 크기: <span id="d-tsv">${st.titleSize}</span>pt</label><input type="range" id="d-titleSize" data-st="titleSize" min="22" max="40" value="${st.titleSize}"></div></div>
+      <div class="sect"><h3>사진 프레임</h3><div class="form-grid"><div class="field"><label for="d-ratio">비율</label><select id="d-ratio" data-st="frameRatio">${["4:3", "3:2", "1:1", "16:9", "3:4"].map((r) => `<option${r === st.frameRatio ? " selected" : ""}>${r}</option>`).join("")}</select></div></div>
+        <label class="toggle"><input type="checkbox" data-st="frameBorder"${st.frameBorder ? " checked" : ""}> 사진에 얇은 테두리</label>
+        <label class="toggle"><input type="checkbox" data-st="showPart"${st.showPart ? " checked" : ""}> 제목 위에 챕터 이름 표시</label></div>
+      <div class="sect"><h3>학회·업체 로고</h3><div class="slot"><div class="sw" style="${logo ? `background-image:url('${logo.data}');background-size:contain` : ""}" aria-hidden="true"></div>
+        <div class="acts"><button class="btn sm" type="button" id="d-logo">${logo ? "로고 바꾸기" : "로고 넣기"}</button>${logo ? '<button class="btn sm ghost" type="button" id="d-logoRm">빼기</button>' : ""}
+        <select data-st="logoPos" aria-label="로고 위치"><option value="right"${st.logoPos === "right" ? " selected" : ""}>오른쪽 위</option><option value="left"${st.logoPos === "left" ? " selected" : ""}>왼쪽 위</option></select></div></div>
+        <span class="hint" style="font-size:11.5px;color:var(--muted)">외부업체 폼의 헤더 로고를 이미지로 넣으면 모든 슬라이드에 같은 자리로 들어가요.</span></div>`;
+    renderDesignPreview();
+  }
+  function renderDesignPreview() {
+    const p = state.project; if (!p.slides.length) { $("#designCanvas").innerHTML = `<div class="empty"><p>슬라이드를 만들면 여기서 디자인을 미리 볼 수 있어요.</p></div>`; $("#designStrip").innerHTML = ""; $("#designPos").textContent = ""; return; }
+    const i = Math.min(state.cur, p.slides.length - 1);
+    const host = $("#designCanvas"); renderCanvas(host, p.slides[i], i, Math.max(260, Math.min(host.parentElement.clientWidth - 46, 820)), false);
+    $("#designPos").textContent = `${i + 1}번 슬라이드`;
+    const picks = []; const want = ["title", "photos", "points", "table", "stats", "figure"];
+    for (const L of want) { const j = p.slides.findIndex((s) => s.layout === L); if (j >= 0 && j !== i && !picks.includes(j)) picks.push(j); if (picks.length === 3) break; }
+    const strip = $("#designStrip"); strip.innerHTML = "";
+    const w = Math.max(80, (strip.clientWidth - 20) / 3);
+    picks.forEach((j) => { const d = document.createElement("button"); d.type = "button"; d.style.cssText = "border:0;padding:0;background:none;cursor:pointer"; d.title = `${j + 1}번 슬라이드 크게 보기`; d.onclick = () => { state.cur = j; renderDesignPreview(); }; strip.appendChild(d); renderCanvas(d, p.slides[j], j, w, false); });
+  }
+  $("#designPanel").addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-preset]");
+    if (b) { state.project.theme = b.dataset.preset; changed(); renderDesign(); return; }
+    if (ev.target.id === "d-logo") pickImage({ logo: true });
+    if (ev.target.id === "d-formRm") {
+      const old = state.project.form; state.project.form = null; formCache = null;
+      if (old) [].concat(old.cover || [], old.content || []).forEach((g) => g.img && dropImageIfUnused(g.img));
+      changed(); renderDesign(); return;
+    }
+    if (ev.target.id === "d-logoRm") { const old = state.project.style.logo; state.project.style.logo = null; dropImageIfUnused(old); changed(); renderDesign(); }
+  });
+  $("#designPanel").addEventListener("input", (ev) => {
+    const el = ev.target, p = state.project;
+    if (el.id === "d-formOn") { p.form.enabled = el.checked; changed({ quiet: true }); renderDesignPreview(); return; }
+    if (el.id === "d-coverLay") { switchLayout("cover", el.value); return; }
+    if (el.id === "d-bodyLay") { switchLayout("body", el.value); return; }
+    if (el.id === "d-withSlides") return;
+    if (el.dataset.c) { const t = themeObj(); t.name = "직접 설정"; t[el.dataset.c] = el.type === "color" ? el.value.slice(1).toUpperCase() : el.value; p.theme = t; }
+    else if (el.dataset.st) {
+      const k = el.dataset.st; p.style[k] = el.type === "checkbox" ? el.checked : k === "titleSize" ? +el.value : el.value;
+      if (k === "titleSize") $("#d-tsv").textContent = el.value;
+    } else return;
+    changed({ quiet: true }); renderDesignPreview();
+    if (el.dataset.c) $$(".swatch").forEach((s) => s.classList.remove("sel"));
+  });
+
+  /* ---- PPT form import: design (layouts, theme, background graphics) and optionally slide content ---- */
+  const NS = { a: "http://schemas.openxmlformats.org/drawingml/2006/main", p: "http://schemas.openxmlformats.org/presentationml/2006/main", r: "http://schemas.openxmlformats.org/officeDocument/2006/relationships" };
+  const kids = (el, ns, tag) => (el ? Array.from(el.children).filter((c) => c.namespaceURI === NS[ns] && c.localName === tag) : []);
+  const kid = (el, ns, tag) => kids(el, ns, tag)[0] || null;
+  const deep = (el, ns, tag) => (el ? el.getElementsByTagNameNS(NS[ns], tag)[0] || null : null);
+  const deepAll = (el, ns, tag) => (el ? Array.from(el.getElementsByTagNameNS(NS[ns], tag)) : []);
+  let formCache = null; // parsed file kept in memory so the layouts can be switched
+
+  function joinPath(base, target) {
+    if (target.startsWith("/")) return target.slice(1);
+    const parts = base.split("/"); parts.pop();
+    target.split("/").forEach((seg) => { if (seg === "..") parts.pop(); else if (seg !== ".") parts.push(seg); });
+    return parts.join("/");
+  }
+  async function readXml(zip, path) { const f = zip.file(path); if (!f) return null; return new DOMParser().parseFromString(await f.async("string"), "application/xml"); }
+  async function readRels(zip, path) {
+    const i = path.lastIndexOf("/"), rp = path.slice(0, i) + "/_rels/" + path.slice(i + 1) + ".rels";
+    const doc = await readXml(zip, rp); const out = {};
+    if (doc) Array.from(doc.documentElement.children).forEach((r) => { if (r.getAttribute("TargetMode") !== "External") out[r.getAttribute("Id")] = { target: joinPath(path, r.getAttribute("Target")), type: r.getAttribute("Type") || "" }; });
+    return out;
+  }
+  function colorOf(el, th) {
+    if (!el) return null;
+    const s = deep(el, "a", "srgbClr"); if (s) return s.getAttribute("val").toUpperCase();
+    const sc = deep(el, "a", "schemeClr"); if (sc) { const v = sc.getAttribute("val"); const map = { tx1: "dk1", bg1: "lt1", tx2: "dk2", bg2: "lt2" }; return th.colors[map[v] || v] || null; }
+    const sy = deep(el, "a", "sysClr"); if (sy) return (sy.getAttribute("lastClr") || "000000").toUpperCase();
+    return null;
+  }
+  function parseTheme(doc) {
+    const th = { colors: {}, major: "Calibri", minor: "Calibri" }; if (!doc) return th;
+    const cs = deep(doc, "a", "clrScheme");
+    if (cs) Array.from(cs.children).forEach((c) => { const s = deep(c, "a", "srgbClr"), y = deep(c, "a", "sysClr"); th.colors[c.localName] = s ? s.getAttribute("val").toUpperCase() : y ? (y.getAttribute("lastClr") || "000000").toUpperCase() : null; });
+    const mj = deep(deep(doc, "a", "majorFont"), "a", "latin"), mn = deep(deep(doc, "a", "minorFont"), "a", "latin");
+    if (mj && mj.getAttribute("typeface")) th.major = mj.getAttribute("typeface");
+    if (mn && mn.getAttribute("typeface")) th.minor = mn.getAttribute("typeface");
+    return th;
+  }
+  const fontName = (tf, th) => (!tf ? null : tf === "+mj-lt" ? th.major : tf === "+mn-lt" ? th.minor : tf.startsWith("+") ? null : tf);
+  function xfrmOf(sp, k) {
+    const x = deep(kid(sp, "p", "spPr") || sp, "a", "xfrm"); if (!x) return null;
+    const off = kid(x, "a", "off"), ext = kid(x, "a", "ext"); if (!off || !ext) return null;
+    return { x: +off.getAttribute("x") * k.sx, y: +off.getAttribute("y") * k.sy, w: +ext.getAttribute("cx") * k.sx, h: +ext.getAttribute("cy") * k.sy };
+  }
+  const phOf = (sp) => deep(kid(sp, "p", "nvSpPr") || kid(sp, "p", "nvPicPr"), "p", "ph");
+  const textOf = (sp) => kids(deep(sp, "p", "txBody") || deep(sp, "a", "txBody"), "a", "p").map((p) => deepAll(p, "a", "t").map((t) => t.textContent).join("")).join("\n").trim();
+  function textStyle(sp, th, fallback) {
+    const st = Object.assign({}, fallback || {});
+    const lvl = deep(deep(sp, "a", "lstStyle"), "a", "lvl1pPr");
+    const r = deep(sp, "a", "rPr") || deep(lvl, "a", "defRPr");
+    const dr = deep(lvl, "a", "defRPr") || r;
+    [dr, r].forEach((x) => {
+      if (!x) return;
+      if (x.getAttribute("sz")) st.size = +x.getAttribute("sz") / 100;
+      if (x.getAttribute("b")) st.bold = x.getAttribute("b") === "1";
+      const c = colorOf(kid(x, "a", "solidFill"), th); if (c) st.color = c;
+      const lt = kid(x, "a", "latin"); if (lt) st.fontName = fontName(lt.getAttribute("typeface"), th) || st.fontName;
+    });
+    const al = (lvl && lvl.getAttribute("algn")) || (deep(sp, "a", "pPr") && deep(sp, "a", "pPr").getAttribute("algn"));
+    if (al) st.align = { l: "left", ctr: "center", r: "right", just: "left" }[al] || st.align;
+    const bp = deep(sp, "a", "bodyPr"); if (bp && bp.getAttribute("anchor")) st.valign = { t: "top", ctr: "middle", b: "bottom" }[bp.getAttribute("anchor")] || st.valign;
+    return st;
+  }
+  async function blobImage(zip, path) {
+    const ext = path.split(".").pop().toLowerCase();
+    if (!["png", "jpg", "jpeg", "gif", "bmp", "webp"].includes(ext)) return null;
+    const f = zip.file(path); if (!f) return null;
+    const blob = new Blob([await f.async("arraybuffer")], { type: ext === "jpg" ? "image/jpeg" : "image/" + ext });
+    try { return await shrink(blob, { keepPng: true }); } catch (e) { return null; }
+  }
+  // graphics of one slide part (layout or master): pictures, plain shapes, fixed text, background
+  async function partGraphics(zip, path, th, k, info) {
+    const doc = await readXml(zip, path); if (!doc) return { els: [], bg: null, title: null, sub: null, showMaster: true };
+    const rels = await readRels(zip, path);
+    const out = { els: [], bg: null, bgImg: null, title: null, sub: null, showMaster: doc.documentElement.getAttribute("showMasterSp") !== "0", name: (deep(doc, "p", "cSld") || doc.documentElement).getAttribute("name") || "" };
+    const bgPr = deep(deep(doc, "p", "bg"), "p", "bgPr");
+    if (bgPr) {
+      const sf = kid(bgPr, "a", "solidFill"); if (sf) out.bg = colorOf(sf, th);
+      const bl = deep(bgPr, "a", "blip"); if (bl && rels[bl.getAttributeNS(NS.r, "embed")]) out.bgImg = rels[bl.getAttributeNS(NS.r, "embed")].target;
+    }
+    const tree = deep(doc, "p", "spTree");
+    for (const el of Array.from(tree ? tree.children : [])) {
+      if (el.localName === "pic") {
+        if (phOf(el)) continue;
+        const b = deep(el, "a", "blip"), box = xfrmOf(el, k); const rel = b && rels[b.getAttributeNS(NS.r, "embed")];
+        if (rel && box) out.els.push({ kind: "pic", path: rel.target, box });
+      } else if (el.localName === "sp") {
+        const ph = phOf(el), box = xfrmOf(el, k);
+        if (ph) {
+          const type = ph.getAttribute("type") || "body";
+          if ((type === "title" || type === "ctrTitle") && !out.title) out.title = { box, style: textStyle(el, th, {}) };
+          if (type === "subTitle" && !out.sub) out.sub = { box, style: textStyle(el, th, {}) };
+          continue;
+        }
+        if (!box) continue;
+        const txt = textOf(el);
+        if (txt) { const s = textStyle(el, th, { size: 12, color: th.colors.dk1 || "000000" }); out.els.push({ kind: "text", text: txt, box, style: s }); continue; }
+        const spPr = kid(el, "p", "spPr"), geom = deep(spPr, "a", "prstGeom");
+        const fill = colorOf(kid(spPr, "a", "solidFill"), th);
+        if (fill && (!geom || /^(rect|roundRect)$/.test(geom.getAttribute("prst")))) out.els.push({ kind: "rect", box, fill });
+      } else if (el.localName === "grpSp") info.skipped++;
+    }
+    return out;
+  }
+  async function buildFormPart(zip, layoutPath, th, k, info) {
+    const lay = await partGraphics(zip, layoutPath, th, k, info);
+    const lrels = await readRels(zip, layoutPath);
+    const mpath = (Object.values(lrels).find((r) => /slideMaster/.test(r.type)) || {}).target;
+    const mas = mpath ? await partGraphics(zip, mpath, th, k, info) : { els: [], bg: null };
+    const parts = (lay.showMaster ? mas.els : []).concat(lay.els);
+    const els = [];
+    const bgImg = lay.bgImg || (lay.bg ? null : mas.bgImg);
+    if (bgImg) { const im = await blobImage(zip, bgImg); if (im) els.push({ im, x: 0, y: 0, w: Engine.W, h: Engine.H }); else info.unsupported++; }
+    for (const g of parts) {
+      if (g.kind === "pic") { const im = await blobImage(zip, g.path); if (im) els.push(Object.assign({ im }, g.box)); else info.unsupported++; }
+      else if (g.kind === "rect") els.push({ t: "rect", radius: 0, fill: g.fill, x: g.box.x, y: g.box.y, w: g.box.w, h: g.box.h });
+      else els.push({ t: "text", text: g.text, x: g.box.x, y: g.box.y, w: g.box.w, h: g.box.h, size: g.style.size || 12, color: g.style.color || "000000", fontName: g.style.fontName || th.minor, bold: !!g.style.bold, align: g.style.align || "left", valign: g.style.valign || "top", font: "body" });
+    }
+    const tsrc = lay.title || mas.title, ssrc = lay.sub;
+    const tstyle = Object.assign({}, mas.title ? mas.title.style : {}, lay.title ? lay.title.style : {});
+    const box = (tsrc && tsrc.box) || (lay.title && lay.title.box);
+    const title = box ? Object.assign({ x: box.x, y: box.y, w: box.w, h: box.h, size: Math.min(44, tstyle.size || 30), color: tstyle.color, fontName: tstyle.fontName || th.major, bold: tstyle.bold, align: tstyle.align, valign: tstyle.valign }) : null;
+    const sub = ssrc && ssrc.box ? Object.assign({ x: ssrc.box.x, y: ssrc.box.y, w: ssrc.box.w, h: ssrc.box.h, size: Math.min(28, ssrc.style.size || 20), color: ssrc.style.color, fontName: ssrc.style.fontName || th.minor, align: ssrc.style.align, valign: ssrc.style.valign }) : null;
+    return { els, bg: lay.bg || mas.bg || "FFFFFF", title, sub, name: lay.name };
+  }
+  async function parsePptx(file) {
+    if (typeof JSZip === "undefined") throw new Error("nolib");
+    const zip = await JSZip.loadAsync(await file.arrayBuffer());
+    const pres = await readXml(zip, "ppt/presentation.xml"); if (!pres) throw new Error("notpptx");
+    const sz = deep(pres, "p", "sldSz"), cx = sz ? +sz.getAttribute("cx") : 12192000, cy = sz ? +sz.getAttribute("cy") : 6858000;
+    const k = { sx: Engine.W / cx, sy: Engine.H / cy };
+    const ratioOff = Math.abs(cx / cy - 16 / 9) > 0.05;
+    const prels = await readRels(zip, "ppt/presentation.xml");
+    const themePath = (Object.values(prels).find((r) => /\/theme$/.test(r.type)) || {}).target || "ppt/theme/theme1.xml";
+    const th = parseTheme(await readXml(zip, themePath));
+    const layouts = [];
+    for (const name of Object.keys(zip.files).filter((n) => /^ppt\/slideLayouts\/slideLayout\d+\.xml$/.test(n)).sort((a, b) => parseInt(a.match(/\d+/)[0], 10) - parseInt(b.match(/\d+/)[0], 10))) {
+      const d = await readXml(zip, name);
+      layouts.push({ path: name, name: (deep(d, "p", "cSld") || {}).getAttribute ? deep(d, "p", "cSld").getAttribute("name") || name : name, type: d.documentElement.getAttribute("type") || "",
+        hasTitle: deepAll(d, "p", "ph").some((p) => /title|ctrTitle/.test(p.getAttribute("type") || "")) });
+    }
+    const slides = kids(deep(pres, "p", "sldIdLst"), "p", "sldId").map((s) => (prels[s.getAttributeNS(NS.r, "id")] || {}).target).filter(Boolean);
+    const coverGuess = layouts.find((l) => /표지|cover|title slide|제목 슬라이드/i.test(l.name)) || layouts.find((l) => l.type === "title") || layouts[0];
+    const bodyGuess = layouts.find((l) => /내지|body|content|제목만|title only/i.test(l.name) && l !== coverGuess) || layouts.find((l) => l.type === "titleOnly") || layouts.find((l) => l.hasTitle && l !== coverGuess) || layouts[0];
+    return { zip, file: file.name, th, k, ratioOff, layouts, slides, cover: coverGuess && coverGuess.path, body: bodyGuess && bodyGuess.path };
+  }
+  async function storeFormImages(list) {
+    const out = [];
+    for (const g of list) {
+      if (g.im) { const id = newId("i"); state.images[id] = g.im; if (!state.unsaved) await store.saveImage(state.project.id, id, g.im).catch(() => {}); out.push({ t: "img", img: id, x: g.x, y: g.y, w: g.w, h: g.h }); }
+      else out.push(g);
+    }
+    return out;
+  }
+  async function applyForm(cache) {
+    const info = { skipped: 0, unsupported: 0 };
+    const cover = await buildFormPart(cache.zip, cache.cover, cache.th, cache.k, info);
+    const body = await buildFormPart(cache.zip, cache.body, cache.th, cache.k, info);
+    const old = state.project.form;
+    const form = { name: cache.file, enabled: true, coverLayout: cover.name, bodyLayout: body.name,
+      cover: await storeFormImages(cover.els), content: await storeFormImages(body.els), coverBg: cover.bg, contentBg: body.bg,
+      coverTitle: cover.title, coverSub: cover.sub, titleBox: body.title };
+    state.project.form = form;
+    if (old) [].concat(old.cover || [], old.content || []).forEach((g) => g.img && dropImageIfUnused(g.img));
+    return info;
+  }
+  function themeFromForm(th) {
+    const c = th.colors, a1 = c.accent1 || "4472C4";
+    const mix = (hex, to, r) => { const n = parseInt(hex, 16), m = parseInt(to, 16); return [16, 8, 0].map((s) => Math.round(((n >> s) & 255) * (1 - r) + ((m >> s) & 255) * r).toString(16).padStart(2, "0")).join("").toUpperCase(); };
+    return { name: "PPT 폼", primary: a1, accent: c.accent2 || a1, bg: "FFFFFF", ink: c.dk1 || "222222", muted: mix(c.dk1 || "222222", "FFFFFF", 0.45), tint: mix(a1, "FFFFFF", 0.9), dark: a1, headFont: th.major, bodyFont: th.minor };
+  }
+  async function importSlides(cache) {
+    const out = [];
+    for (const path of cache.slides) {
+      const doc = await readXml(cache.zip, path); if (!doc) continue;
+      const rels = await readRels(cache.zip, path);
+      let title = "", sub = "", isCover = false; const texts = [], pics = [];
+      const tree = deep(doc, "p", "spTree");
+      for (const el of deepAll(tree, "p", "sp")) {
+        const ph = phOf(el), type = ph ? ph.getAttribute("type") || "body" : null, tx = textOf(el);
+        if (!tx || type === "sldNum" || type === "dt" || type === "ftr") continue;
+        if (type === "title" || type === "ctrTitle") { if (!title) { title = tx.replace(/\n/g, " "); isCover = type === "ctrTitle"; } }
+        else if (type === "subTitle") sub = tx.replace(/\n/g, " · ");
+        else texts.push(...tx.split("\n").filter(Boolean));
+      }
+      for (const el of deepAll(tree, "p", "pic")) { const b = deep(el, "a", "blip"); const rel = b && rels[b.getAttributeNS(NS.r, "embed")]; if (rel) pics.push(rel.target); }
+      let notes = "";
+      const nrel = Object.values(rels).find((r) => /notesSlide/.test(r.type));
+      if (nrel) { const nd = await readXml(cache.zip, nrel.target); if (nd) for (const sp of deepAll(nd, "p", "sp")) { const ph = phOf(sp); if (ph && (ph.getAttribute("type") || "body") === "body") notes = textOf(sp); } }
+      const photos = [null, null, null];
+      for (let i = 0; i < Math.min(3, pics.length); i++) { const im = await blobImage(cache.zip, pics[i]); if (im) { const id = newId("i"); state.images[id] = im; photos[i] = id; } }
+      const np = photos.filter(Boolean).length;
+      const layout = isCover && out.length === 0 ? "title" : np >= 2 ? "photos" : np === 1 ? "figure" : texts.length ? "text" : "figure";
+      out.push({ id: newId("s"), layout, part: 0, title, sub: sub || (layout === "title" ? texts.slice(0, 2).join(" · ") : ""), items: layout === "text" ? texts.slice(0, 8) : [], fig: "",
+        photos, caps: ["", "", ""], frames: Math.max(1, Math.min(3, np)), emphasis: "", summary: layout === "photos" ? texts.slice(0, 3).join("\n") : "", message: "",
+        refs: "", notes: notes + (layout === "figure" && texts.length ? (notes ? "\n" : "") + "원본 본문: " + texts.join(" / ") : "") });
+    }
+    return out;
+  }
+  async function onFormFile(file, withSlides) {
+    busy(true, "PPT 읽는 중", file.name);
+    try {
+      const cache = await parsePptx(file);
+      if (!cache.layouts.length) throw new Error("nolayout");
+      formCache = cache;
+      const info = await applyForm(cache);
+      state.project.theme = themeFromForm(cache.th);
+      state.project.style.showPart = false;
+      let msg = `"${file.name}" 디자인을 적용했어요.`;
+      if (withSlides && cache.slides.length) {
+        busy(true, "슬라이드 내용 가져오는 중", `${cache.slides.length}장`);
+        const slides = await importSlides(cache);
+        if (!state.project.slides.length || (await confirmDlg("슬라이드 바꾸기", `지금 슬라이드 ${state.project.slides.length}장을 PPT의 ${slides.length}장으로 바꿀까요? [취소]를 누르면 디자인만 적용됩니다.`, "바꾸기"))) {
+          state.project.slides = slides; state.project.chapters = state.project.chapters && state.project.chapters.length ? state.project.chapters : ["Imported"];
+          slides.forEach((s) => { s.part = 0; });
+          if (!state.unsaved) for (const s of slides) for (const id of s.photos) if (id) await store.saveImage(state.project.id, id, state.images[id]).catch(() => {});
+          state.cur = 0; msg += ` 슬라이드 ${slides.length}장을 가져왔어요.`;
+        }
+      }
+      if (cache.ratioOff) msg += " 폼이 16:9가 아니라 위치가 조금 다를 수 있어요.";
+      if (info.unsupported || info.skipped) msg += ` 일부 그래픽(${info.unsupported + info.skipped}개)은 가져오지 못했어요.`;
+      changed(); busy(false); renderDesign(); toast(msg);
+    } catch (e) {
+      busy(false);
+      toast(e && e.message === "nolib" ? "PPT를 읽는 라이브러리를 불러오지 못했어요. 새로고침해 주세요." : "이 파일은 PPT(.pptx)로 읽지 못했어요. PowerPoint에서 .pptx로 저장해 다시 올려 주세요.");
+    }
+  }
+  async function switchLayout(which, path) {
+    if (!formCache) return;
+    formCache[which] = path;
+    busy(true, "레이아웃 바꾸는 중");
+    try { await applyForm(formCache); changed(); } catch (e) { toast("레이아웃을 바꾸지 못했어요."); }
+    busy(false); renderDesign();
+  }
+
+  $("#formInput").addEventListener("change", (ev) => {
+    const f = ev.target.files && ev.target.files[0]; ev.target.value = ""; if (!f) return;
+    const w = $("#d-withSlides"); onFormFile(f, !!(w && w.checked));
+  });
+
+  /* ---- 5. export ---- */
+  function exportStats() {
+    const p = state.project; let frames = 0, filled = 0; const empty = [];
+    p.slides.forEach((s, i) => {
+      const n = s.layout === "photos" ? s.frames : ["figure", "image", "points"].includes(s.layout) ? 1 : 0;
+      for (let k = 0; k < n; k++) { frames++; if (s.photos[k] && state.images[s.photos[k]]) filled++; else empty.push(i + 1); }
+    });
+    const marks = p.slides.filter((s) => /\[(수치|연자 확정|date|핵심|포인트|내용|항목|비교)/.test(JSON.stringify([s.title, s.items, s.caps, s.message, s.sub]))).map((s) => p.slides.indexOf(s) + 1);
+    return { frames, filled, empty: [...new Set(empty)], marks, refs: Engine.lines(p.refs).length };
+  }
+  function renderExportStats() {
+    const p = state.project, st = exportStats();
+    $("#exportStats").innerHTML = [[p.slides.length, "슬라이드"], [`${st.filled}/${st.frames}`, "채운 그림·사진 칸"], [st.refs, "참고문헌"]].map(([v, l]) => `<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+    const w = [];
+    if (st.empty.length) w.push(`그림·사진이 빈 슬라이드: ${st.empty.slice(0, 14).join(", ")}${st.empty.length > 14 ? " …" : ""}`);
+    if (st.marks.length) w.push(`채워야 할 [ ] 표시가 남은 슬라이드: ${st.marks.slice(0, 14).join(", ")}${st.marks.length > 14 ? " …" : ""}`);
+    $("#exportWarn").innerHTML = w.map((x) => `<div>• ${esc(x)}</div>`).join("");
+  }
+  function renderExport() {
+    renderExportStats();
+    if (document.activeElement !== $("#x-refsText")) $("#x-refsText").value = state.project.refs || "";
+    renderExportRefs();
+    $("#exportMsg").textContent = state.downloads || !window.GJAI.inClaude ? "" : "이 화면에서는 파일 저장이 지원되지 않을 수 있어요. 버튼이 동작하지 않으면 claude.ai에서 이 페이지를 열어 주세요.";
+  }
+  let refT;
+
+  /* ================= 참고문헌 찾기 =================
+     논문 정보는 Europe PMC(안 되면 PubMed)에서 실제로 받아 온 것만 씀.
+     Claude는 검색어를 만들고, 받아 온 후보 중에서 고르고 이유를 다는 일만 함 (논문을 지어내지 않음). */
+  const RF = { mode: "deck", slideIdx: null, results: [], picked: new Set(), recs: {}, busy: false };
+  const canSearch = () => !window.GJAI.inClaude; // claude.ai 링크 안에서는 외부 검색이 막혀 있음
+  const yNow = new Date().getFullYear();
+  const stripTags = (s) => String(s || "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+  function rfFilters() {
+    return { years: Number($("#rfYears").value) || 0, review: $("#rfReview").checked, oa: $("#rfOa").checked, sort: $("#rfSort").value };
+  }
+  async function searchEPMC(q, f, n) {
+    let query = `(${q}) AND (SRC:MED)`;
+    if (f.years) query += ` AND (PUB_YEAR:[${yNow - f.years} TO ${yNow}])`;
+    if (f.review) query += ` AND (PUB_TYPE:"review")`;
+    if (f.oa) query += ` AND (OPEN_ACCESS:y)`;
+    const sort = f.sort === "cited" ? "&sort=" + encodeURIComponent("CITED desc") : f.sort === "new" ? "&sort=" + encodeURIComponent("P_PDATE_D desc") : "";
+    const r = await fetch(`https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=${encodeURIComponent(query)}&format=json&resultType=core&pageSize=${n || 25}${sort}`);
+    if (!r.ok) throw new Error("epmc " + r.status);
+    const j = await r.json();
+    return ((j.resultList && j.resultList.result) || []).map((x) => {
+      const ft = ((x.fullTextUrlList && x.fullTextUrlList.fullTextUrl) || []);
+      const pdf = ft.find((u) => u.documentStyle === "pdf" && /open|free/i.test(u.availability || ""));
+      const jr = x.journalInfo && x.journalInfo.journal;
+      return { pmid: x.pmid || "", pmcid: x.pmcid || "", doi: x.doi || "", title: stripTags(x.title).replace(/\.$/, ""),
+        authors: x.authorString || "", journal: (jr && (jr.isoabbreviation || jr.title)) || x.journalTitle || "", year: x.pubYear || "",
+        cited: Number(x.citedByCount || 0), review: ((x.pubTypeList && x.pubTypeList.pubType) || []).some((t) => /review/i.test(t)),
+        oa: x.isOpenAccess === "Y", abstract: stripTags(x.abstractText), pdf: pdf ? pdf.url : "", src: "Europe PMC" };
+    });
+  }
+  async function searchPubMed(q, f, n) {
+    let term = `(${q})`;
+    if (f.years) term += ` AND ${yNow - f.years}:${yNow}[dp]`;
+    if (f.review) term += " AND review[pt]";
+    if (f.oa) term += " AND free full text[sb]";
+    const base = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
+    const s = await fetch(`${base}esearch.fcgi?db=pubmed&retmode=json&retmax=${n || 25}&sort=${f.sort === "new" ? "pub_date" : "relevance"}&term=${encodeURIComponent(term)}`);
+    if (!s.ok) throw new Error("pubmed " + s.status);
+    const ids = ((await s.json()).esearchresult || {}).idlist || [];
+    if (!ids.length) return [];
+    const m = await fetch(`${base}esummary.fcgi?db=pubmed&retmode=json&id=${ids.join(",")}`);
+    if (!m.ok) throw new Error("pubmed " + m.status);
+    const res = (await m.json()).result || {};
+    return ids.map((id) => res[id]).filter(Boolean).map((x) => {
+      const aid = (t) => ((x.articleids || []).find((a) => a.idtype === t) || {}).value || "";
+      return { pmid: x.uid, pmcid: aid("pmc"), doi: aid("doi"), title: stripTags(x.title).replace(/\.$/, ""),
+        authors: (x.authors || []).slice(0, 3).map((a) => a.name).join(", ") + ((x.authors || []).length > 3 ? " 외" : ""),
+        journal: x.source || "", year: String(x.pubdate || "").slice(0, 4), cited: null, review: (x.pubtype || []).some((t) => /review/i.test(t)),
+        oa: !!aid("pmc"), abstract: "", pdf: "", src: "PubMed" };
+    });
+  }
+  async function searchAny(q, f, n) {
+    RF.phase = "search";
+    try { return await searchEPMC(q, f, n); }
+    catch (e) { return await searchPubMed(q, f, n); }
+  }
+  const keyOf = (r) => (r.pmid ? "p" + r.pmid : r.doi ? "d" + r.doi.toLowerCase() : "t" + r.title.toLowerCase().slice(0, 80));
+  function existingRefs() {
+    const map = {};
+    refItems().forEach((r) => { if (r.pmid) map["p" + r.pmid] = r.id; if (r.doi) map["d" + r.doi.toLowerCase()] = r.id; });
+    return map;
+  }
+  function nextRefNo() {
+    let mx = 0; refItems().forEach((r) => { const m = String(r.id || "").match(/(\d+)/); if (m) mx = Math.max(mx, Number(m[1])); });
+    return mx + 1;
+  }
+  function rfDefaultQuery() {
+    const p = state.project, i = p.info || {};
+    const topic = String(i.topic || "").replace(/\s+with\s+\S+$/i, "").trim();
+    if (RF.mode === "slide") { const s = p.slides[RF.slideIdx] || {}; return [s.title, topic].filter(Boolean).join(" ").replace(/[^\w\s&-]/g, " ").replace(/\s+/g, " ").trim(); }
+    return topic;
+  }
+  function openRefFinder(mode, slideIdx) {
+    if (!state.project) return;
+    if (!canSearch()) { toast("claude.ai 링크에서는 논문 검색을 쓸 수 없어요. 깃허브 워크스페이스에서 열어 주세요."); return; }
+    RF.mode = mode || "deck"; RF.slideIdx = slideIdx == null ? null : slideIdx;
+    RF.results = []; RF.picked = new Set(); RF.recs = {};
+    const s = RF.mode === "slide" ? state.project.slides[RF.slideIdx] : null;
+    $("#rfTitle").textContent = s ? `슬라이드 ${RF.slideIdx + 1} 근거 찾기` : "참고문헌 찾기";
+    $("#rfSub").textContent = s ? `“${s.title || "제목 없음"}”에 맞는 논문을 찾아요. 추가하면 이 슬라이드 근거 칸에도 번호가 들어가요.` : "발표 주제에 맞는 논문을 Europe PMC·PubMed에서 찾아요. 실제 데이터베이스 결과만 보여 줘요.";
+    $("#rfQ").value = rfDefaultQuery();
+    $("#rfAi").hidden = !state.sample;
+    $("#rfToSlidesWrap").hidden = RF.mode === "slide";
+    $("#rfStatus").innerHTML = state.sample ? "검색어를 직접 넣어 <b>검색</b>하거나, <b>Claude 추천</b>으로 Claude가 검색어를 만들고 후보 중에서 골라 줘요." : "영어 검색어로 찾으면 결과가 더 정확해요. (API 키를 넣으면 Claude 추천도 쓸 수 있어요)";
+    renderRfList();
+    $("#refDlg").classList.add("on"); $("#rfQ").focus();
+  }
+  function closeRefFinder() { $("#refDlg").classList.remove("on"); }
+  function renderRfList() {
+    const have = existingRefs();
+    const list = RF.results.slice().sort((a, b) => (RF.recs[keyOf(b)] ? 1 : 0) - (RF.recs[keyOf(a)] ? 1 : 0));
+    $("#rfList").innerHTML = list.map((r) => {
+      const k = keyOf(r), done = have[k], rec = RF.recs[k];
+      const link = r.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${r.pmid}/` : r.doi ? `https://doi.org/${r.doi}` : "";
+      return `<div class="rf-item${rec ? " rec" : ""}${done ? " done" : ""}">
+        <input type="checkbox" data-rf="${esc(k)}" ${done ? "disabled checked" : RF.picked.has(k) ? "checked" : ""} aria-label="선택: ${esc(r.title)}">
+        <div class="rf-body">
+          ${rec ? `<div class="rf-rec">Claude 추천 · ${esc(rec.why)}${rec.slides && rec.slides.length ? ` <span class="rf-sl">→ 슬라이드 ${rec.slides.join(", ")}</span>` : ""}</div>` : ""}
+          <div class="rf-t">${link ? `<a href="${esc(link)}" target="_blank" rel="noopener">${esc(r.title)}</a>` : esc(r.title)}</div>
+          <div class="rf-m">${esc([r.authors.split(",").slice(0, 2).join(",") + (r.authors.split(",").length > 2 ? " 외" : ""), r.journal, r.year].filter(Boolean).join(" · "))}</div>
+          <div class="rf-tags">${done ? `<span class="chip ok">추가됨 ${esc(done)}</span>` : ""}${r.review ? '<span class="chip">리뷰</span>' : ""}${r.oa ? '<span class="chip ok">무료 전문</span>' : ""}${r.cited != null ? `<span class="chip">인용 ${r.cited}</span>` : ""}${r.pmid ? `<span class="chip">PMID ${esc(r.pmid)}</span>` : ""}</div>
+          ${r.abstract ? `<details><summary>초록 보기</summary><p>${esc(r.abstract)}</p></details>` : ""}
+        </div></div>`;
+    }).join("") || "";
+    const n = RF.picked.size;
+    $("#rfSel").textContent = n ? `${n}편 선택` : "";
+    $("#rfAdd").disabled = !n;
+  }
+  async function rfRun(task) {
+    if (RF.busy) return; RF.busy = true; $("#rfGo").disabled = $("#rfAi").disabled = true;
+    try { await task(); }
+    catch (e) {
+      const q = encodeURIComponent($("#rfQ").value.trim());
+      if (RF.phase === "claude") { if (e && e.code) aiError(e); $("#rfStatus").textContent = "Claude 응답을 받지 못했어요. 검색어를 직접 넣어 검색할 수 있어요."; }
+      else $("#rfStatus").innerHTML = `검색 서버에 연결하지 못했어요. 잠시 뒤 다시 시도하거나 <a href="https://pubmed.ncbi.nlm.nih.gov/?term=${q}" target="_blank" rel="noopener">PubMed에서 직접 검색</a>하세요.`;
+    } finally { RF.busy = false; $("#rfGo").disabled = $("#rfAi").disabled = false; }
+  }
+  function rfMerge(list) {
+    const seen = new Set(RF.results.map(keyOf));
+    list.forEach((r) => { const k = keyOf(r); if (!seen.has(k) && r.title) { seen.add(k); RF.results.push(r); } });
+  }
+  async function rfSearch() {
+    const q = $("#rfQ").value.trim(); if (!q) { $("#rfQ").focus(); return; }
+    await rfRun(async () => {
+      $("#rfStatus").textContent = "찾는 중…";
+      RF.results = []; RF.recs = {}; RF.picked = new Set();
+      const list = await searchAny(q, rfFilters(), 30);
+      rfMerge(list); renderRfList();
+      $("#rfStatus").textContent = list.length ? `${list.length}편을 찾았어요 (${list[0].src}). 제목을 누르면 PubMed에서 열려요.` : "결과가 없어요. 검색어를 줄이거나 기간·필터를 풀어 보세요.";
+    });
+  }
+  async function rfClaude() {
+    if (!state.sample) return;
+    await rfRun(async () => {
+      const p = state.project, f = rfFilters();
+      const slideList = p.slides.map((s, i) => `${i + 1}. ${s.title || ""}`).join("\n");
+      const focus = RF.mode === "slide" ? `Find evidence for ONE slide: "${(p.slides[RF.slideIdx] || {}).title || ""}"\nSlide notes: ${String((p.slides[RF.slideIdx] || {}).notes || "").slice(0, 600)}` : `Find the key evidence papers for the whole talk.\nSlides:\n${slideList.slice(0, 5000)}`;
+      $("#rfStatus").textContent = "Claude가 검색어를 만드는 중…"; RF.phase = "claude";
+      const qText = (await state.sample(`You help a dermatologist find PubMed-indexed papers for a conference talk.\n${infoText()}\n${focus}\n\nWrite ${RF.mode === "slide" ? 3 : 5} short English search queries (PubMed style keywords, 2-6 words, no field tags) that together cover the evidence needed. Return ONLY JSON: {"queries":["..."]}`, { modelTier: "default", cache: false })).text;
+      const queries = (parseJSON(qText).queries || []).map(String).filter(Boolean).slice(0, 6);
+      if (!queries.length) throw new Error("no queries");
+      $("#rfQ").value = queries[0];
+      RF.results = []; RF.recs = {}; RF.picked = new Set();
+      for (let i = 0; i < queries.length; i++) {
+        $("#rfStatus").textContent = `논문 데이터베이스 검색 중… (${i + 1}/${queries.length}) ${queries[i]}`;
+        rfMerge(await searchAny(queries[i], f, RF.mode === "slide" ? 12 : 15));
+      }
+      renderRfList();
+      if (!RF.results.length) { $("#rfStatus").textContent = "검색 결과가 없어요. 필터를 풀고 다시 해 보세요."; return; }
+      $("#rfStatus").textContent = `${RF.results.length}편 중에서 Claude가 고르는 중…`; RF.phase = "claude";
+      const cand = RF.results.slice(0, 60).map((r, k) => `[${k}] ${r.title} (${r.journal} ${r.year}${r.review ? ", review" : ""}${r.cited != null ? ", cited " + r.cited : ""})${r.abstract ? "\n    " + r.abstract.slice(0, 380) : ""}`).join("\n");
+      const pick = RF.mode === "slide" ? 4 : 12;
+      const rText = (await state.sample(`${infoText()}\n${focus}\n\nCandidate papers (from Europe PMC/PubMed):\n${cand}\n\nChoose up to ${pick} candidates that best support this talk${RF.mode === "slide" ? " slide" : ""}. Prefer clinical studies, anatomy studies and reviews relevant to the audience; skip off-topic ones. Use ONLY the candidate numbers given. For each, write a one-line reason in Korean (under 40 characters)${RF.mode === "slide" ? "" : " and the slide numbers it supports"}. Return ONLY JSON: {"picks":[{"k":0,"why":"...","slides":[3,12]}]}`, { modelTier: "default", cache: false })).text;
+      const picks = (parseJSON(rText).picks || []).filter((x) => Number.isInteger(x.k) && RF.results[x.k]);
+      picks.forEach((x) => { const k = keyOf(RF.results[x.k]); RF.recs[k] = { why: String(x.why || "").slice(0, 80), slides: (x.slides || []).map(Number).filter((n) => n >= 1 && n <= p.slides.length) }; RF.picked.add(k); });
+      renderRfList();
+      $("#rfStatus").textContent = picks.length ? `Claude가 ${picks.length}편을 골랐어요 (체크됨). 제목을 눌러 PubMed에서 확인한 뒤 추가하세요.` : "Claude가 고를 만한 논문을 찾지 못했어요. 목록에서 직접 고르세요.";
+    });
+  }
+  function rfAdd() {
+    const p = state.project; const have = existingRefs();
+    let no = nextRefNo(); const lines = []; const added = [];
+    RF.results.filter((r) => RF.picked.has(keyOf(r)) && !have[keyOf(r)]).forEach((r) => {
+      const id = "R" + no++;
+      const url = r.pdf || "";
+      lines.push([id, r.title, r.pmid ? "PMID " + r.pmid : "", r.doi, r.pmcid, url].filter(Boolean).join(" | "));
+      added.push({ id, k: keyOf(r) });
+    });
+    if (!lines.length) { closeRefFinder(); return; }
+    p.refs = (String(p.refs || "").replace(/\s+$/, "") + (p.refs ? "\n" : "") + lines.join("\n")).replace(/^\n/, "");
+    const addTo = (idx, id) => { const s = p.slides[idx]; if (!s) return; const ids = String(s.refs || "").match(/R\d+[a-z]?/gi) || []; if (!ids.includes(id)) s.refs = ids.concat(id).join(", "); };
+    if (RF.mode === "slide") added.forEach((a) => addTo(RF.slideIdx, a.id));
+    else if ($("#rfToSlides").checked) added.forEach((a) => ((RF.recs[a.k] || {}).slides || []).forEach((n) => addTo(n - 1, a.id)));
+    changed(); closeRefFinder(); renderAll();
+    toast(`${lines.length}편을 참고문헌에 추가했어요 (${added[0].id}${added.length > 1 ? "~" + added[added.length - 1].id : ""}).`);
+  }
+  $("#rfClose").onclick = closeRefFinder;
+  $("#refDlg").addEventListener("click", (e) => { if (e.target.id === "refDlg") closeRefFinder(); });
+  $("#refDlg").addEventListener("keydown", (e) => { if (e.key === "Escape") closeRefFinder(); if (e.key === "Enter" && e.target.id === "rfQ") { e.preventDefault(); rfSearch(); } });
+  $("#rfGo").onclick = rfSearch;
+  $("#rfAi").onclick = rfClaude;
+  $("#rfAdd").onclick = rfAdd;
+  $("#rfList").addEventListener("change", (e) => { const k = e.target.dataset.rf; if (!k) return; if (e.target.checked) RF.picked.add(k); else RF.picked.delete(k); $("#rfSel").textContent = RF.picked.size ? `${RF.picked.size}편 선택` : ""; $("#rfAdd").disabled = !RF.picked.size; });
+  ["#storyFind", "#x-findRefs"].forEach((s) => { const b = $(s); if (b) { b.hidden = !canSearch(); b.onclick = () => openRefFinder("deck"); } });
+
+  function renderExportRefs() { const items = refItems(); $("#x-refList").innerHTML = refListHtml(items); $("#x-copyLinks").disabled = !items.length; }
+  $("#x-refsText").addEventListener("input", (ev) => { state.project.refs = ev.target.value; changed(); clearTimeout(refT); refT = setTimeout(renderExportRefs, 300); });
+  $("#x-copyLinks").onclick = () => copyLinks(refItems());
+  $("#storyCopy").onclick = () => { const items = refItems(); if (items.length) copyLinks(items); else toast("복사할 참고문헌이 없어요."); };
+  const fileName = (ext) => ((state.project.name || state.project.info.topic || "presentation").replace(/[\\/:*?"<>|]+/g, " ").trim().slice(0, 80) || "presentation") + "." + ext;
+  async function saveFile(name, data) {
+    if (!state.downloads) {
+      if (!window.GJAI.inClaude) { window.GJAI.download(name, data); toast("파일을 내려받았어요."); return true; }
+      toast("이 화면에서는 파일을 저장할 수 없어요. claude.ai에서 열어 주세요."); return false;
+    }
+    try { await state.downloads.save({ filename: name, data }); toast("파일을 저장했어요."); return true; }
+    catch (e) {
+      if (e && e.code === "declined") return false;
+      if (e && e.code === "rate_limited") toast("저장 창이 이미 열려 있어요. 잠시 후 다시 눌러 주세요.");
+      else toast("파일을 저장하지 못했어요.");
+      return false;
+    }
+  }
+  async function doExport() {
+    const p = state.project;
+    if (!p.slides.length) { toast("내보낼 슬라이드가 없어요."); return; }
+    if (typeof PptxGenJS === "undefined") { toast("PPT 라이브러리를 불러오지 못했어요. 새로고침해 주세요."); return; }
+    busy(true, "PPTX 만드는 중", `${p.slides.length}장`);
+    let blob;
+    try {
+      const pres = Engine.exportDeck(PptxGenJS, p, state.images, { notes: $("#x-notes").checked, references: $("#x-refs").checked, placeholders: $("#x-ph").checked });
+      blob = await pres.write({ outputType: "blob" });
+    } catch (e) { busy(false); toast("PPTX를 만들지 못했어요."); return; }
+    busy(false);
+    if (await saveFile(fileName("pptx"), blob)) { p.exportedAt = Date.now(); changed({ quiet: true }); }
+  }
+  $("#doExport").onclick = doExport;
+  $("#topDownload").onclick = () => { if (state.view !== "export") go("export"); doExport(); };
+  $("#saveJson").onclick = () => {
+    const ids = usedIds(), imgs = {}; ids.forEach((id) => { if (state.images[id]) imgs[id] = state.images[id]; });
+    saveFile(fileName("json"), JSON.stringify({ app: "conference-ppt-studio", version: 1, project: state.project, images: imgs }));
+  };
+  $("#loadJson").addEventListener("change", async (ev) => {
+    const f = ev.target.files && ev.target.files[0]; if (!f) return;
+    try {
+      const o = JSON.parse(await f.text());
+      if (!o || !o.project || !Array.isArray(o.project.slides)) throw new Error("bad");
+      await flush();
+      const p = o.project; p.id = newId("p"); p.name = (p.name || "불러온 발표") + " (불러옴)"; p.updatedAt = Date.now();
+      setProject(p, o.images || {}, true); changed(); toast("프로젝트를 불러왔어요."); go("edit");
+    } catch (e) { toast("프로젝트 파일을 읽지 못했어요."); }
+    ev.target.value = "";
+  });
+
+  /* ---------------- start ---------------- */
+  async function start() {
+    openExample(0);
+    { const h = location.hash.slice(1); state.view = VIEWS.includes(h) ? h : "edit"; if (visible()) show(state.view); }
+    const use = (n) => (window.claude && typeof window.claude.use === "function" ? window.claude.use(n).catch(() => null) : Promise.resolve(null));
+    const [user, db, sample, downloads] = await Promise.all([use("user"), use("db"), use("sample"), use("downloads")]);
+    state.sample = sample; state.downloads = downloads;
+    let uid = null; try { uid = user ? await user.id() : null; } catch (e) { uid = null; }
+    if (db && uid) { state.db = db; state.uid = uid; store.kind = "db"; }
+    else { try { localStorage.setItem("pptstudio.t", "1"); localStorage.removeItem("pptstudio.t"); store.kind = "local"; } catch (e) { store.kind = "memory"; } }
+    try {
+      const timer = new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 10000));
+      const list = await Promise.race([store.list(), timer]);
+      state.projects = list.map(metaOf);
+      if (list.length) {
+        const latest = list.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))[0];
+        if (state.unsaved && !dirty) { let imgs = {}; try { imgs = await store.loadImages(latest.id); } catch (e) {} setProject(latest, imgs, false); }
+      } else chip(store.kind === "memory" ? "저장 안 됨" : "예시 · 수정하면 저장돼요");
+    } catch (e) { chip("저장소 연결 안 됨", "warn"); }
+    renderAll(); notifyHub();
+  }
+  window.GJ = window.GJ || {};
+  window.GJ.ppt = {
+    projects: () => state.projects, current: () => state.project, unsaved: () => state.unsaved, view: () => state.view,
+    stageOf, refresh: () => show(state.view), open: (id) => openProject(id).then(() => go("edit")),
+  };
+  window.addEventListener("beforeunload", () => { if (dirty) flush(); });
+  start();
+})();
+
+</script>
+</body>
+</html>
