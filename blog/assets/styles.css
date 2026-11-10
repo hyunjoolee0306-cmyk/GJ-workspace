@@ -560,3 +560,16 @@ hr.sep { border: 0; border-top: 1px solid var(--hairline); margin: var(--s-lg) 0
 /* 골격 3안 */
 .skel-heads { margin: 4px 0 0; padding-left: 20px; font-size: 13px; line-height: 1.6; color: var(--ink); }
 .skel-heads li { margin: 0; }
+
+/* 자료탐색 링크 */
+.ne-answer a, .ne-links a { color: #03a94d; text-decoration: underline; word-break: break-all; }
+.ne-links { border: 1px solid var(--hairline); border-radius: 6px; padding: 12px 14px; background: #fff; display: flex; flex-direction: column; gap: 8px; }
+.ne-links-h { font-weight: 700; font-size: 12.5px; color: #3b4148; }
+.ne-links ol { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.ne-links li { line-height: 1.5; }
+.ne-host { display: block; color: #868b94; font-size: 11.5px; font-weight: 400; }
+.ne-links-h .ne-host { display: inline; margin-left: 4px; }
+.ne-quick { display: flex; flex-wrap: wrap; gap: 6px; }
+.ne-quick a { text-decoration: none; border: 1px solid #c3c8ce; border-radius: 9999px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: #222; background: #fff; }
+.ne-quick a:hover { background: #f3f4f5; }
+.ne-answer a.ne-unver { color: #c2410c; }
