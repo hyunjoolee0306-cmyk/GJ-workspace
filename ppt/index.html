@@ -2145,7 +2145,7 @@ Never invent citations, authors, PMIDs or numbers; write "[수치]" where a numb
   /* ---------------- start ---------------- */
   async function start() {
     openExample(0);
-    { const h = location.hash.slice(1); state.view = VIEWS.includes(h) ? h : "edit"; if (visible()) show(state.view); }
+    { const h = location.hash.slice(1); state.view = VIEWS.includes(h) ? h : "setup"; if (visible()) show(state.view); }
     const use = (n) => (window.claude && typeof window.claude.use === "function" ? window.claude.use(n).catch(() => null) : Promise.resolve(null));
     const [user, db, sample, downloads] = await Promise.all([use("user"), use("db"), use("sample"), use("downloads")]);
     state.sample = sample; state.downloads = downloads;
