@@ -380,13 +380,48 @@
   }
 
   /* ---------------- Draft skeleton & prompt ---------------- */
-  function sections(it) {
+  function sections(it, fmt) {
     const b = it.brief || {};
     const k = (it.keywords || "").split(",")[0].trim() || it.title;
     const P = b.program || "○○ 프로그램";
-    return (TYPES[it.format] || TYPES[TYPE_NAMES[0]]).sec(k, b, P);
+    return (TYPES[fmt || it.format] || TYPES[TYPE_NAMES[0]]).sec(k, b, P);
   }
-  function skeleton(it) {
+  /* 골격 3안: 지금 글 유형(추천) + 어울리는 다른 유형 2개, 시작 방식도 번갈아 */
+  const SKEL_NEAR = {
+    "원인 감별형": ["오해 바로잡기형", "원리 해설형"],
+    "오해 바로잡기형": ["원인 감별형", "원리 해설형"],
+    "원리 해설형": ["비교·선택형", "오해 바로잡기형"],
+    "비교·선택형": ["원리 해설형", "원인 감별형"],
+    "총정리형": ["오해 바로잡기형", "원리 해설형"],
+    "시기·시즌형": ["원인 감별형", "총정리형"],
+    "진료실 칼럼": ["오해 바로잡기형", "원리 해설형"],
+  };
+  function skeletonPlans(it) {
+    const cur = TYPES[it.format] ? it.format : TYPE_NAMES[0];
+    const fmts = [cur, ...(SKEL_NEAR[cur] || TYPE_NAMES.filter((t) => t !== cur)).slice(0, 2)];
+    return fmts.map((f, k) => ({ label: "ABC"[k] + "안", format: f, hook: k === 1, desc: TYPES[f].d, heads: sections(it, f).map((x) => x[0].replace(/\n/g, " ")) }));
+  }
+  function skelOpts(it, plans) {
+    return plans.map((pl, k) => `<button type="button" class="dir-opt skel-opt" data-skel="${k}"><div class="dl"><span class="n">${pl.label}</span><b>${esc(pl.format)}</b>${k === 0 ? '<span class="rec">추천 · 지금 글 유형</span>' : ""}</div>
+      <div class="t-caption">${esc(pl.desc)}</div>
+      <div class="t-caption" style="color:#3b4148"><b>시작</b> ${pl.hook ? "인사 없이 환자 질문으로 바로 시작" : "인사 → 환자 질문 인용"}</div>
+      <ol class="skel-heads">${pl.heads.map((h) => `<li>${esc(h)}</li>`).join("")}</ol></button>`).join("");
+  }
+  function openSkelModal(it, apply) {
+    const plans = skeletonPlans(it);
+    $("#modal-root").innerHTML = `
+      <div class="modal-bg" id="mbg"><div class="modal" role="dialog" aria-modal="true">
+        <div class="modal-head"><h2 class="t-h4">골격 3안 · 하나를 고르세요</h2><button class="x" id="mx" aria-label="닫기">×</button></div>
+        <p class="t-body-sm" style="margin-top:0">소제목 흐름과 시작 방식이 다른 세 가지 뼈대예요. 고른 안으로 본문에 골격을 넣고, 글 유형도 그 안으로 바꿔요.</p>
+        <div class="dir-opts">${skelOpts(it, plans)}</div>
+      </div></div>`;
+    const close = () => { $("#modal-root").innerHTML = ""; };
+    $("#mx").onclick = close;
+    $("#mbg").onclick = (e) => { if (e.target.id === "mbg") close(); };
+    document.querySelectorAll("[data-skel]").forEach((bt) => { bt.onclick = () => { const pl = plans[+bt.dataset.skel]; close(); apply(pl); }; });
+  }
+  function skeleton(it, opt) {
+    opt = opt || {};
     const b = it.brief || {};
     const qs = (b.questions || "").split("\n").map((x) => x.trim()).filter(Boolean);
     const causes = (b.causes || "").split("\n").map((x) => x.trim()).filter(Boolean);
@@ -397,12 +432,13 @@
     const p = [];
     let photo = 1;
     const circled = "①②③④⑤⑥⑦⑧";
-    p.push(`# ${it.draftTitle || it.title}`, S, greet, S);
+    p.push(`# ${it.draftTitle || it.title}`, S);
+    if (!opt.hook) p.push(greet, S);
     (qs.length ? qs : ["원장님, ✍️ 환자 질문 1", "✍️ 환자 질문 2", "✍️ 환자 질문 3"]).slice(0, 3).forEach((q) => { p.push(`"${q.replace(/^["“]|["”]$/g, "")}"`, ""); });
     p.push("진료실에서 정말 자주 듣는 질문입니다.", S);
     p.push("✍️ **[도입 · 약 250자]** 이 고민이 생기는 상황, 많이 오해하는 지점, 오늘 다룰 내용을 예고합니다.", S);
     p.push(`📷 **[사진 넣기 좋은 구간 ${circled[0]}｜도입 대표 이미지]**  \n고민이 보이는 정면 이미지 (실제 사진이 없으면 AI 이미지, 캡션에 표시)`, S);
-    sections(it).forEach(([h, n, guide, ph]) => {
+    sections(it, opt.format).forEach(([h, n, guide, ph]) => {
       p.push(quoteHead(h), S);
       if (guide === "CAUSES") {
         (causes.length ? causes : ["원인 A → 처방 X", "원인 B → 처방 Y", "원인 C → 처방 Z"]).forEach((c) => {
@@ -977,12 +1013,12 @@
           <div class="field"><label>추가 메모 <span class="hint">원장님께 받은 사실·수치·사진 정보</span></label><textarea class="textarea" id="b-n" style="min-height:72px">${esc(b.notes || "")}</textarea></div>
           <div class="side-actions">
             <button class="btn btn-green full" id="d-ai">✦ Claude로 초안 쓰기</button>
-            <button class="btn btn-ghost" id="d-skel">골격 생성</button>
+            <button class="btn btn-ghost" id="d-skel">골격 3안 보기</button>
             <button class="btn btn-ghost" id="d-prompt">프롬프트 복사</button>
           </div>
           <button class="btn-link" id="d-aikey" style="align-self:flex-start;font-size:13px">${aiCfg().key ? "Claude API 키 설정됨 · 변경" : "Claude API 키 설정"}</button>
           <p class="t-caption" id="d-cost" style="margin:0;color:#00a070;font-weight:700"></p>
-          <p class="t-caption" style="margin:0">골격은 유형별 소제목과 섹션별 목표 분량(합계 약 ${LEN_MIN.toLocaleString()}~${LEN_MAX.toLocaleString()}자)만 잡아줘요. ✍️ 자리를 채워야 분량이 나와요. 완성 원고는 “Claude로 초안 쓰기”(API 키 필요)나 프롬프트 복사로 받으세요.</p>
+          <p class="t-caption" style="margin:0">골격은 3안 중 하나를 골라 유형별 소제목과 섹션별 목표 분량(합계 약 ${LEN_MIN.toLocaleString()}~${LEN_MAX.toLocaleString()}자)만 잡아줘요. ✍️ 자리를 채워야 분량이 나와요. 완성 원고는 “Claude로 초안 쓰기”(API 키 필요)나 프롬프트 복사로 받으세요.</p>
         </div>
       </div></section>`;
   }
@@ -1142,9 +1178,15 @@
       $("#d-review").onclick = () => { collect(); save(); };
       $("#d-copy").onclick = () => { copyForNaver($("#d-title").value, $("#d-body").value); toast("복사했어요. 네이버 에디터에 붙여넣으세요"); };
       $("#d-skel").onclick = () => {
-        if ($("#d-body").value.trim() && !confirm("지금 본문을 골격으로 바꿀까요? (기존 본문은 사라져요)")) return;
-        collect(); if (!it.draftTitle) { it.draftTitle = it.title; $("#d-title").value = it.title; }
-        $("#d-body").value = skeleton(it); count(); collect(); save(); toast("골격을 만들었어요. ✍️ 표시를 채워주세요");
+        collect();
+        openSkelModal(it, (pl) => {
+          if ($("#d-body").value.trim() && !confirm("지금 본문을 고른 골격으로 바꿀까요? (기존 본문은 사라져요)")) return;
+          if (!it.draftTitle) { it.draftTitle = it.title; $("#d-title").value = it.title; }
+          it.format = pl.format;
+          $("#d-body").value = skeleton(it, pl); count(); collect(); save();
+          toast(`${pl.label}(${pl.format}) 골격을 넣었어요. ✍️ 표시를 채워주세요`);
+          render();
+        });
       };
       $("#d-prompt").onclick = () => { collect(); save(); copy(buildPrompt(it)); toast(PDFS[it.id] ? "복사했어요. Claude에 붙여넣을 때 PDF도 같이 첨부하세요" : "프롬프트를 복사했어요. Claude에 붙여넣으세요"); };
       $("#d-aikey").onclick = () => openAiModal(() => render());

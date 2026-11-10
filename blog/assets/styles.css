@@ -556,3 +556,7 @@ hr.sep { border: 0; border-top: 1px solid var(--hairline); margin: var(--s-lg) 0
   .src-box summary .hint { font-size: 12px; }
   .src-box summary { flex-wrap: nowrap; } .src-box summary > span { white-space: nowrap; }
 }
+
+/* 골격 3안 */
+.skel-heads { margin: 4px 0 0; padding-left: 20px; font-size: 13px; line-height: 1.6; color: var(--ink); }
+.skel-heads li { margin: 0; }
