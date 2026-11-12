@@ -508,10 +508,10 @@ window.GJAI = (function () {
     const c = cfg(); if (!c.key) return null;
     const since = c.creditAt || "";
     const rows = readLog().filter((x) => x.at >= since);
-    const by = { blog: 0, ppt: 0 };
-    rows.forEach((x) => { by[x.app === "ppt" ? "ppt" : "blog"] += x.usd || 0; });
-    const used = by.blog + by.ppt;
-    return { credit: c.credit > 0 ? c.credit : null, used, left: c.credit > 0 ? c.credit - used : null, blog: by.blog, ppt: by.ppt, since };
+    const by = { blog: 0, ppt: 0, chat: 0 };
+    rows.forEach((x) => { by[x.app === "ppt" || x.app === "chat" ? x.app : "blog"] += x.usd || 0; });
+    const used = by.blog + by.ppt + by.chat;
+    return { credit: c.credit > 0 ? c.credit : null, used, left: c.credit > 0 ? c.credit - used : null, blog: by.blog, ppt: by.ppt, chat: by.chat, since };
   }
   let capFn = null;
   function cfg() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
@@ -528,7 +528,7 @@ window.GJAI = (function () {
       res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST", signal: opts.signal,
         headers: { "content-type": "application/json", "x-api-key": c.key, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-        body: JSON.stringify({ model, max_tokens: 16000, stream: true, messages }),
+        body: JSON.stringify(Object.assign({ model, max_tokens: 16000, stream: true, messages }, opts.system ? { system: opts.system } : {})),
       });
     } catch (e) { if (e && e.name === "AbortError") throw e; throw err("network", "Claude API에 연결하지 못했어요"); }
     if (!res.ok) {
@@ -552,8 +552,8 @@ window.GJAI = (function () {
         if (ev.type === "error") throw err("api_error", (ev.error && ev.error.message) || "API 오류");
       }
     }
-    logUsage(model, tin, tout, opts.app || (/\/ppt\//.test(location.pathname) ? "ppt" : "blog"));
-    return { text: out, truncated: stop === "max_tokens" };
+    const usd = logUsage(model, tin, tout, opts.app || (/\/ppt\//.test(location.pathname) ? "ppt" : "blog"));
+    return { text: out, truncated: stop === "max_tokens", usd };
   }
   function download(name, blob) {
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
@@ -561,7 +561,7 @@ window.GJAI = (function () {
     setTimeout(() => URL.revokeObjectURL(a.href), 1500);
   }
   return {
-    inClaude, cfg, saveKey, download, balance,
+    inClaude, cfg, saveKey, download, balance, ask: api,
     setCap(fn) { capFn = fn || null; },
     cap() { return capFn; },
     fn() { return capFn || (!inClaude && cfg().key ? api : null); },
@@ -3514,15 +3514,15 @@ Never invent citations, authors, PMIDs or numbers; write "[수치]" where a numb
     if (!b) { el.hidden = true; return; }
     el.hidden = false;
     el.textContent = b.left != null ? `Claude 잔액 약 $${b.left.toFixed(2)}` : `Claude 사용 $${b.used.toFixed(2)}`;
-    el.title = (b.left != null ? `충전 $${b.credit.toFixed(2)} − 사용 $${b.used.toFixed(2)}\n` : "충전액을 넣으면 잔액이 보여요 (블로그 서포터 설정)\n") + `블로그 $${b.blog.toFixed(2)} · 학회 PPT $${b.ppt.toFixed(2)}`;
+    el.title = (b.left != null ? `충전 $${b.credit.toFixed(2)} − 사용 $${b.used.toFixed(2)}\n` : "충전액을 넣으면 잔액이 보여요 (블로그 서포터 설정)\n") + `블로그 $${b.blog.toFixed(2)} · 학회 PPT $${b.ppt.toFixed(2)} · 대화 $${(b.chat || 0).toFixed(2)}`;
   }
   window.addEventListener("gj:ai", renderAiBal);
   window.addEventListener("storage", (e) => { if (e.key === "goldj-ai-usage" || e.key === "goldj-anthropic") renderAiBal(); });
-  $("#aiBal").addEventListener("click", () => { const b = window.GJAI.balance(); if (!b) return; toast((b.left != null ? `잔액 약 $${b.left.toFixed(2)} (충전 $${b.credit.toFixed(2)} − 사용 $${b.used.toFixed(2)}) · ` : `충전 후 사용 $${b.used.toFixed(2)} · `) + `블로그 $${b.blog.toFixed(2)} · 학회 PPT $${b.ppt.toFixed(2)}. 충전액은 블로그 서포터 ‘설정 · Claude 연결’에서 바꿔요.`); });
+  $("#aiBal").addEventListener("click", () => { const b = window.GJAI.balance(); if (!b) return; toast((b.left != null ? `잔액 약 $${b.left.toFixed(2)} (충전 $${b.credit.toFixed(2)} − 사용 $${b.used.toFixed(2)}) · ` : `충전 후 사용 $${b.used.toFixed(2)} · `) + `블로그 $${b.blog.toFixed(2)} · 학회 PPT $${b.ppt.toFixed(2)} · 대화 $${(b.chat || 0).toFixed(2)}. 충전액은 블로그 서포터 ‘설정 · Claude 연결’에서 바꿔요.`); });
   renderAiBal();
   window.GJ = window.GJ || {};
   window.GJ.ppt = {
-    projects: () => state.projects, current: () => state.project, unsaved: () => state.unsaved, view: () => state.view,
+    projects: () => state.projects, current: () => state.project, unsaved: () => state.unsaved, view: () => state.view, cur: () => state.cur,
     stageOf, refresh: () => show(state.view), open: (id) => openProject(id).then(() => go("edit")),
   };
   window.addEventListener("beforeunload", () => { if (dirty) flush(); });

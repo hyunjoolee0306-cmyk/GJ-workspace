@@ -128,6 +128,69 @@ body.in-app { overflow: hidden; }
 #gj-home .empty{ color: var(--muted); font-family: var(--kr); font-size: 13.5px; padding: 8px 0; }
 
 
+/* ---- Claude 대화창 ---- */
+.ch-fab { position: fixed; right: 22px; bottom: 22px; z-index: 60; display: inline-flex; align-items: center; gap: 8px; background: #000; color: #fff; border: 0; border-radius: 28px; padding: 12px 20px 12px 16px; font: 700 15px/1 "Pretendard Variable", Pretendard, sans-serif; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+.ch-fab:hover { background: #1b1b1b; }
+.ch-fab.on { background: #fff; color: #000; box-shadow: inset 0 0 0 1.5px #000, 0 8px 24px rgba(0,0,0,0.12); }
+.ch-spark { color: #00f0a0; font-size: 16px; }
+.ch-fab.on .ch-spark { color: #000; }
+.ch-panel { position: fixed; right: 22px; bottom: 84px; z-index: 60; width: 420px; max-width: calc(100vw - 32px); height: min(680px, calc(100vh - var(--hub-h) - 110px)); background: #fff; border: 1px solid #e5e7eb; border-radius: 22px; box-shadow: 0 18px 50px rgba(0,0,0,0.16); display: flex; flex-direction: column; overflow: hidden; font-family: "Inter", "Pretendard Variable", Pretendard, sans-serif; color: #000; }
+.ch-panel[hidden] { display: none; }
+.ch-head { display: flex; align-items: center; gap: 8px; padding: 12px 12px 10px 16px; border-bottom: 1px solid #eef0f2; }
+.ch-title { display: flex; align-items: center; gap: 6px; font-family: "Pretendard Variable", Pretendard, sans-serif; font-size: 15.5px; }
+.ch-tools { margin-left: auto; display: flex; gap: 4px; align-items: center; }
+.ch-tools select { border: 1px solid #e5e7eb; border-radius: 10px; padding: 4px 6px; font: inherit; font-size: 12px; }
+.ch-ib { width: 32px; height: 32px; border-radius: 10px; border: 0; background: transparent; cursor: pointer; font-size: 15px; display: grid; place-items: center; color: #333; }
+.ch-ib:hover { background: #f4f5f6; }
+.ch-ctx { display: flex; align-items: center; gap: 8px; padding: 7px 16px; background: #ecffe0; font-size: 12px; font-family: "Pretendard Variable", Pretendard, sans-serif; }
+.ch-ctx label { display: flex; gap: 5px; align-items: center; font-weight: 600; white-space: nowrap; }
+.ch-ctx input { accent-color: #000; }
+.ch-ctxlab { color: #0a6b48; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.ch-hist { max-height: 45%; overflow-y: auto; border-bottom: 1px solid #eef0f2; padding: 6px 8px; display: grid; grid-template-columns: 1fr auto; gap: 2px; }
+.ch-hitem { text-align: left; border: 0; background: transparent; border-radius: 10px; padding: 7px 8px; cursor: pointer; font: inherit; display: grid; }
+.ch-hitem:hover { background: #f4f5f6; }
+.ch-hitem b { font-size: 13px; font-family: "Pretendard Variable", Pretendard, sans-serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ch-hitem span { font-size: 11px; color: #6b7480; }
+.ch-hdel { border: 0; background: transparent; cursor: pointer; opacity: 0.5; }
+.ch-hdel:hover { opacity: 1; }
+.ch-none { font-size: 12.5px; color: #6b7480; padding: 8px; grid-column: 1 / -1; }
+.ch-body { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 14px; font-family: "Pretendard Variable", Pretendard, sans-serif; font-size: 14px; line-height: 1.65; word-break: keep-all; overflow-wrap: anywhere; }
+.ch-empty { margin: auto 0; text-align: center; color: #333; }
+.ch-empty p { margin: 4px 0; font-size: 13.5px; }
+.ch-sugs { display: grid; gap: 6px; margin-top: 14px; }
+.ch-sug { border: 1px solid #e5e7eb; background: #fff; border-radius: 14px; padding: 9px 12px; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.ch-sug:hover { background: #ecffe0; border-color: #b8f0cf; }
+.ch-msg.user { align-self: flex-end; max-width: 86%; }
+.ch-bub { background: #000; color: #fff; border-radius: 16px 16px 4px 16px; padding: 9px 13px; }
+.ch-fnames { font-size: 11.5px; opacity: 0.75; margin-top: 4px; }
+.ch-msg.assistant { align-self: stretch; }
+.ch-ans p { margin: 0 0 8px; } .ch-ans p:last-child { margin-bottom: 0; }
+.ch-ans ul, .ch-ans ol { margin: 0 0 8px; padding-left: 20px; }
+.ch-ans .ch-h { font-weight: 800; margin-top: 6px; }
+.ch-ans pre { background: #f4f5f6; border-radius: 10px; padding: 10px; overflow-x: auto; font-size: 12.5px; white-space: pre-wrap; }
+.ch-ans code { background: #f4f5f6; border-radius: 5px; padding: 1px 4px; font-size: 12.5px; }
+.ch-ans:empty::after { content: "생각하는 중…"; color: #6b7480; }
+.ch-err { color: #8a4b00; background: #fff3e0; border-radius: 10px; padding: 7px 10px; font-size: 12.5px; }
+.ch-acts { display: flex; gap: 10px; align-items: center; margin-top: 6px; font-size: 11.5px; color: #8a9099; }
+.ch-copy { border: 1px solid #e5e7eb; background: #fff; border-radius: 10px; padding: 3px 10px; font: inherit; font-size: 12px; cursor: pointer; color: #000; }
+.ch-copy:hover { background: #ecffe0; }
+.ch-files { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px; }
+.ch-files:not(:empty) { padding-top: 8px; }
+.ch-chip { display: inline-flex; gap: 6px; align-items: center; background: #f4f5f6; border-radius: 12px; padding: 4px 6px 4px 10px; font-size: 12px; max-width: 100%; }
+.ch-chip button { border: 0; background: transparent; cursor: pointer; font-size: 11px; }
+.ch-input { display: flex; gap: 6px; align-items: flex-end; padding: 10px 12px; border-top: 1px solid #eef0f2; }
+.ch-input textarea { flex: 1; resize: none; border: 1.5px solid #000; border-radius: 18px; padding: 9px 14px; font: inherit; font-size: 14px; line-height: 1.45; max-height: 160px; min-height: 40px; font-family: "Pretendard Variable", Pretendard, sans-serif; }
+.ch-input textarea:focus { outline: 3px solid #00f0a0; outline-offset: 0; }
+.ch-attach { cursor: pointer; height: 40px; }
+.ch-send { width: 40px; height: 40px; border-radius: 50%; border: 0; background: #000; color: #fff; font-size: 17px; font-weight: 800; cursor: pointer; flex: none; }
+.ch-send:hover { background: #222; }
+.ch-foot { font-size: 11px; color: #8a9099; padding: 0 16px 10px; font-family: "Pretendard Variable", Pretendard, sans-serif; }
+.ch-link { border: 0; background: none; padding: 0; color: #000; font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+@media (max-width: 560px) {
+  .ch-fab { right: 14px; bottom: 14px; padding: 11px 16px 11px 13px; }
+  .ch-panel { right: 0; left: 0; bottom: 0; width: 100%; max-width: 100%; height: calc(100dvh - var(--hub-h)); border-radius: 18px 18px 0 0; }
+}
+
 </style>
 </head>
 <body>
@@ -170,6 +233,90 @@ body.in-app { overflow: hidden; }
 </section>
 <section id="gj-blog" class="app-area" hidden></section>
 <section id="gj-ppt" class="app-area" hidden></section>
+<script>
+/* Claude 연결 공용 모듈: claude.ai 안에서는 앱 안의 Claude(sample), 밖(깃허브 등)에서는 사용자의 Anthropic API 키 */
+window.GJAI = (function () {
+  "use strict";
+  const KEY = "goldj-anthropic";
+  const inClaude = !!(window.claude && typeof window.claude.use === "function");
+  const MODELS = { quick: "claude-haiku-5-5", default: "claude-sonnet-5-5", complex: "claude-opus-5-5" };
+  // 블로그 서포터와 같은 요금표·같은 사용 기록(goldj-ai-usage)을 써서 잔액을 한 곳에서 계산
+  const PRICE = { "claude-sonnet-5-5": [2, 10], "claude-opus-5-5": [4, 20] }; // USD / 100만 토큰 (입력, 출력)
+  const LOG = "goldj-ai-usage";
+  function readLog() { try { return JSON.parse(localStorage.getItem(LOG) || "[]"); } catch (e) { return []; } }
+  function logUsage(model, tin, tout, app) {
+    const pr = PRICE[model] || PRICE["claude-sonnet-5-5"];
+    const usd = (tin * pr[0] + tout * pr[1]) / 1e6;
+    try { const log = readLog(); log.push({ at: new Date().toISOString(), model, in: tin, out: tout, usd, app }); localStorage.setItem(LOG, JSON.stringify(log.slice(-200))); } catch (e) {}
+    try { window.dispatchEvent(new CustomEvent("gj:ai", { detail: { usd, app } })); } catch (e) {}
+    return usd;
+  }
+  // 잔액: 충전액(블로그 서포터 설정) − 충전 이후 두 앱에서 쓴 금액
+  function balance() {
+    const c = cfg(); if (!c.key) return null;
+    const since = c.creditAt || "";
+    const rows = readLog().filter((x) => x.at >= since);
+    const by = { blog: 0, ppt: 0, chat: 0 };
+    rows.forEach((x) => { by[x.app === "ppt" || x.app === "chat" ? x.app : "blog"] += x.usd || 0; });
+    const used = by.blog + by.ppt + by.chat;
+    return { credit: c.credit > 0 ? c.credit : null, used, left: c.credit > 0 ? c.credit - used : null, blog: by.blog, ppt: by.ppt, chat: by.chat, since };
+  }
+  let capFn = null;
+  function cfg() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  function saveKey(k) { try { if (k) localStorage.setItem(KEY, JSON.stringify(Object.assign(cfg(), { key: k }))); else localStorage.removeItem(KEY); } catch (e) {} }
+  function err(code, message) { const e = new Error(message); e.code = code; return e; }
+  async function api(input, opts) {
+    opts = opts || {};
+    const c = cfg(); if (!c.key) throw err("not_granted", "API 키가 없어요");
+    const messages = typeof input === "string" ? [{ role: "user", content: input }] : input;
+    // 블로그 설정에서 고른 모델을 기본으로 (정교하게 = Opus)
+    const model = opts.modelTier === "complex" ? MODELS.complex : (c.model || MODELS[opts.modelTier] || MODELS.default);
+    let res;
+    try {
+      res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST", signal: opts.signal,
+        headers: { "content-type": "application/json", "x-api-key": c.key, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+        body: JSON.stringify(Object.assign({ model, max_tokens: 16000, stream: true, messages }, opts.system ? { system: opts.system } : {})),
+      });
+    } catch (e) { if (e && e.name === "AbortError") throw e; throw err("network", "Claude API에 연결하지 못했어요"); }
+    if (!res.ok) {
+      let msg = await res.text(); try { msg = JSON.parse(msg).error.message; } catch (e) {}
+      throw err(res.status === 401 || res.status === 403 ? "bad_key" : res.status === 429 || res.status === 529 ? "rate_limited" : "api_error", `${res.status} ${msg}`.slice(0, 300));
+    }
+    const reader = res.body.getReader(); const dec = new TextDecoder();
+    let buf = "", out = "", stop = "", tin = 0, tout = 0;
+    for (;;) {
+      const { done, value } = await reader.read(); if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+        if (!line.startsWith("data:")) continue;
+        let ev; try { ev = JSON.parse(line.slice(5).trim()); } catch (e) { continue; }
+        if (ev.type === "content_block_delta" && ev.delta && ev.delta.type === "text_delta") { out += ev.delta.text; if (opts.onText) opts.onText({ text: out, delta: ev.delta.text }); }
+        if (ev.type === "message_start" && ev.message && ev.message.usage) { const u = ev.message.usage; tin = (u.input_tokens || 0) + (u.cache_creation_input_tokens || 0) + (u.cache_read_input_tokens || 0); tout = u.output_tokens || 0; }
+        if (ev.type === "message_delta" && ev.usage && ev.usage.output_tokens != null) tout = ev.usage.output_tokens;
+        if (ev.type === "message_delta" && ev.delta && ev.delta.stop_reason) stop = ev.delta.stop_reason;
+        if (ev.type === "error") throw err("api_error", (ev.error && ev.error.message) || "API 오류");
+      }
+    }
+    const usd = logUsage(model, tin, tout, opts.app || (/\/ppt\//.test(location.pathname) ? "ppt" : "blog"));
+    return { text: out, truncated: stop === "max_tokens", usd };
+  }
+  function download(name, blob) {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  }
+  return {
+    inClaude, cfg, saveKey, download, balance, ask: api,
+    setCap(fn) { capFn = fn || null; },
+    cap() { return capFn; },
+    fn() { return capFn || (!inClaude && cfg().key ? api : null); },
+  };
+})();
+
+</script>
 <script>
 /* 골드제이의원 워크스페이스 (GitHub 버전)
    - 블로그 서포터: blog/ 폴더를 손대지 않고 그대로 띄움 (폴더째 덮어쓰면 업데이트 끝)
@@ -313,9 +460,10 @@ body.in-app { overflow: hidden; }
     if (!c.key) { el.textContent = ""; return; }
     const since = c.creditAt || "";
     const rows = (read("goldj-ai-usage") || []).filter((x) => x.at >= since);
-    const blog = rows.filter((x) => x.app !== "ppt").reduce((a, x) => a + (x.usd || 0), 0), ppt = rows.filter((x) => x.app === "ppt").reduce((a, x) => a + (x.usd || 0), 0);
-    const used = blog + ppt;
-    el.innerHTML = (c.credit > 0 ? `Claude 잔액 약 <b>$${(c.credit - used).toFixed(2)}</b>` : `Claude 사용 <b>$${used.toFixed(2)}</b>`) + ` <span class="hub-sub">블로그 $${blog.toFixed(2)} · PPT $${ppt.toFixed(2)}</span>`;
+    const sum = (f) => rows.filter(f).reduce((a, x) => a + (x.usd || 0), 0);
+    const blog = sum((x) => x.app !== "ppt" && x.app !== "chat"), ppt = sum((x) => x.app === "ppt"), chat = sum((x) => x.app === "chat");
+    const used = blog + ppt + chat;
+    el.innerHTML = (c.credit > 0 ? `Claude 잔액 약 <b>$${(c.credit - used).toFixed(2)}</b>` : `Claude 사용 <b>$${used.toFixed(2)}</b>`) + ` <span class="hub-sub">블로그 $${blog.toFixed(2)} · PPT $${ppt.toFixed(2)}${chat ? ` · 대화 $${chat.toFixed(2)}` : ""}</span>`;
     el.title = (c.credit > 0 ? `충전 $${(+c.credit).toFixed(2)} − 사용 $${used.toFixed(2)} (충전액 입력 이후)\n` : "블로그 서포터 설정에서 충전액을 넣으면 잔액이 보여요\n") + "추정치예요. 정확한 잔액은 console.anthropic.com에서 확인하세요.";
   }
   window.addEventListener("storage", (e) => { if (!e.key || /goldj-(ai-usage|anthropic)/.test(e.key)) renderBal(); });
@@ -331,6 +479,259 @@ body.in-app { overflow: hidden; }
   apply();
   // 두 앱을 미리 띄워 두면 탭 전환이 바로 되고, 블로그 첫 실행 데이터도 홈에 잡힘
   setTimeout(() => { frame("blog"); frame("ppt"); setTimeout(renderHome, 1200); }, 400);
+})();
+
+</script>
+<script>
+/* Claude 대화창 (오른쪽 아래 떠 있는 버튼)
+   - 블로그 서포터 설정에 넣은 API 키로 대화 (사용량은 같은 잔액에 '대화'로 기록)
+   - 지금 보고 있는 화면(블로그 원고·학회 PPT 슬라이드)을 Claude가 함께 봄
+   - 대화 기록은 이 브라우저에만 저장 (첨부 파일은 이름만 남김) */
+(function () {
+  "use strict";
+  const $ = (s, r) => (r || document).querySelector(s);
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const KEY = "goldj-chat";
+  const A = window.GJAI;
+  const S = { open: false, conv: null, busy: false, ctl: null, files: [], ctxOn: true, tier: "default" };
+  const readAll = () => { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) { return []; } };
+  const writeAll = (list) => { try { localStorage.setItem(KEY, JSON.stringify(list.slice(0, 30))); } catch (e) { try { localStorage.setItem(KEY, JSON.stringify(list.slice(0, 8))); } catch (e2) {} } };
+  const newConv = () => ({ id: "c" + Date.now().toString(36), title: "", at: Date.now(), msgs: [] });
+
+  /* ---------- 지금 보고 있는 화면 ---------- */
+  const area = () => { const h = location.hash.slice(1); return h === "blog" ? "blog" : h === "ppt" ? "ppt" : "home"; };
+  const frameWin = (name) => { const f = document.querySelector(`#gj-${name} iframe`); try { return f && f.contentWindow; } catch (e) { return null; } };
+  const cut = (s, n) => { s = String(s || ""); return s.length > n ? s.slice(0, n) + `\n…(이하 ${s.length - n}자 생략)` : s; };
+  function blogContext() {
+    let st = null; try { st = JSON.parse(localStorage.getItem("goldj-blog-supporter-v1") || "null"); } catch (e) {}
+    if (!st || !st.items) return { label: "블로그 서포터", text: "" };
+    const w = frameWin("blog"); let hash = ""; try { hash = w ? w.location.hash : ""; } catch (e) {}
+    const m = hash.match(/^#\/(draft|review)\/(.+)$/);
+    if (m) {
+      const it = st.items.find((x) => x.id === m[2]);
+      if (it) {
+        let body = it.draft || "", title = it.draftTitle || it.title;
+        try { const d = w.document.querySelector("#d-body"); if (d && d.value) body = d.value; const t = w.document.querySelector("#d-title"); if (t && t.value) title = t.value; } catch (e) {}
+        return { label: `블로그 · ${m[1] === "review" ? "검수" : "초안"}: ${title}`.slice(0, 60),
+          text: `[블로그 서포터 · ${m[1] === "review" ? "초안 검수" : "초안 작성"} 화면]\n제목: ${title}\n주제: ${it.title}\n상태: ${it.status} · 발행일: ${it.date || "미정"} · 분류: ${it.category || "-"} · 글 유형: ${it.format || "-"} · 말투: ${it.tone || "-"}\n키워드: ${it.keywords || "-"}\n\n본문:\n"""\n${cut(body, 14000)}\n"""` };
+      }
+    }
+    const page = (hash.match(/^#\/(\w+)/) || [, "home"])[1];
+    const names = { home: "홈", calendar: "발행 캘린더", topics: "주제 뱅크", draft: "초안 작성", review: "초안 검수", guide: "스타일 가이드" };
+    const list = st.items.slice().sort((a, b) => (a.date || "9999").localeCompare(b.date || "9999")).slice(0, 50).map((i) => `- ${i.date || "날짜 미정"} | ${i.status} | ${i.draftTitle || i.title}`).join("\n");
+    return { label: `블로그 · ${names[page] || page}`, text: `[블로그 서포터 · ${names[page] || page} 화면]\n글 목록 (발행일 순):\n${list}` };
+  }
+  function pptContext() {
+    const w = frameWin("ppt"); const G = w && w.GJ && w.GJ.ppt; if (!G) return { label: "학회 PPT 스튜디오", text: "" };
+    const p = G.current(); if (!p) return { label: "학회 PPT 스튜디오", text: "" };
+    const view = G.view(), cur = G.cur ? G.cur() : 0, i = p.info || {};
+    const views = { setup: "1 주제", story: "2 스토리라인", edit: "3 슬라이드 편집", design: "4 디자인", export: "5 내보내기" };
+    const s = (p.slides || [])[cur];
+    const slideTxt = (x, n) => {
+      if (!x) return "";
+      const freeText = x.free ? x.free.filter((e) => e.t === "text" && e.text).map((e) => e.text).join(" / ") : "";
+      return `슬라이드 ${n}: [${x.layout}] ${x.title || ""}${x.sub ? " — " + x.sub : ""}` + (x.items && x.items.length ? `\n  내용: ${x.items.join(" / ")}` : "") + (x.summary ? `\n  요약: ${x.summary}` : "") + (x.message ? `\n  메시지: ${x.message}` : "") + (x.fig ? `\n  그림 설명: ${x.fig}` : "") + (freeText ? `\n  화면 글자: ${freeText}` : "") + (x.refs ? `\n  근거: ${x.refs}` : "") + (x.notes ? `\n  발표자 노트: ${x.notes}` : "");
+    };
+    const outline = (p.slides || []).map((x, k) => `${k + 1}. ${x.title || "(" + x.layout + ")"}`).join("\n");
+    const opt = (p.options || []).find((o) => o.key === p.selected) || null;
+    const text = `[학회 PPT 스튜디오 · ${views[view] || view} 화면]\n프로젝트: ${p.name}\n발표 주제: ${i.topic || "-"} · 학회: ${i.conf || "-"} · 발표일: ${i.date || "-"} · 청중: ${i.audience || "-"} · ${i.minutes || "-"}분 · ${i.count || "-"}장 · ${i.language || "-"}`
+      + (i.intent ? `\n기획의도: ${i.intent}` : "")
+      + (opt ? `\n선택한 스토리라인: ${opt.key}안 ${opt.name} — ${opt.concept}` : "")
+      + (view === "edit" && s ? `\n\n지금 보고 있는 슬라이드 (${cur + 1}/${p.slides.length}):\n${slideTxt(s, cur + 1)}` : "")
+      + `\n\n전체 슬라이드 목차:\n${cut(outline, 4000)}`
+      + (p.refs ? `\n\n참고문헌 목록:\n${cut(p.refs, 5000)}` : "");
+    return { label: `학회 PPT · ${view === "edit" && s ? `${cur + 1}번 슬라이드` : views[view] || view}`, text };
+  }
+  function homeContext() {
+    const rows = Array.from(document.querySelectorAll("#h-list .item")).slice(0, 12).map((a) => "- " + a.innerText.replace(/\s+/g, " ").trim()).join("\n");
+    const cal = Array.from(document.querySelectorAll("#h-cal .ev")).slice(0, 8).map((a) => "- " + a.innerText.replace(/\s+/g, " ").trim()).join("\n");
+    return { label: "홈 · 오늘의 작업대", text: `[워크스페이스 홈]\n진행 중인 작업:\n${rows || "(없음)"}\n\n다가오는 일정:\n${cal || "(없음)"}` };
+  }
+  const context = () => (area() === "blog" ? blogContext() : area() === "ppt" ? pptContext() : homeContext());
+
+  const SYSTEM = `당신은 골드제이의원(피부과) 원장님의 업무 도우미 Claude입니다. 원장님은 이 워크스페이스에서 네이버 블로그 원고(블로그 서포터)와 학회 발표 PPT(학회 PPT 스튜디오)를 만듭니다.
+- 한국어로, 바로 쓸 수 있게 간결하게 답하세요. 원고·슬라이드 문장을 써 달라고 하면 붙여넣을 수 있는 완성 문장으로 주세요.
+- 블로그 원고는 의료광고 규정(과장·단정 표현, 치료 효과 보장, 비교 광고 금지)을 지키세요.
+- 논문·저자·PMID·수치는 대화나 화면에 주어진 것만 쓰고, 없는 것은 지어내지 마세요. 근거 논문이 필요하면 학회 PPT 스튜디오의 '참고문헌 찾기'를 쓰라고 안내하세요.
+- 인터넷 검색은 할 수 없습니다. 최신 정보가 필요하면 그렇다고 말하세요.
+- 아래 '지금 화면' 정보는 원장님이 보고 있는 화면 내용입니다. 질문이 화면과 관련 있으면 그 내용을 바탕으로 답하세요.`;
+
+  /* ---------- 화면 ---------- */
+  const ui = document.createElement("div");
+  ui.innerHTML = `
+  <button class="ch-fab" id="chFab" type="button" aria-label="Claude와 대화 열기" aria-expanded="false"><span class="ch-spark" aria-hidden="true">✦</span><span>Claude</span></button>
+  <section class="ch-panel" id="chPanel" role="dialog" aria-label="Claude와 대화" hidden>
+    <header class="ch-head">
+      <div class="ch-title"><span class="ch-spark" aria-hidden="true">✦</span><b>Claude와 대화</b></div>
+      <div class="ch-tools">
+        <select id="chTier" aria-label="작성 방식" title="작성 방식"><option value="default">기본</option><option value="complex">정교하게</option></select>
+        <button type="button" class="ch-ib" id="chHist" title="지난 대화" aria-label="지난 대화">☰</button>
+        <button type="button" class="ch-ib" id="chNew" title="새 대화" aria-label="새 대화">＋</button>
+        <button type="button" class="ch-ib" id="chClose" title="닫기" aria-label="닫기">✕</button>
+      </div>
+    </header>
+    <div class="ch-ctx"><label><input type="checkbox" id="chCtxOn" checked> 지금 화면 같이 보기</label><span class="ch-ctxlab" id="chCtxLab"></span></div>
+    <div class="ch-hist" id="chHistBox" hidden></div>
+    <div class="ch-body" id="chBody" aria-live="polite"></div>
+    <div class="ch-files" id="chFiles"></div>
+    <form class="ch-input" id="chForm">
+      <label class="ch-ib ch-attach" title="사진·PDF 첨부" aria-label="사진·PDF 첨부">📎<input type="file" id="chFile" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf" multiple hidden></label>
+      <textarea id="chText" rows="1" placeholder="무엇이든 물어보세요" title="Enter 보내기 · Shift+Enter 줄바꿈"></textarea>
+      <button class="ch-send" id="chSend" type="submit" aria-label="보내기">↑</button>
+    </form>
+    <div class="ch-foot" id="chFoot"></div>
+  </section>`;
+  document.body.appendChild(ui);
+  const fab = $("#chFab"), panel = $("#chPanel"), body = $("#chBody"), text = $("#chText");
+
+  function md(s) { // 간단한 마크다운 → HTML (안전하게)
+    const blocks = String(s || "").split(/```/);
+    return blocks.map((b, i) => {
+      if (i % 2) { const nl = b.indexOf("\n"); return `<pre><code>${esc(nl >= 0 ? b.slice(nl + 1) : b)}</code></pre>`; }
+      const lines = esc(b).split("\n"); let out = "", list = null;
+      const inline = (t) => t.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>");
+      const close = () => { if (list) { out += `</${list}>`; list = null; } };
+      lines.forEach((l) => {
+        let m;
+        if ((m = l.match(/^\s*[-*•]\s+(.*)/))) { if (list !== "ul") { close(); out += "<ul>"; list = "ul"; } out += `<li>${inline(m[1])}</li>`; }
+        else if ((m = l.match(/^\s*(\d+)[.)]\s+(.*)/))) { if (list !== "ol") { close(); out += "<ol>"; list = "ol"; } out += `<li>${inline(m[2])}</li>`; }
+        else if ((m = l.match(/^#{1,4}\s+(.*)/))) { close(); out += `<p class="ch-h">${inline(m[1])}</p>`; }
+        else if (!l.trim()) { close(); out += ""; }
+        else { close(); out += `<p>${inline(l)}</p>`; }
+      });
+      close(); return out;
+    }).join("");
+  }
+  function renderMsgs() {
+    const c = S.conv;
+    if (!c || !c.msgs.length) {
+      const ctx = context();
+      body.innerHTML = `<div class="ch-empty"><p><b>무엇을 도와드릴까요?</b></p><p>지금 보고 있는 화면(${esc(ctx.label)})을 Claude가 같이 봐요.</p>
+        <div class="ch-sugs">${suggestions().map((x) => `<button type="button" class="ch-sug">${esc(x)}</button>`).join("")}</div></div>`;
+      return;
+    }
+    body.innerHTML = c.msgs.map((m, i) => `<div class="ch-msg ${m.role}">${m.role === "user"
+      ? `<div class="ch-bub">${esc(m.text).replace(/\n/g, "<br>")}${m.files && m.files.length ? `<div class="ch-fnames">📎 ${m.files.map(esc).join(", ")}</div>` : ""}</div>`
+      : `<div class="ch-ans">${md(m.text)}${m.err ? `<p class="ch-err">${esc(m.err)}</p>` : ""}</div>${m.text ? `<div class="ch-acts"><button type="button" class="ch-copy" data-i="${i}">복사</button>${m.usd != null ? `<span>≈ $${m.usd.toFixed(3)}</span>` : ""}</div>` : ""}`}</div>`).join("");
+    body.scrollTop = body.scrollHeight;
+  }
+  function suggestions() {
+    const a = area();
+    if (a === "blog") return ["이 원고 도입부를 더 자연스럽게 다듬어 줘", "의료광고 규정에 걸릴 만한 표현을 찾아 줘", "이 글 제목 후보 5개 추천해 줘"];
+    if (a === "ppt") return ["지금 슬라이드 발표자 노트를 써 줘", "전체 흐름에서 빠진 내용이 있는지 봐 줘", "이 슬라이드 제목을 더 짧고 강하게 바꿔 줘"];
+    return ["이번 주에 먼저 해야 할 일을 정리해 줘", "다가오는 발행 글 일정을 점검해 줘", "학회 발표 준비 순서를 알려 줘"];
+  }
+  function renderCtx() { const c = context(); $("#chCtxLab").textContent = S.ctxOn ? c.label : "화면 내용 안 보냄"; }
+  function renderFoot() {
+    const b = A.balance();
+    $("#chFoot").innerHTML = !A.cfg().key ? `API 키가 없어요. <button type="button" class="ch-link" id="chSetKey">블로그 서포터 설정에서 키 넣기</button>`
+      : b ? (b.left != null ? `Claude 잔액 약 $${b.left.toFixed(2)}` : `충전 후 사용 $${b.used.toFixed(2)}`) + ` · 대화 기록은 이 브라우저에만 저장돼요` : "";
+  }
+  function renderFiles() { $("#chFiles").innerHTML = S.files.map((f, i) => `<span class="ch-chip">${f.kind === "image" ? "🖼" : "📄"} ${esc(f.name)}<button type="button" data-rm="${i}" aria-label="빼기">✕</button></span>`).join(""); }
+  function renderHist() {
+    const list = readAll();
+    $("#chHistBox").innerHTML = list.length ? list.map((c) => `<button type="button" class="ch-hitem" data-cid="${c.id}"><b>${esc(c.title || "제목 없음")}</b><span>${new Date(c.at).toLocaleDateString("ko-KR")} · ${c.msgs.length}개</span></button><button type="button" class="ch-hdel" data-del="${c.id}" aria-label="지우기">🗑</button>`).join("") : '<p class="ch-none">지난 대화가 없어요.</p>';
+  }
+  function save() {
+    const c = S.conv; if (!c || !c.msgs.length) return;
+    if (!c.title) c.title = (c.msgs.find((m) => m.role === "user") || { text: "" }).text.replace(/\s+/g, " ").slice(0, 40);
+    c.at = Date.now();
+    const list = readAll().filter((x) => x.id !== c.id);
+    list.unshift({ id: c.id, title: c.title, at: c.at, msgs: c.msgs.map((m) => ({ role: m.role, text: m.text, files: m.files, usd: m.usd })) });
+    writeAll(list);
+  }
+  function openPanel(on) {
+    S.open = on; panel.hidden = !on; fab.setAttribute("aria-expanded", String(on)); fab.classList.toggle("on", on);
+    if (on) { if (!S.conv) S.conv = newConv(); renderCtx(); renderMsgs(); renderFoot(); setTimeout(() => text.focus(), 30); }
+  }
+  fab.onclick = () => openPanel(!S.open);
+  setInterval(() => { if (S.open && !S.busy) renderCtx(); }, 1500); // 앱 안에서 화면을 옮겨도 표시를 맞춤
+  $("#chClose").onclick = () => openPanel(false);
+  $("#chNew").onclick = () => { if (S.busy && S.ctl) S.ctl.abort(); save(); S.conv = newConv(); S.files = []; renderFiles(); $("#chHistBox").hidden = true; renderMsgs(); text.focus(); };
+  $("#chHist").onclick = () => { const h = $("#chHistBox"); h.hidden = !h.hidden; if (!h.hidden) renderHist(); };
+  $("#chHistBox").addEventListener("click", (e) => {
+    const d = e.target.closest("[data-del]"); if (d) { writeAll(readAll().filter((c) => c.id !== d.dataset.del)); if (S.conv && S.conv.id === d.dataset.del) S.conv = newConv(); renderHist(); renderMsgs(); return; }
+    const o = e.target.closest("[data-cid]"); if (!o) return;
+    const c = readAll().find((x) => x.id === o.dataset.cid); if (!c) return;
+    save(); S.conv = c; $("#chHistBox").hidden = true; renderMsgs();
+  });
+  $("#chTier").onchange = (e) => { S.tier = e.target.value; };
+  $("#chCtxOn").onchange = (e) => { S.ctxOn = e.target.checked; renderCtx(); };
+  body.addEventListener("click", (e) => {
+    const s = e.target.closest(".ch-sug"); if (s) { text.value = s.textContent; send(); return; }
+    const c = e.target.closest(".ch-copy"); if (c) { const m = S.conv.msgs[+c.dataset.i]; navigator.clipboard.writeText(m.text).then(() => { c.textContent = "복사됨"; setTimeout(() => { c.textContent = "복사"; }, 1500); }).catch(() => {}); }
+  });
+  $("#chFoot").addEventListener("click", (e) => {
+    if (e.target.id !== "chSetKey") return;
+    location.hash = "blog";
+    const tryClick = (n) => { try { const w = frameWin("blog"); const b = w && w.document.querySelector("#btn-ai"); if (b) { b.click(); return; } } catch (err) { return; } if (n > 0) setTimeout(() => tryClick(n - 1), 150); };
+    setTimeout(() => tryClick(30), 200);
+  });
+  text.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); } });
+  text.addEventListener("input", () => { text.style.height = "auto"; text.style.height = Math.min(160, text.scrollHeight) + "px"; });
+  panel.addEventListener("keydown", (e) => { if (e.key === "Escape") { openPanel(false); fab.focus(); } });
+  window.addEventListener("hashchange", () => { if (S.open) { renderCtx(); if (!S.conv || !S.conv.msgs.length) renderMsgs(); } });
+  window.addEventListener("storage", (e) => { if (S.open && /goldj-(ai-usage|anthropic)/.test(e.key || "")) renderFoot(); });
+
+  /* ---------- 첨부 ---------- */
+  const toB64 = (buf) => { let s = ""; const b = new Uint8Array(buf); for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return btoa(s); };
+  async function addFile(f) {
+    if (f.type === "application/pdf") {
+      if (f.size > 20 * 1024 * 1024) { alertMsg("PDF는 20MB까지 첨부할 수 있어요."); return; }
+      S.files.push({ kind: "pdf", name: f.name, media: "application/pdf", data: toB64(await f.arrayBuffer()) }); return;
+    }
+    if (!/^image\//.test(f.type)) return;
+    const url = URL.createObjectURL(f); const im = new Image(); await new Promise((r) => { im.onload = r; im.onerror = r; im.src = url; });
+    const sc = Math.min(1, 1568 / Math.max(im.naturalWidth || 1, im.naturalHeight || 1));
+    const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(im.naturalWidth * sc)); c.height = Math.max(1, Math.round(im.naturalHeight * sc));
+    const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+    S.files.push({ kind: "image", name: f.name, media: "image/jpeg", data: c.toDataURL("image/jpeg", 0.88).split(",")[1] });
+  }
+  $("#chFile").addEventListener("change", async (e) => { for (const f of Array.from(e.target.files || [])) await addFile(f); e.target.value = ""; renderFiles(); });
+  $("#chFiles").addEventListener("click", (e) => { const b = e.target.closest("[data-rm]"); if (!b) return; S.files.splice(+b.dataset.rm, 1); renderFiles(); });
+  panel.addEventListener("dragover", (e) => { e.preventDefault(); });
+  panel.addEventListener("drop", async (e) => { e.preventDefault(); for (const f of Array.from(e.dataTransfer.files || [])) await addFile(f); renderFiles(); });
+  text.addEventListener("paste", async (e) => { const fs = Array.from(e.clipboardData && e.clipboardData.files || []); if (!fs.length) return; e.preventDefault(); for (const f of fs) await addFile(f); renderFiles(); });
+  function alertMsg(t) { const c = S.conv; c.msgs.push({ role: "assistant", text: "", err: t }); renderMsgs(); c.msgs.pop(); }
+
+  /* ---------- 보내기 ---------- */
+  async function send() {
+    const q = text.value.trim();
+    if (S.busy) { if (S.ctl) S.ctl.abort(); return; }
+    if (!q && !S.files.length) return;
+    if (!A.cfg().key) { renderFoot(); alertMsg("Claude API 키가 없어요. 아래 ‘블로그 서포터 설정에서 키 넣기’를 눌러 키를 넣어 주세요."); return; }
+    const c = S.conv || (S.conv = newConv());
+    const files = S.files.slice(); S.files = []; renderFiles();
+    c.msgs.push({ role: "user", text: q || "(첨부 파일)", files: files.map((f) => f.name) });
+    const ans = { role: "assistant", text: "" }; c.msgs.push(ans);
+    text.value = ""; text.style.height = "auto"; renderMsgs();
+    // API에 보낼 대화: 이전 대화는 글만, 이번 질문에는 첨부와 지금 화면
+    const hist = c.msgs.slice(0, -2).filter((m) => m.text && !m.err).map((m) => ({ role: m.role, content: m.text }));
+    const parts = [];
+    files.forEach((f) => parts.push(f.kind === "pdf" ? { type: "document", source: { type: "base64", media_type: f.media, data: f.data }, title: f.name } : { type: "image", source: { type: "base64", media_type: f.media, data: f.data } }));
+    parts.push({ type: "text", text: q || "첨부한 파일을 보고 도와 주세요." });
+    const messages = hist.concat([{ role: "user", content: parts }]);
+    while (messages.length && messages[0].role !== "user") messages.shift();
+    const ctx = S.ctxOn ? context() : null;
+    const system = SYSTEM + (ctx && ctx.text ? `\n\n<지금_화면>\n${ctx.text}\n</지금_화면>` : "");
+    S.busy = true; S.ctl = new AbortController(); $("#chSend").textContent = "■"; $("#chSend").setAttribute("aria-label", "멈추기");
+    const node = () => body.querySelector(".ch-msg.assistant:last-child .ch-ans");
+    let last = 0;
+    try {
+      const res = await A.ask(messages, { system, modelTier: S.tier, signal: S.ctl.signal, app: "chat", onText: ({ text: t }) => { ans.text = t; const now = Date.now(); if (now - last > 60) { last = now; const n = node(); if (n) { n.innerHTML = md(t); body.scrollTop = body.scrollHeight; } } } });
+      ans.text = res.text; ans.usd = res.usd;
+      if (res.truncated) ans.err = "답이 길어서 중간에 끊겼어요. ‘이어서’라고 보내면 계속 써요.";
+    } catch (e) {
+      if (e && e.name === "AbortError") ans.err = "멈췄어요.";
+      else ans.err = e && e.code === "bad_key" ? "API 키가 맞지 않아요. 블로그 서포터 설정에서 키를 확인해 주세요."
+        : e && e.code === "rate_limited" ? "요청이 많아요. 잠시 후 다시 보내 주세요."
+        : e && /credit|balance|billing/i.test(e.message || "") ? "API 잔액이 부족해요. console.anthropic.com에서 충전해 주세요."
+        : "Claude에 연결하지 못했어요. " + ((e && e.message) || "").slice(0, 120);
+    }
+    S.busy = false; S.ctl = null; $("#chSend").textContent = "↑"; $("#chSend").setAttribute("aria-label", "보내기");
+    renderMsgs(); renderFoot(); save();
+  }
+  $("#chForm").addEventListener("submit", (e) => { e.preventDefault(); send(); });
 })();
 
 </script>
