@@ -17,6 +17,10 @@
   };
   const MARK = { center: "[가운데] ", caption: "[캡션] " };
   const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const PHOTO_END = /^\s*(&nbsp;\s*$|>|📷|-{3,}\s*$|#\s)/;
+  const PHOTO_MORE = /^\s*(\*|\(|（|캡션|출처|※|\[캡션\])/; // 설명 1줄 뒤에는 캡션·메모 줄만 사진 구간에 둠
+  /* *기울임* 표시를 화면에선 기울임으로 (저장할 땐 다시 *…*) */
+  const italic = (h) => h.replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, "$1<i>$2</i>");
 
   /* ---------- 텍스트 → 편집 화면 ---------- */
   function linesToPs(lines) {
@@ -30,13 +34,13 @@
       let h = open ? "<b>" : "";
       parts.forEach((p, i) => { if (i > 0) { open = !open; h += open ? "<b>" : "</b>"; } h += p; });
       if (open) h += "</b>";
-      h = h.replace(/<b><\/b>/g, "");
+      h = italic(h.replace(/<b><\/b>/g, ""));
       return `<p${cls ? ` class="${cls}"` : ""}>${h || "<br>"}</p>`;
     }).join("");
   }
   function photoHtml(lines) {
     const head = lines[0].trim().replace(/^📷\s*/, "").replace(/^\*\*/, "").replace(/\*\*$/, "").replace(/^\[/, "").replace(/\]$/, "");
-    const rest = lines.slice(1).map((l) => `<p>${esc(l.replace(/\s+$/, "").replace(/\*\*/g, "")) || "<br>"}</p>`).join("");
+    const rest = lines.slice(1).map((l) => { l = l.replace(/\s+$/, ""); if (l.trim() === "&nbsp;") l = ""; return `<p>${italic(esc(l.replace(/\*\*/g, ""))) || "<br>"}</p>`; }).join("");
     return `<div class="photo" contenteditable="false"><div class="photo-in" contenteditable="true"><p class="photo-h">${esc(head)}</p>${rest}</div></div>`;
   }
   function mdToHtml(md) {
@@ -55,7 +59,9 @@
           const q = []; while (i < b.length && /^\s*>/.test(b[i])) { q.push(b[i].replace(/^\s*>\s?/, "").replace(/\s+$/, "").replace(/\*\*/g, "")); i++; }
           html += `<blockquote class="quote">${q.map((x) => `<p>${esc(x) || "<br>"}</p>`).join("")}</blockquote>`;
         } else if (/^\s*📷/.test(l)) {
-          html += photoHtml(b.slice(i)); i = b.length;
+          const ph = [b[i]]; i++;
+          while (i < b.length && ph.length < 5 && !PHOTO_END.test(b[i]) && (ph.length === 1 || PHOTO_MORE.test(b[i]))) { ph.push(b[i]); i++; }
+          html += photoHtml(ph);
         } else if (/^\s*-{3,}\s*$/.test(l)) {
           html += "<hr>"; i++;
         } else {
@@ -75,8 +81,9 @@
       else if (n.nodeType === 1) {
         if (n.tagName === "BR" || n.classList.contains("del")) return;
         const bold = n.tagName === "B" || n.tagName === "STRONG" || /font-weight:\s*(bold|[6-9]00)/.test(n.getAttribute("style") || "");
+        const ital = n.tagName === "I" || n.tagName === "EM";
         const inner = inlineMd(n);
-        s += bold && inner.trim() ? `**${inner}**` : inner;
+        s += bold && inner.trim() ? `**${inner}**` : ital && inner.trim() ? `*${inner}*` : inner;
       }
     });
     return s.replace(/\*\*\*\*/g, "");
@@ -178,10 +185,9 @@
               <button type="button" data-mode="photo">어울리는 사진·그림</button>
             </div>
             <textarea class="ne-extra" placeholder="추가로 궁금한 점 (선택)"></textarea>
-            <div class="ne-hint">Claude가 웹을 검색해서 찾은 자료만 링크로 붙여요. 게시 전에 링크를 열어 원문을 꼭 확인하세요.</div>
+            <div class="ne-hint">Claude가 아는 범위에서 답해요. 논문 제목·저자는 게시 전에 꼭 원문을 확인하세요.</div>
             <div class="ne-answer"></div>
-            <div class="ne-links" hidden></div>
-            <button type="button" class="ne-copy" hidden>답변·링크 복사</button>
+            <button type="button" class="ne-copy" hidden>답변 복사</button>
           </div>
         </aside>
       </div>`;
@@ -311,35 +317,6 @@
       check: "의료광고 관점에서 과장, 단정, 효과 보장으로 읽힐 수 있는 표현이 있는지 점검하고, 고친 문장을 제안해주세요. 사실관계가 의심스러운 부분도 짚어주세요.",
       photo: "이 구간 바로 아래에 넣기 좋은 사진·그림을 2~3개 제안해주세요. 각각 어떤 사진인지, 캡션 예시(전후 사진은 \"골드제이의원 ○○ 전후\" 형식), 직접 찍을지/논문 그림/AI 이미지 중 무엇이 좋은지 적어주세요.",
     };
-    const LINK_RULE = "\n\n[링크 규칙]\n- 웹 검색 도구로 실제 자료를 찾아보고 답하세요.\n- 항목마다 마지막 줄에 \"링크: https://...\" 형식으로 출처 주소를 붙이세요.\n- 링크는 이번에 웹 검색 결과로 확인한 주소만 쓰고, 주소를 추측하거나 만들어내지 마세요. 확인한 주소가 없으면 \"링크: 찾지 못함(확인 필요)\"라고 적으세요.\n- 답변 맨 끝에 한 줄로 \"검색어: 영어 검색어 | 한국어 검색어\"를 적어주세요.";
-    const MODE_HINT = {
-      evidence: "가능하면 PubMed, 학회 가이드라인, 학술지 원문 페이지 링크를 우선하세요. 논문은 PubMed 또는 DOI 주소가 가장 좋아요.",
-      explain: "비유마다 근거가 되는 신뢰할 만한 의학 정보 페이지(대학병원 질환백과, 학회, 국가건강정보포털 등) 링크를 붙이세요.",
-      check: "판단 근거로 의료법 제56조(의료광고 금지), 의료광고 심의 기준, 관련 학회·공공기관 자료 링크를 붙이세요.",
-      photo: "제안마다 참고할 수 있는 실제 이미지 페이지(논문 그림, 위키미디어 공용, 무료 이미지 사이트 등) 링크를 붙이세요. 저작권(출처 표기, 상업적 이용 가능 여부)도 한 줄로 적으세요.",
-    };
-    const enc = encodeURIComponent;
-    const QUICK = {
-      evidence: (en, ko) => [["PubMed", "https://pubmed.ncbi.nlm.nih.gov/?term=" + enc(en)], ["Google Scholar", "https://scholar.google.com/scholar?q=" + enc(en)], ["KoreaMed", "https://koreamed.org/search/result?q=" + enc(ko)], ["RISS 국내 논문", "https://www.riss.kr/search/Search.do?query=" + enc(ko)]],
-      explain: (en, ko) => [["네이버 지식백과", "https://terms.naver.com/search.naver?query=" + enc(ko)], ["국가건강정보포털", "https://health.kdca.go.kr/healthinfo/biz/health/main/mainPage/main.do"], ["Google", "https://www.google.com/search?q=" + enc(ko)]],
-      check: (en, ko) => [["의료법 제56조 (의료광고 금지)", "https://www.law.go.kr/법령/의료법/제56조"], ["의료법 시행령 별표 (광고 기준)", "https://www.law.go.kr/법령/의료법시행령"], ["Google: 의료광고 심의 " + ko, "https://www.google.com/search?q=" + enc("의료광고 심의 기준 " + ko)]],
-      photo: (en, ko) => [["Google 이미지", "https://www.google.com/search?tbm=isch&q=" + enc(ko)], ["Wikimedia Commons", "https://commons.wikimedia.org/w/index.php?search=" + enc(en)], ["Unsplash", "https://unsplash.com/s/photos/" + enc(en)], ["Pixabay", "https://pixabay.com/images/search/" + enc(en) + "/"]],
-    };
-    const escA = (u) => u.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "%3C").replace(/>/g, "%3E");
-    const linkify = (txt, known) => esc(txt).replace(/https?:\/\/[^\s<>"'）)\]]+/g, (u) => { const clean = u.replace(/[.,;:]+$/, ""); const raw = clean.replace(/&amp;/g, "&"); const bad = known && !known.some((k) => k.replace(/\/$/, "") === raw.replace(/\/$/, "")); return `<a href="${escA(raw)}" target="_blank" rel="noopener"${bad ? ' class="ne-unver" title="검색 결과에 없던 주소예요. 꼭 열어서 확인하세요"' : ""}>${clean}</a>${bad ? " ⚠ 확인 필요" : ""}` + u.slice(clean.length); });
-    function parseTerms(txt, fallback) {
-      const m = txt.match(/검색어\s*[:：]\s*([^\n|｜]*)(?:[|｜]\s*([^\n]*))?/);
-      const fb = fallback.replace(/\s+/g, " ").slice(0, 40);
-      return { en: (m && m[1].trim()) || fb, ko: (m && m[2] && m[2].trim()) || (m && m[1].trim()) || fb };
-    }
-    function renderLinks(mode, txt, sources, sel, noSearch) {
-      const box = $(".ne-links"); const t = parseTerms(txt, sel);
-      const found = (sources || []).slice(0, 10);
-      box.innerHTML = (found.length ? `<div class="ne-links-h">검색에서 찾은 자료 ${found.length}개</div><ol>${found.map((x) => `<li><a href="${escA(x.url)}" target="_blank" rel="noopener">${esc(x.title || x.url)}</a><span class="ne-host">${esc((x.url.match(/^https?:\/\/([^/]+)/) || ["", ""])[1])}</span></li>`).join("")}</ol>`
-        : `<div class="ne-links-h">${noSearch ? "이 API 키는 웹 검색이 꺼져 있어 직접 찾은 링크가 없어요" : "검색에서 확인한 링크가 없어요"}</div>`) +
-        `<div class="ne-links-h">바로 찾아보기 <span class="ne-host">검색어: ${esc(t.ko)}</span></div><div class="ne-quick">${QUICK[mode](t.en, t.ko).map(([n, u]) => `<a href="${escA(u)}" target="_blank" rel="noopener">${esc(n)} ↗</a>`).join("")}</div>`;
-      box.hidden = false;
-    }
     function openPanel() {
       researchRange = lastRange ? lastRange.cloneRange() : null;
       const t = researchRange ? researchRange.toString().trim() : "";
@@ -358,20 +335,15 @@
       const ans = $(".ne-answer");
       if (!t) { ans.textContent = "먼저 본문에서 찾아볼 문장을 드래그한 뒤 자료탐색을 다시 눌러주세요."; return; }
       if (!opts.ask) { ans.textContent = "Claude API 키를 설정하면 쓸 수 있어요."; return; }
-      busy = true; ans.textContent = "웹에서 자료를 찾는 중이에요…"; $(".ne-copy").hidden = true; $(".ne-links").hidden = true;
+      busy = true; ans.textContent = "찾는 중이에요…"; $(".ne-copy").hidden = true;
       host.querySelectorAll(".ne-modes button").forEach((x) => { x.disabled = true; });
       const extra = $(".ne-extra").value.trim();
-      const prompt = `당신은 골드제이의원(이현주 원장) 네이버 블로그 원고 작성을 돕는 의학 자료 리서처입니다. 한국어로, 짧은 소제목과 목록을 써서 답하세요. 마크다운 기호(#, **)는 쓰지 마세요.\n\n[글 제목]\n${titleEl.textContent}\n\n[주변 문맥]\n${contextAround()}\n\n[선택한 구간]\n${t}\n\n[요청]\n${MODES[b.dataset.mode]}\n${MODE_HINT[b.dataset.mode]}${extra ? "\n추가 질문: " + extra : ""}${LINK_RULE}`;
-      try {
-        const r = await opts.ask(prompt, (txt) => { ans.innerHTML = linkify(txt); }, { search: true }) || {};
-        const txt = r.out || ans.textContent; ans.innerHTML = linkify(txt, (r.sources || []).map((x) => x.url));
-        renderLinks(b.dataset.mode, txt, r.sources, t, r.noSearch);
-        $(".ne-copy").hidden = false;
-      }
+      const prompt = `당신은 골드제이의원(이현주 원장) 네이버 블로그 원고 작성을 돕는 의학 자료 리서처입니다. 한국어로, 짧은 소제목과 목록을 써서 답하세요. 마크다운 기호(#, **)는 쓰지 마세요.\n\n[글 제목]\n${titleEl.textContent}\n\n[주변 문맥]\n${contextAround()}\n\n[선택한 구간]\n${t}\n\n[요청]\n${MODES[b.dataset.mode]}${extra ? "\n추가 질문: " + extra : ""}`;
+      try { await opts.ask(prompt, (txt) => { ans.textContent = txt; }); $(".ne-copy").hidden = false; }
       catch (err) { ans.textContent = "답변을 받지 못했어요: " + err.message; }
       finally { busy = false; host.querySelectorAll(".ne-modes button").forEach((x) => { x.disabled = false; }); }
     });
-    $(".ne-copy").onclick = async () => { try { await navigator.clipboard.writeText($(".ne-answer").textContent + ($(".ne-links").hidden ? "" : "\n\n[찾은 자료]\n" + [...host.querySelectorAll(".ne-links ol a")].map((a) => "- " + a.textContent + " " + a.href).join("\n"))); $(".ne-copy").textContent = "복사했어요"; setTimeout(() => { $(".ne-copy").textContent = "답변·링크 복사"; }, 1500); } catch (e) { /* 무시 */ } };
+    $(".ne-copy").onclick = async () => { try { await navigator.clipboard.writeText($(".ne-answer").textContent); $(".ne-copy").textContent = "복사했어요"; setTimeout(() => { $(".ne-copy").textContent = "답변 복사"; }, 1500); } catch (e) { /* 무시 */ } };
 
     /* 높이 맞추기: 옆 칸(글 정보 / 검수지) 아래 끝에 맞춰 고정하고, 원고는 칸 안에서 스크롤 */
     const main = $(".ne-main");
