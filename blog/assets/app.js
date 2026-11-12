@@ -402,13 +402,48 @@
   }
 
   /* ---------------- Draft skeleton & prompt ---------------- */
-  function sections(it) {
+  function sections(it, fmt) {
     const b = it.brief || {};
     const k = (it.keywords || "").split(",")[0].trim() || it.title;
     const P = b.program || "○○ 프로그램";
-    return (TYPES[it.format] || TYPES[TYPE_NAMES[0]]).sec(k, b, P);
+    return (TYPES[fmt || it.format] || TYPES[TYPE_NAMES[0]]).sec(k, b, P);
   }
-  function skeleton(it) {
+  /* 골격 3안: 지금 글 유형(추천) + 어울리는 다른 유형 2개, 시작 방식도 번갈아 */
+  const SKEL_NEAR = {
+    "원인 감별형": ["오해 바로잡기형", "원리 해설형"],
+    "오해 바로잡기형": ["원인 감별형", "원리 해설형"],
+    "원리 해설형": ["비교·선택형", "오해 바로잡기형"],
+    "비교·선택형": ["원리 해설형", "원인 감별형"],
+    "총정리형": ["오해 바로잡기형", "원리 해설형"],
+    "시기·시즌형": ["원인 감별형", "총정리형"],
+    "진료실 칼럼": ["오해 바로잡기형", "원리 해설형"],
+  };
+  function skeletonPlans(it) {
+    const cur = TYPES[it.format] ? it.format : TYPE_NAMES[0];
+    const fmts = [cur, ...(SKEL_NEAR[cur] || TYPE_NAMES.filter((t) => t !== cur)).slice(0, 2)];
+    return fmts.map((f, k) => ({ label: "ABC"[k] + "안", format: f, hook: k === 1, desc: TYPES[f].d, heads: sections(it, f).map((x) => x[0].replace(/\n/g, " ")) }));
+  }
+  function skelOpts(it, plans) {
+    return plans.map((pl, k) => `<button type="button" class="dir-opt skel-opt" data-skel="${k}"><div class="dl"><span class="n">${pl.label}</span><b>${esc(pl.format)}</b>${k === 0 ? '<span class="rec">추천 · 지금 글 유형</span>' : ""}</div>
+      <div class="t-caption">${esc(pl.desc)}</div>
+      <div class="t-caption" style="color:#3b4148"><b>시작</b> ${pl.hook ? "인사 없이 환자 질문으로 바로 시작" : "인사 → 환자 질문 인용"}</div>
+      <ol class="skel-heads">${pl.heads.map((h) => `<li>${esc(h)}</li>`).join("")}</ol></button>`).join("");
+  }
+  function openSkelModal(it, apply) {
+    const plans = skeletonPlans(it);
+    $("#modal-root").innerHTML = `
+      <div class="modal-bg" id="mbg"><div class="modal" role="dialog" aria-modal="true">
+        <div class="modal-head"><h2 class="t-h4">골격 3안 · 하나를 고르세요</h2><button class="x" id="mx" aria-label="닫기">×</button></div>
+        <p class="t-body-sm" style="margin-top:0">소제목 흐름과 시작 방식이 다른 세 가지 뼈대예요. 고른 안으로 본문에 골격을 넣고, 글 유형도 그 안으로 바꿔요.</p>
+        <div class="dir-opts">${skelOpts(it, plans)}</div>
+      </div></div>`;
+    const close = () => { $("#modal-root").innerHTML = ""; };
+    $("#mx").onclick = close;
+    $("#mbg").onclick = (e) => { if (e.target.id === "mbg") close(); };
+    document.querySelectorAll("[data-skel]").forEach((bt) => { bt.onclick = () => { const pl = plans[+bt.dataset.skel]; close(); apply(pl); }; });
+  }
+  function skeleton(it, opt) {
+    opt = opt || {};
     const b = it.brief || {};
     const qs = (b.questions || "").split("\n").map((x) => x.trim()).filter(Boolean);
     const causes = (b.causes || "").split("\n").map((x) => x.trim()).filter(Boolean);
@@ -419,12 +454,13 @@
     const p = [];
     let photo = 1;
     const circled = "①②③④⑤⑥⑦⑧";
-    p.push(`# ${it.draftTitle || it.title}`, S, greet, S);
+    p.push(`# ${it.draftTitle || it.title}`, S);
+    if (!opt.hook) p.push(greet, S);
     (qs.length ? qs : ["원장님, ✍️ 환자 질문 1", "✍️ 환자 질문 2", "✍️ 환자 질문 3"]).slice(0, 3).forEach((q) => { p.push(`"${q.replace(/^["“]|["”]$/g, "")}"`, ""); });
     p.push("진료실에서 정말 자주 듣는 질문입니다.", S);
     p.push("✍️ **[도입 · 약 250자]** 이 고민이 생기는 상황, 많이 오해하는 지점, 오늘 다룰 내용을 예고합니다.", S);
     p.push(`📷 **[사진 넣기 좋은 구간 ${circled[0]}｜도입 대표 이미지]**  \n고민이 보이는 정면 이미지 (실제 사진이 없으면 AI 이미지, 캡션에 표시)`, S);
-    sections(it).forEach(([h, n, guide, ph]) => {
+    sections(it, opt.format).forEach(([h, n, guide, ph]) => {
       p.push(quoteHead(h), S);
       if (guide === "CAUSES") {
         (causes.length ? causes : ["원인 A → 처방 X", "원인 B → 처방 Y", "원인 C → 처방 Z"]).forEach((c) => {
@@ -617,21 +653,28 @@
       if (after) after();
     };
   }
-  async function aiWrite(prompt, onText, pdf) {
+  async function aiWrite(prompt, onText, pdf, o) {
+    o = o || {};
     const cfg = aiCfg();
     const content = pdf ? [{ type: "document", source: { type: "base64", media_type: "application/pdf", data: pdf.data }, title: pdf.name }, { type: "text", text: prompt }] : prompt;
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": cfg.key, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-      body: JSON.stringify({ model: cfg.model || AI_MODELS[0][0], max_tokens: 16000, stream: true, messages: [{ role: "user", content }] }),
+      body: JSON.stringify(Object.assign({ model: cfg.model || AI_MODELS[0][0], max_tokens: 16000, stream: true, messages: [{ role: "user", content }] },
+        o.search ? { tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 5 }] } : {})),
     });
+    if (!res.ok && o.search && res.status === 400) {
+      // 웹 검색이 꺼져 있는 계정이면 검색 없이 다시 요청
+      const r2 = await aiWrite(prompt, onText, pdf, {}); r2.noSearch = true; return r2;
+    }
     if (!res.ok) {
       let msg = await res.text();
       try { msg = JSON.parse(msg).error.message; } catch (e) { /* keep raw */ }
       throw new Error(`${res.status} ${msg}`.slice(0, 300));
     }
     const reader = res.body.getReader(); const dec = new TextDecoder();
-    let buf = "", out = ""; const usage = { in: 0, out: 0 };
+    let buf = "", out = ""; const usage = { in: 0, out: 0, searches: 0 }; const sources = []; let stop = "";
+    const addSrc = (url, title) => { if (url && /^https?:\/\//.test(url) && !sources.some((x) => x.url === url)) sources.push({ url, title: title || url }); };
     for (;;) {
       const { done, value } = await reader.read(); if (done) break;
       buf += dec.decode(value, { stream: true });
@@ -641,27 +684,30 @@
         if (!line.startsWith("data:")) continue;
         let ev; try { ev = JSON.parse(line.slice(5).trim()); } catch (e) { continue; }
         if (ev.type === "message_start" && ev.message && ev.message.usage) usage.in = ev.message.usage.input_tokens || 0;
-        if (ev.type === "message_delta" && ev.usage) usage.out = ev.usage.output_tokens || usage.out;
+        if (ev.type === "message_delta" && ev.usage) { usage.out = ev.usage.output_tokens || usage.out; if (ev.usage.server_tool_use) usage.searches = ev.usage.server_tool_use.web_search_requests || usage.searches; }
+        if (ev.type === "message_delta" && ev.delta && ev.delta.stop_reason) stop = ev.delta.stop_reason;
+        if (ev.type === "content_block_start" && ev.content_block && ev.content_block.type === "web_search_tool_result" && Array.isArray(ev.content_block.content)) ev.content_block.content.forEach((r) => addSrc(r.url, r.title));
+        if (ev.type === "content_block_delta" && ev.delta && ev.delta.type === "citations_delta" && ev.delta.citation) addSrc(ev.delta.citation.url, ev.delta.citation.title);
         if (ev.type === "content_block_delta" && ev.delta && ev.delta.type === "text_delta") { out += ev.delta.text; onText(out); }
         if (ev.type === "error") throw new Error(ev.error && ev.error.message || "API 오류");
       }
     }
     const pr = AI_PRICE[cfg.model || AI_MODELS[0][0]] || AI_PRICE[AI_MODELS[0][0]];
-    usage.usd = (usage.in * pr[0] + usage.out * pr[1]) / 1e6;
+    usage.usd = (usage.in * pr[0] + usage.out * pr[1]) / 1e6 + usage.searches * 0.01; // 웹 검색 1회 $0.01
     const log = JSON.parse(localStorage.getItem("goldj-ai-usage") || "[]");
     log.push({ at: new Date().toISOString(), model: cfg.model || AI_MODELS[0][0], in: usage.in, out: usage.out, usd: usage.usd });
     localStorage.setItem("goldj-ai-usage", JSON.stringify(log.slice(-200)));
-    return { out, usage };
+    return { out, usage, sources, stop };
   }
 
   /* ---------------- Modal ---------------- */
-  function openItemModal(item, preset) {
-    const isNew = !item;
-    const it = item || Object.assign({ id: uid(), title: "", date: "", format: FORMATS[0], tone: TONES[0], status: "아이디어", category: CATEGORIES[0], risk: "낮음", overlap: "", keywords: "", draft: "", draftTitle: "" }, preset || {});
+  function newItem(preset) {
+    return Object.assign({ id: uid(), title: "", date: "", format: FORMATS[0], tone: TONES[0], status: "아이디어", category: CATEGORIES[0], risk: "낮음", overlap: "", keywords: "", draft: "", draftTitle: "" }, preset || {});
+  }
+  /* 새 글 / 글 정보 폼: 발행 캘린더 모달과 주제 뱅크가 같은 폼을 씀 */
+  function itemFormHTML(it, isNew) {
     const opt = (arr, v) => arr.map((x) => `<option ${x === v ? "selected" : ""}>${esc(x)}</option>`).join("");
-    $("#modal-root").innerHTML = `
-      <div class="modal-bg" id="mbg"><div class="modal" role="dialog" aria-modal="true">
-        <div class="modal-head"><h2 class="t-h4">${isNew ? "새 글 추가" : "글 정보 수정"}</h2><button class="x" id="mx" aria-label="닫기">×</button></div>
+    return `
         <div class="form-grid">
           <div class="field full"><label>주제 (가제) <span class="hint">제목은 초안 작성에서 정해요</span></label><input class="input" id="f-title" value="${esc(it.title)}" placeholder="예: 목주름, 왜 얼굴보다 먼저 나이를 말할까?"></div>
           <div class="field full"><label>메인 키워드 <span class="hint">쉼표로 구분 · 제목 추천에 쓰여요</span></label><input class="input" id="f-kw" value="${esc(it.keywords)}" placeholder="예: 목주름, 목주름 필러"></div>
@@ -675,35 +721,34 @@
         <div class="btn-row mt-lg" style="justify-content:space-between">
           <div>${isNew ? "" : '<button class="btn-link btn-danger" id="f-del">삭제</button>'}</div>
           <div class="btn-row">${isNew ? `<button class="btn btn-ghost" id="f-save-go">저장하고 초안 쓰기 →</button>` : `<a class="btn btn-ghost" href="#/draft/${it.id}" id="f-go">초안 열기 →</a>`}<button class="btn btn-primary" id="f-save">저장</button></div>
-        </div>
-      </div></div>`;
-    const close = () => ($("#modal-root").innerHTML = "");
+        </div>`;
+  }
+  function bindItemForm(root, it, isNew, close) {
+    const q = (sel) => root.querySelector(sel);
     const renderDup = () => {
-      const res = dupCheck($("#f-title").value + " " + $("#f-kw").value, it.id);
+      const res = dupCheck(q("#f-title").value + " " + q("#f-kw").value, it.id);
       const r = dupRisk(res);
-      $("#f-dup").innerHTML = res.length
+      q("#f-dup").innerHTML = res.length
         ? `<div class="t-caption" style="color:#3b4148;font-weight:700">참고: 키워드가 비슷한 글이 있어요 ${riskChip(r)} <span class="muted" style="font-weight:500">· 자동 확인이라 직접 고를 필요 없어요</span></div>` + res.slice(0, 4).map((x) => `<div class="dup-item"><span class="kbd">${x.kind}</span><span style="flex:1">${esc(x.title)}${x.date ? ` <span class="muted">(${esc(x.date)})</span>` : ""}</span><span class="muted">${x.hits.map(esc).join(", ")}</span></div>`).join("")
         : `<div class="t-caption">주제·키워드를 쓰면 비슷한 기존 글이 있는지 자동으로 확인해요.</div>`;
       return { r, res };
     };
     renderDup();
-    ["#f-title", "#f-kw"].forEach((s) => $(s).addEventListener("input", renderDup));
-    $("#mx").onclick = close;
-    $("#mbg").addEventListener("click", (e) => { if (e.target.id === "mbg") close(); });
-    $("#f-format").onchange = () => { $("#f-fd").textContent = TYPES[$("#f-format").value].d; };
-    $("#f-tone").onchange = () => { $("#f-td").textContent = TONE_D[$("#f-tone").value]; };
-    if ($("#f-go")) $("#f-go").onclick = close;
-    if ($("#f-del")) $("#f-del").onclick = () => {
+    ["#f-title", "#f-kw"].forEach((s) => q(s).addEventListener("input", renderDup));
+    q("#f-format").onchange = () => { q("#f-fd").textContent = TYPES[q("#f-format").value].d; };
+    q("#f-tone").onchange = () => { q("#f-td").textContent = TONE_D[q("#f-tone").value]; };
+    if (q("#f-go")) q("#f-go").onclick = close;
+    if (q("#f-del")) q("#f-del").onclick = () => {
       if (!confirm("이 글을 삭제할까요? 초안도 함께 지워집니다.")) return;
       state.items = state.items.filter((x) => x.id !== it.id); save(); close(); render(); toast("삭제했어요");
     };
     const doSave = (go) => {
-      const title = $("#f-title").value.trim();
-      if (!title) { $("#f-title").focus(); return; }
+      const title = q("#f-title").value.trim();
+      if (!title) { q("#f-title").focus(); return; }
       const { r, res } = renderDup();
       Object.assign(it, {
-        title, keywords: $("#f-kw").value.trim(), date: $("#f-date").value, status: $("#f-status") ? $("#f-status").value : it.status,
-        format: $("#f-format").value, tone: $("#f-tone").value, category: $("#f-cat").value,
+        title, keywords: q("#f-kw").value.trim(), date: q("#f-date").value, status: q("#f-status") ? q("#f-status").value : it.status,
+        format: q("#f-format").value, tone: q("#f-tone").value, category: q("#f-cat").value,
         risk: r, overlap: res.filter((x) => x.kind === "발행 글").slice(0, 2).map((x) => x.title).join(" / "),
       });
       if (isNew) state.items.push(it);
@@ -711,11 +756,23 @@
       if (go) location.hash = "#/draft/" + it.id; else render();
       toast(isNew ? "추가했어요" : "저장했어요");
     };
-    $("#f-save").onclick = () => doSave(false);
-    if ($("#f-save-go")) $("#f-save-go").onclick = () => doSave(true);
-    setTimeout(() => $("#f-title").focus(), 30);
+    q("#f-save").onclick = () => doSave(false);
+    if (q("#f-save-go")) q("#f-save-go").onclick = () => doSave(true);
   }
-
+  function openItemModal(item, preset) {
+    const isNew = !item;
+    const it = item || newItem(preset);
+    $("#modal-root").innerHTML = `
+      <div class="modal-bg" id="mbg"><div class="modal" role="dialog" aria-modal="true">
+        <div class="modal-head"><h2 class="t-h4">${isNew ? "새 글 추가" : "글 정보 수정"}</h2><button class="x" id="mx" aria-label="닫기">×</button></div>
+        ${itemFormHTML(it, isNew)}
+      </div></div>`;
+    const close = () => ($("#modal-root").innerHTML = "");
+    $("#mx").onclick = close;
+    $("#mbg").addEventListener("click", (e) => { if (e.target.id === "mbg") close(); });
+    bindItemForm($("#modal-root .modal"), it, isNew, close);
+    setTimeout(() => $("#modal-root #f-title") && $("#modal-root #f-title").focus(), 30);
+  }
   function dirOpts(it) {
     const ds = it.directions || [];
     if (!ds.length) return "";
@@ -912,15 +969,7 @@
       <section class="band band-mint"><div class="container">
         <div class="t-eyebrow mint-text">Topic bank</div><h1 class="t-h2">주제 뱅크</h1>
         <p class="t-body-lg" style="max-width:40em">주제를 입력하면 이미 발행한 글·계획된 글과 키워드가 겹치는지 바로 보여줘요. 같은 검색 의도는 새 세부 질문으로 좁히세요.</p>
-        <div class="card-feature mt-lg">
-          <div class="form-grid">
-            <div class="field full"><label>새 주제</label><input class="input" id="q-title" placeholder="예: 관자놀이 꺼짐, 필러일까 쥬베룩일까?"></div>
-            <div class="field"><label>메인 키워드 <span class="hint">쉼표로 구분</span></label><input class="input" id="q-kw" placeholder="관자놀이 꺼짐, 관자필러"></div>
-            <div class="field"><label>카테고리</label><select class="select" id="q-cat">${CATEGORIES.map((c) => `<option>${c}</option>`).join("")}</select></div>
-            <div class="field full" id="q-dup"><div class="t-caption">주제를 입력하면 겹침 여부를 확인해요.</div></div>
-          </div>
-          <div class="btn-row mt-lg"><button class="btn btn-primary" id="q-add">주제 뱅크에 추가</button></div>
-        </div>
+        <div class="card-feature mt-lg" id="q-form"><h2 class="t-h4" style="margin:0 0 16px">새 글 추가</h2>${itemFormHTML(newItem(), true)}</div>
       </div></section>
       <section class="band"><div class="container">
         <div class="page-head"><h2 class="t-h3">대기 중인 주제 <span class="muted t-thin" id="tb-n">${bank.length}</span></h2></div>
@@ -1000,12 +1049,12 @@
           <div class="field"><label>추가 메모 <span class="hint">원장님께 받은 사실·수치·사진 정보</span></label><textarea class="textarea" id="b-n" style="min-height:72px">${esc(b.notes || "")}</textarea></div>
           <div class="side-actions">
             <button class="btn btn-green full" id="d-ai">✦ Claude로 초안 쓰기</button>
-            <button class="btn btn-ghost" id="d-skel">골격 생성</button>
+            <button class="btn btn-ghost" id="d-skel">골격 3안 보기</button>
             <button class="btn btn-ghost" id="d-prompt">프롬프트 복사</button>
           </div>
           <button class="btn-link" id="d-aikey" style="align-self:flex-start;font-size:13px">${aiCfg().key ? "Claude API 키 설정됨 · 변경" : "Claude API 키 설정"}</button>
           <p class="t-caption" id="d-cost" style="margin:0;color:#00a070;font-weight:700"></p>
-          <p class="t-caption" style="margin:0">골격은 유형별 소제목과 섹션별 목표 분량(합계 약 ${LEN_MIN.toLocaleString()}~${LEN_MAX.toLocaleString()}자)만 잡아줘요. ✍️ 자리를 채워야 분량이 나와요. 완성 원고는 “Claude로 초안 쓰기”(API 키 필요)나 프롬프트 복사로 받으세요.</p>
+          <p class="t-caption" style="margin:0">골격은 3안 중 하나를 골라 유형별 소제목과 섹션별 목표 분량(합계 약 ${LEN_MIN.toLocaleString()}~${LEN_MAX.toLocaleString()}자)만 잡아줘요. ✍️ 자리를 채워야 분량이 나와요. 완성 원고는 “Claude로 초안 쓰기”(API 키 필요)나 프롬프트 복사로 받으세요.</p>
         </div>
       </div></section>`;
   }
@@ -1132,24 +1181,10 @@
         $$("[data-st]").forEach((c) => { const on = !ui.topicSt || c.dataset.st === ui.topicSt; c.hidden = !on; if (on) n++; });
         $("#tb-n").textContent = n;
       });
-      const upd = () => {
-        const res = dupCheck($("#q-title").value + " " + $("#q-kw").value);
-        $("#q-dup").innerHTML = !$("#q-title").value.trim() ? '<div class="t-caption">주제를 입력하면 겹침 여부를 확인해요.</div>'
-          : res.length ? `<div class="t-body-sm" style="font-weight:700">겹칠 수 있는 글 ${riskChip(dupRisk(res))}</div>` + res.slice(0, 5).map((x) => `<div class="dup-item"><span class="kbd">${x.kind}</span><span style="flex:1">${esc(x.title)}${x.date ? ` <span class="muted">(${esc(x.date)})</span>` : ""}</span><span class="muted">${x.hits.map(esc).join(", ")}</span></div>`).join("")
-          : `<div class="t-body-sm" style="font-weight:700">겹치는 글이 보이지 않아요 ${riskChip("낮음")}</div>`;
-      };
-      $("#q-title").addEventListener("input", upd); $("#q-kw").addEventListener("input", upd);
-      const add = () => {
-        const title = $("#q-title").value.trim(); if (!title) { $("#q-title").focus(); return; }
-        const kw = $("#q-kw").value.trim();
-        const res = dupCheck(title + " " + kw);
-        state.items.push({ id: uid(), title, keywords: kw, category: $("#q-cat").value, date: "", format: FORMATS[0], tone: TONES[0], status: "아이디어", risk: dupRisk(res), overlap: res.slice(0, 2).map((x) => x.title).join(" / "), draft: "", draftTitle: "" });
-        save(); render(); toast("주제 뱅크에 추가했어요");
-      };
-      $("#q-add").onclick = add;
+      bindItemForm($("#q-form"), newItem(), true, () => {});
     }
 
-    const edAsk = () => (aiCfg().key ? (prompt, onText) => aiWrite(prompt, onText).then((x) => { renderBalance(); return x; }) : null);
+    const edAsk = () => (aiCfg().key ? (prompt, onText, o) => aiWrite(prompt, onText, null, o).then((x) => { renderBalance(); return x; }) : null);
     if (r.name === "draft" && r.id) {
       const it = byId(r.id); if (!it) return;
       window.GJEditor.mount({ body: $("#d-body"), title: $("#d-title"), titlePlaceholder: "제목 (질문 + 답 + 프로그램명)", ask: edAsk(), matchHeight: () => $(".g-draft > .card") });
@@ -1165,9 +1200,15 @@
       $("#d-review").onclick = () => { collect(); save(); };
       $("#d-copy").onclick = () => { copyForNaver($("#d-title").value, $("#d-body").value); toast("복사했어요. 네이버 에디터에 붙여넣으세요"); };
       $("#d-skel").onclick = () => {
-        if ($("#d-body").value.trim() && !confirm("지금 본문을 골격으로 바꿀까요? (기존 본문은 사라져요)")) return;
-        collect(); if (!it.draftTitle) { it.draftTitle = it.title; $("#d-title").value = it.title; }
-        $("#d-body").value = skeleton(it); count(); collect(); save(); toast("골격을 만들었어요. ✍️ 표시를 채워주세요");
+        collect();
+        openSkelModal(it, (pl) => {
+          if ($("#d-body").value.trim() && !confirm("지금 본문을 고른 골격으로 바꿀까요? (기존 본문은 사라져요)")) return;
+          if (!it.draftTitle) { it.draftTitle = it.title; $("#d-title").value = it.title; }
+          it.format = pl.format;
+          $("#d-body").value = skeleton(it, pl); count(); collect(); save();
+          toast(`${pl.label}(${pl.format}) 골격을 넣었어요. ✍️ 표시를 채워주세요`);
+          render();
+        });
       };
       $("#d-prompt").onclick = () => { collect(); save(); copy(buildPrompt(it)); toast(PDFS[it.id] ? "복사했어요. Claude에 붙여넣을 때 PDF도 같이 첨부하세요" : "프롬프트를 복사했어요. Claude에 붙여넣으세요"); };
       $("#d-aikey").onclick = () => openAiModal(() => render());
