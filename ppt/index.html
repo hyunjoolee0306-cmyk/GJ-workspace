@@ -319,6 +319,7 @@ main { min-height: calc(100% - 60px); }
     <a href="#export" data-v="export"><span class="n">5</span>내보내기</a>
   </nav>
   <div class="top-right">
+    <button type="button" id="aiBal" class="chip" hidden style="cursor:pointer;border:0;font:inherit"></button>
     <span id="saveChip" class="chip">불러오는 중</span>
     <button class="btn primary sm" id="topDownload" type="button">PPTX 다운로드</button>
   </div>
@@ -491,6 +492,27 @@ window.GJAI = (function () {
   const KEY = "goldj-anthropic";
   const inClaude = !!(window.claude && typeof window.claude.use === "function");
   const MODELS = { quick: "claude-haiku-5-5", default: "claude-sonnet-5-5", complex: "claude-opus-5-5" };
+  // 블로그 서포터와 같은 요금표·같은 사용 기록(goldj-ai-usage)을 써서 잔액을 한 곳에서 계산
+  const PRICE = { "claude-sonnet-5-5": [2, 10], "claude-opus-5-5": [4, 20] }; // USD / 100만 토큰 (입력, 출력)
+  const LOG = "goldj-ai-usage";
+  function readLog() { try { return JSON.parse(localStorage.getItem(LOG) || "[]"); } catch (e) { return []; } }
+  function logUsage(model, tin, tout, app) {
+    const pr = PRICE[model] || PRICE["claude-sonnet-5-5"];
+    const usd = (tin * pr[0] + tout * pr[1]) / 1e6;
+    try { const log = readLog(); log.push({ at: new Date().toISOString(), model, in: tin, out: tout, usd, app }); localStorage.setItem(LOG, JSON.stringify(log.slice(-200))); } catch (e) {}
+    try { window.dispatchEvent(new CustomEvent("gj:ai", { detail: { usd, app } })); } catch (e) {}
+    return usd;
+  }
+  // 잔액: 충전액(블로그 서포터 설정) − 충전 이후 두 앱에서 쓴 금액
+  function balance() {
+    const c = cfg(); if (!c.key) return null;
+    const since = c.creditAt || "";
+    const rows = readLog().filter((x) => x.at >= since);
+    const by = { blog: 0, ppt: 0 };
+    rows.forEach((x) => { by[x.app === "ppt" ? "ppt" : "blog"] += x.usd || 0; });
+    const used = by.blog + by.ppt;
+    return { credit: c.credit > 0 ? c.credit : null, used, left: c.credit > 0 ? c.credit - used : null, blog: by.blog, ppt: by.ppt, since };
+  }
   let capFn = null;
   function cfg() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
   function saveKey(k) { try { if (k) localStorage.setItem(KEY, JSON.stringify(Object.assign(cfg(), { key: k }))); else localStorage.removeItem(KEY); } catch (e) {} }
@@ -499,12 +521,14 @@ window.GJAI = (function () {
     opts = opts || {};
     const c = cfg(); if (!c.key) throw err("not_granted", "API 키가 없어요");
     const messages = typeof input === "string" ? [{ role: "user", content: input }] : input;
+    // 블로그 설정에서 고른 모델을 기본으로 (정교하게 = Opus)
+    const model = opts.modelTier === "complex" ? MODELS.complex : (c.model || MODELS[opts.modelTier] || MODELS.default);
     let res;
     try {
       res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST", signal: opts.signal,
         headers: { "content-type": "application/json", "x-api-key": c.key, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-        body: JSON.stringify({ model: MODELS[opts.modelTier] || MODELS.default, max_tokens: 16000, stream: true, messages }),
+        body: JSON.stringify({ model, max_tokens: 16000, stream: true, messages }),
       });
     } catch (e) { if (e && e.name === "AbortError") throw e; throw err("network", "Claude API에 연결하지 못했어요"); }
     if (!res.ok) {
@@ -512,7 +536,7 @@ window.GJAI = (function () {
       throw err(res.status === 401 || res.status === 403 ? "bad_key" : res.status === 429 || res.status === 529 ? "rate_limited" : "api_error", `${res.status} ${msg}`.slice(0, 300));
     }
     const reader = res.body.getReader(); const dec = new TextDecoder();
-    let buf = "", out = "", stop = "";
+    let buf = "", out = "", stop = "", tin = 0, tout = 0;
     for (;;) {
       const { done, value } = await reader.read(); if (done) break;
       buf += dec.decode(value, { stream: true });
@@ -522,10 +546,13 @@ window.GJAI = (function () {
         if (!line.startsWith("data:")) continue;
         let ev; try { ev = JSON.parse(line.slice(5).trim()); } catch (e) { continue; }
         if (ev.type === "content_block_delta" && ev.delta && ev.delta.type === "text_delta") { out += ev.delta.text; if (opts.onText) opts.onText({ text: out, delta: ev.delta.text }); }
+        if (ev.type === "message_start" && ev.message && ev.message.usage) { const u = ev.message.usage; tin = (u.input_tokens || 0) + (u.cache_creation_input_tokens || 0) + (u.cache_read_input_tokens || 0); tout = u.output_tokens || 0; }
+        if (ev.type === "message_delta" && ev.usage && ev.usage.output_tokens != null) tout = ev.usage.output_tokens;
         if (ev.type === "message_delta" && ev.delta && ev.delta.stop_reason) stop = ev.delta.stop_reason;
         if (ev.type === "error") throw err("api_error", (ev.error && ev.error.message) || "API 오류");
       }
     }
+    logUsage(model, tin, tout, opts.app || (/\/ppt\//.test(location.pathname) ? "ppt" : "blog"));
     return { text: out, truncated: stop === "max_tokens" };
   }
   function download(name, blob) {
@@ -534,7 +561,7 @@ window.GJAI = (function () {
     setTimeout(() => URL.revokeObjectURL(a.href), 1500);
   }
   return {
-    inClaude, cfg, saveKey, download,
+    inClaude, cfg, saveKey, download, balance,
     setCap(fn) { capFn = fn || null; },
     cap() { return capFn; },
     fn() { return capFn || (!inClaude && cfg().key ? api : null); },
@@ -3481,6 +3508,18 @@ Never invent citations, authors, PMIDs or numbers; write "[수치]" where a numb
     } catch (e) { chip("저장소 연결 안 됨", "warn"); }
     renderAll(); notifyHub();
   }
+  function renderAiBal() {
+    const el = $("#aiBal"); if (!el) return;
+    const b = window.GJAI.inClaude ? null : window.GJAI.balance();
+    if (!b) { el.hidden = true; return; }
+    el.hidden = false;
+    el.textContent = b.left != null ? `Claude 잔액 약 $${b.left.toFixed(2)}` : `Claude 사용 $${b.used.toFixed(2)}`;
+    el.title = (b.left != null ? `충전 $${b.credit.toFixed(2)} − 사용 $${b.used.toFixed(2)}\n` : "충전액을 넣으면 잔액이 보여요 (블로그 서포터 설정)\n") + `블로그 $${b.blog.toFixed(2)} · 학회 PPT $${b.ppt.toFixed(2)}`;
+  }
+  window.addEventListener("gj:ai", renderAiBal);
+  window.addEventListener("storage", (e) => { if (e.key === "goldj-ai-usage" || e.key === "goldj-anthropic") renderAiBal(); });
+  $("#aiBal").addEventListener("click", () => { const b = window.GJAI.balance(); if (!b) return; toast((b.left != null ? `잔액 약 $${b.left.toFixed(2)} (충전 $${b.credit.toFixed(2)} − 사용 $${b.used.toFixed(2)}) · ` : `충전 후 사용 $${b.used.toFixed(2)} · `) + `블로그 $${b.blog.toFixed(2)} · 학회 PPT $${b.ppt.toFixed(2)}. 충전액은 블로그 서포터 ‘설정 · Claude 연결’에서 바꿔요.`); });
+  renderAiBal();
   window.GJ = window.GJ || {};
   window.GJ.ppt = {
     projects: () => state.projects, current: () => state.project, unsaved: () => state.unsaved, view: () => state.view,

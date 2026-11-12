@@ -41,6 +41,8 @@ body { background: #fff; color: #000; font-family: "Inter", "Pretendard Variable
 .app-area { background: #fff; }
 .app-frame { display: block; width: 100%; height: calc(100vh - var(--hub-h)); height: calc(100dvh - var(--hub-h)); border: 0; }
 body.in-app { overflow: hidden; }
+.hub-right b { color: #000; }
+.hub-sub { color: #8a9099; margin-left: 6px; font-size: 12px; }
 
 #gj-home{
   --mint: #00f0a0; --mint-wash: #ecffe0; --ink: #000; --canvas: #fff; --muted: #6b7480; --hairline: #e5e7eb; --soft: #f4f5f6;
@@ -303,6 +305,23 @@ body.in-app { overflow: hidden; }
   });
   window.addEventListener("storage", renderHome);
   window.addEventListener("focus", renderHome);
+
+  /* ---------- Claude 잔액 (블로그·학회 PPT 합산) ---------- */
+  function renderBal() {
+    const el = $(".hub-right"); if (!el) return;
+    const c = read("goldj-anthropic") || {};
+    if (!c.key) { el.textContent = ""; return; }
+    const since = c.creditAt || "";
+    const rows = (read("goldj-ai-usage") || []).filter((x) => x.at >= since);
+    const blog = rows.filter((x) => x.app !== "ppt").reduce((a, x) => a + (x.usd || 0), 0), ppt = rows.filter((x) => x.app === "ppt").reduce((a, x) => a + (x.usd || 0), 0);
+    const used = blog + ppt;
+    el.innerHTML = (c.credit > 0 ? `Claude 잔액 약 <b>$${(c.credit - used).toFixed(2)}</b>` : `Claude 사용 <b>$${used.toFixed(2)}</b>`) + ` <span class="hub-sub">블로그 $${blog.toFixed(2)} · PPT $${ppt.toFixed(2)}</span>`;
+    el.title = (c.credit > 0 ? `충전 $${(+c.credit).toFixed(2)} − 사용 $${used.toFixed(2)} (충전액 입력 이후)\n` : "블로그 서포터 설정에서 충전액을 넣으면 잔액이 보여요\n") + "추정치예요. 정확한 잔액은 console.anthropic.com에서 확인하세요.";
+  }
+  window.addEventListener("storage", (e) => { if (!e.key || /goldj-(ai-usage|anthropic)/.test(e.key)) renderBal(); });
+  window.addEventListener("focus", renderBal);
+  setInterval(renderBal, 5000);
+  renderBal();
 
   /* ---------- 상단 바 높이 ---------- */
   const nav = $(".hub-nav");
